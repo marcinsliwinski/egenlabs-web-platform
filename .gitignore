@@ -3,6 +3,7 @@ node_modules/
 .pnp
 .pnp.*
 .npm/
+.pnpm-store/
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -10,16 +11,20 @@ node_modules/
 !.yarn/sdks
 !.yarn/versions
 
-# Next.js
+# Next.js / build caches
 .next/
 out/
 .vercel/
+.turbo/
+.cache/
 *.tsbuildinfo
 
-# Build artifacts
+# Build artifacts and test coverage
 dist/
 build/
 coverage/
+playwright-report/
+test-results/
 
 # Logs
 logs/
@@ -30,11 +35,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Environment files and secrets
+# Environment files and local secrets
 .env
 .env.*
 !.env.example
 !.env.*.example
+.envrc
+.direnv/
 
 # Local databases and dumps
 *.db
@@ -44,12 +51,10 @@ lerna-debug.log*
 *.sql
 *.dump
 *.bak
-
-# Prisma local development artifacts
 prisma/dev.db
 prisma/dev.db-journal
 
-# Local storage, uploads, downloads, backups
+# Local storage, uploads, backups, generated files
 storage/
 uploads/
 downloads/
@@ -60,8 +65,24 @@ temp/
 artifacts/
 public/uploads/
 public/downloads/
+public/files/private/
 
-# Certificates and secrets
+# Build assets and generated binaries
+*.exe
+*.msi
+*.dmg
+*.pkg
+*.AppImage
+*.deb
+*.rpm
+*.zip
+*.7z
+*.tar
+*.gz
+*.tgz
+*.rar
+
+# Certificates, keys, and secrets
 secrets/
 certs/
 *.pem
@@ -79,14 +100,11 @@ Thumbs.db
 *.swp
 *.swo
 
-# Test output
-playwright-report/
-test-results/
-
 # Docker / runtime leftovers
 *.pid
 *.pid.lock
 
-# Project rule:
-# Never commit secrets, .env files, backups, dumps, exported user data,
-# private builds, local uploads or logs containing sensitive data.
+# Project safety rules:
+# - Never commit secrets, .env files, backups, dumps, exported user data,
+#   private builds, ZIP snapshots of the project, or logs containing sensitive data.
+# - Keep only sanitized documentation and code in Git.

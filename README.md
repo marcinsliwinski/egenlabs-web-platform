@@ -3,24 +3,61 @@
 Official web platform for **eGen Labs**.
 
 This repository contains the MVP foundation for:
-- public website and product landing pages,
+- the public website and product landing pages,
 - lead capture and consent handling,
-- email delivery and newsletter workflows,
+- transactional email and newsletter workflows,
 - application download management,
-- admin panel and content management,
-- desktop support APIs for updates, news feed, telemetry, and feedback.
+- an admin panel and content management,
+- desktop support APIs for updates, news feed, telemetry, and feedback,
+- a scalable multi-product foundation for future eGen Labs software.
 
 ## Project context
 
 - Parent brand: **eGen**
 - Software/web subbrand: **eGen Labs**
+- Current project: **eGen Labs Web Platform**
 - First supported product: **Fito Gen**
 - Initial edition: **Essentials**
 - Initial market: **Poland / Polish language**
-- Architecture target: **multi-product**, while MVP focuses on **Fito Gen Essentials**
+- MVP strategy: **multi-product foundation**, while launch conversion focuses on **Fito Gen Essentials**
 
-## Tech stack (MVP)
+## Core goals
 
+The platform should:
+- build trust in the eGen Labs brand,
+- support the launch and distribution of Fito Gen Essentials,
+- collect leads, consents, and market feedback,
+- support product communication via email, blog, FAQ, PDF, and desktop news feed,
+- expose backend capabilities for desktop updates and telemetry,
+- stay simple enough for solo, low-cost delivery,
+- remain ready for future products without rewriting the foundation.
+
+## MVP scope
+
+The first production version includes:
+- public homepage for eGen Labs,
+- product landing page for Fito Gen Essentials,
+- mandatory email registration before download,
+- optional marketing consent handled separately,
+- welcome email and download email,
+- configurable download link policies,
+- newsletter signup without product download,
+- FAQ,
+- blog with at least 3 launch articles,
+- PDF one-pager with configurable visibility,
+- contact form,
+- Enterprise interest form,
+- admin panel with manual content management,
+- build and release-channel management,
+- update endpoint,
+- news feed endpoint,
+- telemetry intake endpoint,
+- feature request and software demand request endpoints,
+- audit logging, backup, restore, and basic observability.
+
+## Proposed stack
+
+### Runtime
 - **Next.js** (full-stack)
 - **TypeScript**
 - **PostgreSQL**
@@ -28,35 +65,24 @@ This repository contains the MVP foundation for:
 - **Docker / Docker Compose**
 - **Cloudflare**
 - **Brevo**
-- **VPS storage** for build assets and public/private downloadable files
+- **VPS storage** for build assets and downloadable files
 
-## Repository goals
+### Engineering toolchain
+- **Git**
+- **GitHub**
 
-This repository should remain:
-- modular,
-- secure,
-- easy to maintain,
-- clean and predictable,
-- safe to publish on GitHub without leaking sensitive data.
+## Architecture direction
 
-## Important security rules
+- **Modular monolith** for MVP
+- **Single repository**
+- **Single web application** containing:
+  - public site,
+  - admin panel,
+  - API for desktop integrations
+- Versioned REST API from **`/api/v1`**
+- No synchronization of desktop operational data to the cloud in MVP
 
-Never commit:
-- real `.env` files,
-- API keys, tokens, passwords, or secrets,
-- database dumps,
-- backups,
-- private build assets,
-- user exports,
-- telemetry exports,
-- logs containing personal or operationally sensitive data.
-
-Use:
-- `.env.example` for variable templates,
-- placeholders in docs,
-- `.gitignore` to protect local and sensitive files.
-
-## Recommended initial structure
+## Recommended repository structure
 
 ```text
 .
@@ -64,7 +90,8 @@ Use:
 ├── .gitignore
 ├── README.md
 ├── docs/
-│   └── living-specification.md
+│   ├── living-specification.md
+│   └── repository-bootstrap-plan.md
 ├── src/
 │   ├── app/
 │   ├── components/
@@ -96,31 +123,80 @@ Use:
 
 - `features/public-site` - public pages and product presentation
 - `features/lead-capture` - registration, forms, consents
-- `features/downloads` - build metadata, links, policies, assets
+- `features/downloads` - build metadata, link policies, assets
 - `features/content` - blog, FAQ, PDF, news feed content
 - `features/desktop-api` - update, news, telemetry, feedback endpoints
 - `features/admin` - admin panel, auth, roles, audits
 
-## Suggested first milestones
+## Security rules for this repository
 
-1. Bootstrap repository and project structure
-2. Add living specification to `/docs/living-specification.md`
-3. Initialize Next.js + TypeScript app
-4. Configure Prisma + PostgreSQL
-5. Add admin auth foundation
-6. Implement lead capture and consent flow
-7. Implement email and download flow
-8. Implement admin content and build management
-9. Implement update/news/telemetry endpoints
-10. Harden, test, deploy
+Never commit:
+- real `.env` files,
+- API keys, tokens, passwords, or secrets,
+- production database dumps,
+- backups,
+- private build assets,
+- user exports,
+- telemetry exports containing identifying data,
+- logs containing personal or operationally sensitive data,
+- ZIP archives of the whole project,
+- generated files that may accidentally contain secrets or user data.
 
-## Development notes
+Always use:
+- `.env.example` for variable templates,
+- placeholders in docs,
+- `.gitignore` to protect local and sensitive files,
+- a manual review of `git status` before every commit,
+- a manual review of tracked files before the first push.
 
-- Keep runtime architecture simple: **modular monolith**
-- Prefer explicit module boundaries over premature abstractions
-- Version APIs from `/api/v1`
-- Commit migrations to version control
-- Keep docs aligned with `/docs/living-specification.md`
+Important:
+- `/docs/living-specification.md` must never contain secrets, personal data, raw exports, private signed URLs, or access tokens.
+- Build assets and user-related exports should stay **outside Git**.
+- Treat GitHub as safe for code and sanitized documentation, not as storage for operational data.
+
+## Getting started
+
+1. Create an empty private GitHub repository.
+2. Initialize the local repository:
+
+```bash
+git init -b main
+```
+
+3. Add the bootstrap files:
+- `.gitignore`
+- `.env.example`
+- `README.md`
+- `/docs/living-specification.md`
+
+4. Verify tracked files:
+
+```bash
+git status
+```
+
+5. Commit the bootstrap state:
+
+```bash
+git add .
+git commit -m "chore: bootstrap repository"
+```
+
+6. Connect the remote and push:
+
+```bash
+git remote add origin <REMOTE-URL>
+git push -u origin main
+```
+
+## Development rules
+
+- Keep runtime architecture simple.
+- Prefer explicit module boundaries over premature abstraction.
+- Commit Prisma migrations to version control.
+- Keep documentation aligned with `/docs/living-specification.md`.
+- Do not expand MVP scope without a business reason.
+- Treat security and observability as part of MVP, not post-launch extras.
 
 ## License
 
