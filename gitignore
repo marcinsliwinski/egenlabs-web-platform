@@ -1,0 +1,92 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.npm/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Next.js
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+
+# Build artifacts
+dist/
+build/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local databases and dumps
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sql
+*.dump
+*.bak
+
+# Prisma local development artifacts
+prisma/dev.db
+prisma/dev.db-journal
+
+# Local storage, uploads, downloads, backups
+storage/
+uploads/
+downloads/
+backups/
+dumps/
+tmp/
+temp/
+artifacts/
+public/uploads/
+public/downloads/
+
+# Certificates and secrets
+secrets/
+certs/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Test output
+playwright-report/
+test-results/
+
+# Docker / runtime leftovers
+*.pid
+*.pid.lock
+
+# Project rule:
+# Never commit secrets, .env files, backups, dumps, exported user data,
+# private builds, local uploads or logs containing sensitive data.
