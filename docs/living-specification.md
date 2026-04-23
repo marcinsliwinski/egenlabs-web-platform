@@ -149,8 +149,8 @@ Poza MVP pozostają:
 - ORM dla web platformy to Prisma.
 
 ## 10. Pytania otwarte
-- Dokładny wybór modelu sesji i implementacji auth w panelu administracyjnym.
-- Czy oraz kiedy dodać 2FA do panelu administracyjnego.
+- Czy oraz kiedy dodać 2FA do panelu administracyjnego po MVP lub w późniejszej fazie hardeningu.
+- Czy reset hasła ma wejść do pierwszego inkrementu auth shell, czy do kolejnego kroku w ramach MVP panelu administracyjnego.
 - Ostateczny model zgody dla telemetrii powiązanej z leadem i installation_id.
 - Ostateczna polityka retencji danych po stronie zgodności i polityk prywatności.
 - Szczegółowe reguły lifecycle stable/beta oraz kryteria promocji buildu między kanałami.
@@ -274,6 +274,9 @@ Architektura wysokiego poziomu:
 - Cloudflare jako warstwa DNS/proxy/CDN.
 - VPS jako środowisko uruchomieniowe i storage dla plików.
 - Desktop klient jako zewnętrzny konsument API dla update, news, telemetry i feedback.
+- Panel administracyjny w MVP jest chroniony przez serwerowy model sesji oparty o logowanie e-mail i hasło.
+- Pierwszy inkrement auth obejmuje minimalny admin auth shell: logowanie, utrzymanie sesji, wygasanie sesji, ochronę tras `/admin` oraz kontrolę dostępu opartą o role Admin i Editor.
+- 2FA nie jest częścią pierwszego inkrementu auth i pozostaje poza MVP, chyba że zostanie zaakceptowane osobną decyzją.
 
 Granica odpowiedzialności:
 - Desktop jest systemem pracy użytkownika końcowego.
@@ -281,7 +284,7 @@ Granica odpowiedzialności:
 - W MVP nie ma synchronizacji danych operacyjnych desktopu z chmurą.
 
 ## 17. Struktura modułów
-- Auth Module – logowanie, sesje, role, reset hasła, kontrola dostępu.
+- Auth Module – logowanie administracyjne e-mail + hasło, serwerowe sesje, role Admin/Editor, ochrona tras `/admin`, kontrola dostępu oraz reset hasła jako funkcja planowana w ramach MVP, lecz niekoniecznie w pierwszym inkremencie auth shell.
 - Admin Module – panel administracyjny i operacje zaplecza.
 - Product Catalog Module – produkty, edycje, kanały wydań, buildy, assets.
 - Download Module – rejestracja pobrań, polityki pobrania, generowanie i walidacja linków.
@@ -391,6 +394,8 @@ Granica odpowiedzialności:
   - `/api/v1/feedback/...`
   - `/api/v1/content/...` jako opcjonalna grupa publicznych treści strukturalnych, gdy będzie potrzebna
 - Komunikacja desktopu z web platformą ma odbywać się przez JSON.
+- Auth panelu administracyjnego w MVP korzysta z serwerowej sesji i mechanizmów aplikacji webowej; nie zakłada się publicznego token-based API dla logowania administratorów jako podstawowego modelu dostępu.
+- Endpointy i akcje związane z auth mają służyć wyłącznie obsłudze panelu administracyjnego oraz kontroli sesji, a nie zewnętrznym integracjom.
 - Wewnętrzne zdarzenia systemu pozostają w modularnym monolicie i nie wymagają brokera w MVP.
 - Wewnętrzne zdarzenia obejmują co najmniej:
   - lead_registered
@@ -409,20 +414,22 @@ Granica odpowiedzialności:
   - admin_content_changed
 
 ## 21. Bezpieczeństwo i kontrola dostępu
-- Logowanie do panelu administracyjnego przez e-mail i hasło.
+- Logowanie do panelu administracyjnego odbywa się przez e-mail i hasło.
+- Panel administracyjny korzysta w MVP z serwerowego modelu sesji.
 - Role: Admin i Editor w panelu administracyjnym.
-- Bezpieczne hashowanie haseł.
-- Reset hasła e-mailem.
+- Pierwszy inkrement auth obejmuje logowanie, utrzymanie sesji, timeout sesji, wygasanie sesji oraz ochronę tras `/admin`.
+- Bezpieczne hashowanie haseł jest obowiązkowe.
+- Reset hasła e-mailem pozostaje funkcją docelową MVP, ale może zostać dostarczony po pierwszym inkremencie auth shell.
 - Rate limiting dla logowania i wrażliwych endpointów.
 - Podstawowa ochrona przed brute force.
 - Walidacja wejścia i ochrona przed typowymi atakami webowymi, w tym XSS i CSRF, tam gdzie dotyczy.
-- Sesje z timeoutem i kontrolą wygasania.
+- Sesje mają posiadać timeout i kontrolę wygasania.
 - Log audytowy dla operacji krytycznych i zmian administracyjnych.
 - Ochrona formularzy publicznych przez Turnstile.
 - Ograniczanie dostępu do prywatnych zasobów i prywatnych PDF-ów.
 - Kontrola uprawnień do treści, buildów i konfiguracji panelu.
 - Telemetria traktowana jako dane diagnostyczne, wymagające świadomego modelu dostępu i retencji.
-- 2FA pozostaje poza MVP jako potencjalne rozszerzenie.
+- 2FA pozostaje poza MVP jako potencjalne rozszerzenie i temat przyszłej decyzji hardeningowej.
 - `.gitignore` jest obowiązkowym elementem ochrony operacyjnej repozytorium, ale nie zastępuje kontroli review, walidacji commitów i dyscypliny nieumieszczania danych wrażliwych w dokumentacji.
 
 ## 22. Założenia infrastrukturalne i wdrożeniowe
@@ -467,7 +474,8 @@ Granica odpowiedzialności:
 ## 24. Fazy dostarczenia
 - Faza 1: Foundation
   - architektura repo,
-  - auth admina,
+  - admin auth shell oparty o logowanie e-mail + hasło i serwerowe sesje,
+  - ochrona tras `/admin`,
   - baza danych,
   - modele encji,
   - podstawy panelu,
@@ -515,6 +523,9 @@ Granica odpowiedzialności:
 - Użytkownik może się zarejestrować i otrzymać e-mail z linkiem do pobrania.
 - Zgody są zapisane, wersjonowane i możliwe do wykazania.
 - Administrator może zarządzać buildami, treściami, linkami i materiałami PDF.
+- Panel administracyjny wymaga poprawnego logowania e-mail + hasło.
+- Dostęp do tras `/admin` jest chroniony sesją i kontrolą ról.
+- Użytkownik z rolą Editor nie ma dostępu do operacji zastrzeżonych dla Admin.
 - Blog, FAQ, kontakt i PDF działają.
 - Blog zawiera minimum 3 artykuły startowe.
 - Desktop może sprawdzić update i pobrać news feed.
@@ -530,6 +541,7 @@ Feature jest ukończony, gdy:
 - jest zabezpieczony adekwatnie do ryzyka,
 - ma logowanie tam, gdzie to potrzebne,
 - ma testy odpowiednie do ryzyka,
+- dla funkcji związanych z auth i bezpieczeństwem posiada testy integracyjne odpowiednie do ryzyka,
 - jest wdrażalny,
 - jest opisany na tyle, aby dało się go utrzymać później.
 
@@ -566,6 +578,8 @@ Feature jest ukończony, gdy:
 - 2026-04-10 – dodano baseline architektury, zakresu MVP, integracji i modelu dostarczania.
 - 2026-04-10 – dodano Decision Log oraz ADR-y dla kluczowych decyzji długoterminowych.
 - 2026-04-10 – dodano wymagania repozytoryjne dotyczące `.gitignore`, higieny repozytorium i ochrony danych wrażliwych przed publikacją na GitHubie.
+- 2026-04-23 – doprecyzowano baseline auth dla panelu administracyjnego: logowanie e-mail + hasło, serwerowe sesje, role Admin/Editor oraz ochrona tras `/admin`.
+- 2026-04-23 – zamknięto otwarte pytanie dotyczące modelu auth i sesji dla panelu administracyjnego oraz dodano decyzję i ADR dla admin auth shell MVP.
 
 ## 29. Decision Log
 
@@ -694,6 +708,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Security
 - Podsumowanie: Repozytorium projektu musi utrzymywać aktualny `.gitignore` i nie może zawierać sekretów, plików środowiskowych, dumpów danych, prywatnych buildów ani dokumentacji z danymi wrażliwymi.
 - Sekcje, których dotyczy: 9, 14, 21, 22, 23, 27
+
+### DEC-015
+- ADR ID: ADR-007
+- Tytuł: Minimalny admin auth shell dla MVP
+- Status: Accepted
+- Data: 2026-04-23
+- Kategoria: Security
+- Podsumowanie: Przyjęto, że pierwszy inkrement auth dla panelu administracyjnego będzie oparty o logowanie e-mail + hasło, serwerowe sesje, role Admin/Editor oraz ochronę tras `/admin`, bez 2FA w tym etapie.
+- Sekcje, których dotyczy: 10, 16, 17, 20, 21, 24, 26
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -932,6 +955,63 @@ Wewnętrzne zdarzenia dają porządek architektoniczny bez kosztu operacyjnego b
 - 17. Struktura modułów
 - 19. Integracje
 - 20. Założenia API i komunikacji
+
+### Zastępuje / Zastąpiony przez
+- Brak
+
+## 36. ADR-007: Minimalny Admin Auth Shell dla MVP
+Status: Accepted
+Data: 2026-04-23
+
+### Kontekst
+Panel administracyjny jest częścią zakresu MVP i stanowi krytyczny punkt bezpieczeństwa platformy. Wcześniej baseline określał wymaganie logowania administracyjnego, ról i kontroli dostępu, ale pozostawiał otwarte pytanie o dokładny model auth i sesji. Projekt jest realizowany solo, w krótkim horyzoncie, a MVP nie powinno być przeciążone przedwczesną złożonością.
+
+### Decyzja
+Przyjęto, że pierwszy inkrement auth dla panelu administracyjnego będzie oparty o:
+- logowanie e-mail + hasło,
+- bezpieczne hashowanie haseł,
+- serwerowy model sesji,
+- timeout i wygasanie sesji,
+- ochronę tras `/admin`,
+- role Admin i Editor.
+
+2FA nie wchodzi do tego inkrementu i pozostaje poza MVP, chyba że zostanie przyjęte osobną decyzją.
+Reset hasła pozostaje funkcją docelową MVP, ale nie musi wejść do pierwszego inkrementu auth shell.
+
+### Rozważane opcje
+- Opcja A: serwerowe sesje dla panelu administracyjnego
+- Opcja B: stateless auth oparty głównie o tokeny/JWT dla panelu administracyjnego
+- Opcja C: bardziej rozbudowany model auth od startu, obejmujący 2FA i szersze flow bezpieczeństwa
+
+### Uzasadnienie
+Wybrana opcja daje najlepszy kompromis między bezpieczeństwem, prostotą wdrożenia, testowalnością i kosztem utrzymania na etapie MVP. Serwerowy model sesji dobrze pasuje do panelu administracyjnego w modularnym monolicie i ogranicza niepotrzebną złożoność w pierwszym etapie implementacji.
+
+### Konsekwencje
+- Pozytywna konsekwencja 1: prostszy i bardziej przewidywalny model bezpieczeństwa dla panelu administracyjnego.
+- Pozytywna konsekwencja 2: szybsze domknięcie foundation bez rozszerzania MVP.
+- Pozytywna konsekwencja 3: czytelna baza pod dalsze role, audyt i hardening.
+- Negatywna konsekwencja 1: 2FA zostaje odłożone i wymaga osobnej decyzji w przyszłości.
+- Negatywna konsekwencja 2: reset hasła może zostać dostarczony w kolejnym kroku, a nie w pierwszym inkremencie auth shell.
+
+### Ryzyka
+- Niedoszacowanie wymagań bezpieczeństwa panelu administracyjnego przy dalszym rozwoju.
+- Zbyt szybkie rozszerzenie auth poza minimalny potrzebny zakres MVP.
+- Ryzyko błędnej implementacji sesji, timeoutów lub ochrony tras bez odpowiednich testów integracyjnych.
+
+### Dalsze działania
+- Zaimplementować minimalny admin auth shell zgodny z tą decyzją.
+- Dodać testy integracyjne dla logowania, sesji i ochrony tras.
+- Ustalić w kolejnym kroku, czy reset hasła wchodzi od razu po auth shell.
+- Rozważyć 2FA dopiero po ustabilizowaniu panelu administracyjnego i podstaw operacyjnych.
+
+### Powiązane sekcje
+- 10. Pytania otwarte
+- 16. Przegląd architektury
+- 17. Struktura modułów
+- 20. Założenia API i komunikacji
+- 21. Bezpieczeństwo i kontrola dostępu
+- 24. Fazy dostarczenia
+- 26. Kryteria akceptacyjne
 
 ### Zastępuje / Zastąpiony przez
 - Brak

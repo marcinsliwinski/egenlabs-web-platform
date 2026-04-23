@@ -1,0 +1,6 @@
+chore(project): align foundation config and baseline admin auth
+
+- update living specification with accepted admin auth baseline
+- unify DATABASE_URL and remove duplicate env variable
+- switch public html lang to pl
+- pin package versions to lockfile-resolved versions

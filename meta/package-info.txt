@@ -1,0 +1,64 @@
+Package created at: 2026-04-23T14:53:56.336877+02:00
+Timestamp: 20260423-145356
+Project directory: /home/user/IdeaProjects/egenlabs-web-platform
+Archive path: /home/user/IdeaProjects/egenlabs-web-platform-chat-package-20260423-145356.zip
+Included files count: 21
+
+Excluded directories:
+- .cache
+- .git
+- .idea
+- .mypy_cache
+- .next
+- .output
+- .parcel-cache
+- .pnpm-store
+- .pytest_cache
+- .ruff_cache
+- .turbo
+- .vercel
+- .vscode
+- build
+- coverage
+- dist
+- logs
+- node_modules
+- postgres_data
+- temp
+- tmp
+
+Excluded file patterns:
+- .env
+- .env.*
+- *.log
+- *.tmp
+- *.temp
+- *.bak
+- *.swp
+- *.swo
+- *.pid
+- *.seed
+- *.sqlite
+- *.sqlite3
+- *.db
+- *.pem
+- *.key
+- *.p12
+- *.pfx
+- *.crt
+- *.cer
+- *.der
+- *.zip
+- *.tar
+- *.gz
+- *.tgz
+- *.bz2
+- *.7z
+- *.rar
+- npm-debug.log*
+- yarn-debug.log*
+- yarn-error.log*
+- pnpm-debug.log*
+
+Environment file exception:
+- .env.example

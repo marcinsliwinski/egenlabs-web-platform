@@ -1,0 +1,17 @@
+Branch: main
+Last commit: 545a53c chore: security set
+
+Git status:
+M .env.example
+ M .gitignore
+?? .gitattributes
+?? .nvmrc
+?? compose.yaml
+?? eslint.config.mjs
+?? next.config.ts
+?? package-lock.json
+?? package.json
+?? prisma/
+?? scripts/
+?? src/
+?? tsconfig.json
