@@ -12,7 +12,7 @@ import {
   hashSessionToken
 } from '@/features/auth/session';
 import { db } from '@/lib/db';
-import { env } from '@/lib/env';
+import { authEnv } from '@/features/auth/auth-env';
 
 export type AuthFailureReason = 'invalid_credentials' | 'account_locked' | 'account_disabled';
 
@@ -29,7 +29,7 @@ function normalizeEmail(email: string): string {
 }
 
 function createLockoutExpirationDate(): Date {
-  return new Date(Date.now() + env.AUTH_LOCKOUT_MINUTES * 60 * 1000);
+  return new Date(Date.now() + authEnv.AUTH_LOCKOUT_MINUTES * 60 * 1000);
 }
 
 export function sanitizeNextPath(nextPath: string | null | undefined): string {
@@ -65,7 +65,7 @@ export async function authenticateAdminUser(email: string, password: string): Pr
 
   if (!isPasswordValid) {
     const nextFailedLoginAttempts = adminUser.failedLoginAttempts + 1;
-    const shouldLockAccount = nextFailedLoginAttempts >= env.AUTH_MAX_FAILED_LOGIN_ATTEMPTS;
+    const shouldLockAccount = nextFailedLoginAttempts >= authEnv.AUTH_MAX_FAILED_LOGIN_ATTEMPTS;
 
     await db.adminUser.update({
       where: { id: adminUser.id },
@@ -140,7 +140,7 @@ export async function revokeAdminSessionByToken(token: string | null | undefined
 
 export const getCurrentAdmin = cache(async (): Promise<AuthenticatedAdmin | null> => {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get(env.AUTH_SESSION_COOKIE_NAME)?.value;
+  const sessionToken = cookieStore.get(authEnv.AUTH_SESSION_COOKIE_NAME)?.value;
 
   if (!sessionToken) {
     return null;

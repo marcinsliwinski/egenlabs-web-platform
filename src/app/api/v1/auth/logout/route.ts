@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 
-import { env } from '@/lib/env';
+import { authEnv } from '@/features/auth/auth-env';
 import { revokeAdminSessionByToken } from '@/features/auth/auth-service';
 
 export async function POST(request: Request) {
   const cookieHeader = request.headers.get('cookie') ?? '';
-  const sessionCookieName = `${env.AUTH_SESSION_COOKIE_NAME}=`;
+  const sessionCookieName = `${authEnv.AUTH_SESSION_COOKIE_NAME}=`;
   const sessionToken = cookieHeader
     .split(';')
     .map((entry) => entry.trim())
@@ -19,10 +19,10 @@ export async function POST(request: Request) {
   });
 
   response.cookies.set({
-    name: env.AUTH_SESSION_COOKIE_NAME,
+    name: authEnv.AUTH_SESSION_COOKIE_NAME,
     value: '',
     httpOnly: true,
-    secure: env.NODE_ENV === 'production',
+    secure: authEnv.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 0
