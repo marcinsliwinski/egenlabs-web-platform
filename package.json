@@ -14,7 +14,8 @@
     "db:logs": "docker compose logs -f postgres",
     "prisma:generate": "prisma generate",
     "smoke:health": "node scripts/smoke-health.mjs",
-    "admin:create": "node scripts/create-admin-user.mjs"
+    "admin:create": "node scripts/create-admin-user.mjs",
+    "catalog:bootstrap": "node scripts/bootstrap-product-catalog.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

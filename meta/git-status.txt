@@ -1,5 +1,5 @@
 Branch: main
-Last commit: 7fbbce8 feat(auth): add minimal admin auth shell
+Last commit: 925dd15 fix(auth): decouple auth env from core app config enhancement
 
 Git status:
 clean

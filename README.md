@@ -167,7 +167,8 @@ Routes currently included:
 - `GET /admin/login` - admin sign-in page
 - `POST /api/v1/auth/login` - creates an admin session
 - `POST /api/v1/auth/logout` - revokes the current session
-- `GET /admin` - protected admin placeholder
+- `GET /admin` - protected admin dashboard placeholder
+- `GET /admin/catalog` - protected product catalog foundation overview
 
 ### Bootstrap the first admin user
 
@@ -180,6 +181,28 @@ npm run admin:create -- --email=admin@example.com --password=change-me-now --rol
 ```
 
 This script upserts the admin record, so it can also be used to rotate the password during local setup.
+
+## Product catalog foundation
+
+The repository now also includes the first domain data foundation for:
+- products,
+- product editions,
+- release channels,
+- builds,
+- build assets.
+
+To bootstrap the accepted baseline catalog for local development, run:
+
+```bash
+npm run catalog:bootstrap
+```
+
+This upserts:
+- product `Fito Gen`,
+- edition `Essentials`,
+- release channels `stable` and `beta`.
+
+This does not upload any build files and does not create download policies yet.
 
 ## Getting started
 
