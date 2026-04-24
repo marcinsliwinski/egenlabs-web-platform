@@ -154,6 +154,33 @@ Important:
 - Build assets and user-related exports should stay **outside Git**.
 - Treat GitHub as safe for code and sanitized documentation, not as storage for operational data.
 
+## Admin auth shell
+
+The repository now includes a minimal admin authentication shell for MVP:
+- email + password sign-in for admin users,
+- opaque server-side sessions stored in PostgreSQL,
+- role model: `ADMIN` and `EDITOR`,
+- route protection for `/admin`,
+- temporary lockout after repeated failed sign-in attempts.
+
+Routes currently included:
+- `GET /admin/login` - admin sign-in page
+- `POST /api/v1/auth/login` - creates an admin session
+- `POST /api/v1/auth/logout` - revokes the current session
+- `GET /admin` - protected admin placeholder
+
+### Bootstrap the first admin user
+
+1. Copy `.env.example` to `.env` and adjust the values for your local environment.
+2. Start PostgreSQL and apply Prisma migrations.
+3. Create the first admin account:
+
+```bash
+npm run admin:create -- --email=admin@example.com --password=change-me-now --role=ADMIN
+```
+
+This script upserts the admin record, so it can also be used to rotate the password during local setup.
+
 ## Getting started
 
 1. Create an empty private GitHub repository.

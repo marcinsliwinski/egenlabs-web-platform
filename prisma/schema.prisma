@@ -6,3 +6,36 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum AdminRole {
+  ADMIN
+  EDITOR
+}
+
+model AdminUser {
+  id                  String         @id @default(cuid())
+  email               String         @unique
+  passwordHash        String
+  role                AdminRole      @default(EDITOR)
+  isActive            Boolean        @default(true)
+  failedLoginAttempts Int            @default(0)
+  lockedUntil         DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  sessions            AdminSession[]
+}
+
+model AdminSession {
+  id         String     @id @default(cuid())
+  userId     String
+  tokenHash  String     @unique
+  createdAt  DateTime   @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime   @default(now())
+  revokedAt  DateTime?
+  user       AdminUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}

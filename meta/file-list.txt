@@ -6,6 +6,12 @@ README.md
 compose.yaml
 docs/living-specification.md
 eslint.config.mjs
+meta/changes-summary.md
+meta/changes.patch
+meta/file-list.txt
+meta/git-status.txt
+meta/package-info.txt
+meta/proposed-commit-message.txt
 next-env.d.ts
 next.config.ts
 package-lock.json
