@@ -1,7 +1,0 @@
-feat(catalog): add admin build write flow
-
-- add protected build creation flow in /admin/catalog
-- allow optional asset metadata creation with a build
-- add build activation flow with single active build per channel
-- keep EDITOR role in read-only mode for catalog operations
-- update README and next-chat prompt with current project state

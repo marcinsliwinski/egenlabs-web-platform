@@ -113,3 +113,6 @@ Thumbs.db
 # - Never commit secrets, .env files, backups, dumps, exported user data,
 #   private builds, ZIP snapshots of the project, or logs containing sensitive data.
 # - Keep only sanitized documentation and code in Git.
+
+# Local/export metadata
+meta/
