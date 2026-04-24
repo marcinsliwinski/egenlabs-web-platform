@@ -18,10 +18,13 @@ package-lock.json
 package.json
 prisma/migration_lock.toml
 prisma/migrations/20260423170000_add_admin_auth_shell/migration.sql
+prisma/migrations/20260424113000_add_product_catalog_foundation/migration.sql
 prisma/schema.prisma
 proxy.ts
+scripts/bootstrap-product-catalog.mjs
 scripts/create-admin-user.mjs
 scripts/smoke-health.mjs
+src/app/admin/(protected)/catalog/page.tsx
 src/app/admin/(protected)/layout.tsx
 src/app/admin/(protected)/page.tsx
 src/app/admin/login/page.tsx
@@ -35,6 +38,7 @@ src/features/auth/auth-service.ts
 src/features/auth/constants.ts
 src/features/auth/password.ts
 src/features/auth/session.ts
+src/features/catalog/catalog-service.ts
 src/lib/db.ts
 src/lib/env.ts
 tsconfig.json

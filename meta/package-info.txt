@@ -1,8 +1,8 @@
-Package created at: 2026-04-24T10:18:31.739051+02:00
-Timestamp: 20260424-101831
+Package created at: 2026-04-24T13:12:17.931103+02:00
+Timestamp: 20260424-131217
 Project directory: /home/user/IdeaProjects/egenlabs-web-platform
-Archive path: /home/user/IdeaProjects/egenlabs-web-platform-chat-package-20260424-101831.zip
-Included files count: 41
+Archive path: /home/user/IdeaProjects/egenlabs-web-platform-chat-package-20260424-131217.zip
+Included files count: 45
 
 Excluded directories:
 - .cache

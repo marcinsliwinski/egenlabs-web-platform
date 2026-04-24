@@ -1,5 +1,5 @@
 Branch: main
-Last commit: 925dd15 fix(auth): decouple auth env from core app config enhancement
+Last commit: 71fe5ac feat(auth): add admin auth shell and isolate auth env
 
 Git status:
 clean

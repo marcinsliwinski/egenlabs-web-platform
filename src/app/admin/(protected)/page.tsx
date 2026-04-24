@@ -5,11 +5,12 @@ import { getCatalogOverview } from '@/features/catalog/catalog-service';
 
 export default async function AdminHomePage() {
   const [admin, overview] = await Promise.all([requireAuthenticatedAdmin(), getCatalogOverview()]);
+  const canManageCatalog = admin.role === 'ADMIN';
 
   return (
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
-      <p>Admin auth shell is active.</p>
+      <p>Admin auth shell and catalog foundation are active.</p>
       <dl>
         <dt>Signed in as</dt>
         <dd>{admin.email}</dd>
@@ -26,8 +27,9 @@ export default async function AdminHomePage() {
           <li>Active builds: {overview.stats.activeBuildCount}</li>
         </ul>
         <p>
-          <Link href="/admin/catalog">Open product catalog foundation</Link>
+          <Link href="/admin/catalog">Open product catalog</Link>
         </p>
+        <p>{canManageCatalog ? 'You can create and activate builds.' : 'You currently have read-only access to catalog data.'}</p>
       </section>
 
       <form action="/api/v1/auth/logout" method="post">

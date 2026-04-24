@@ -168,7 +168,7 @@ Routes currently included:
 - `POST /api/v1/auth/login` - creates an admin session
 - `POST /api/v1/auth/logout` - revokes the current session
 - `GET /admin` - protected admin dashboard placeholder
-- `GET /admin/catalog` - protected product catalog foundation overview
+- `GET /admin/catalog` - protected catalog overview with build creation and activation flows
 
 ### Bootstrap the first admin user
 
@@ -203,6 +203,12 @@ This upserts:
 - release channels `stable` and `beta`.
 
 This does not upload any build files and does not create download policies yet.
+
+The protected catalog page now also supports:
+- creating build metadata records,
+- optionally attaching one build asset metadata record during creation,
+- activating exactly one build per product / edition / release channel,
+- read-only catalog access for the `EDITOR` role.
 
 ## Getting started
 
