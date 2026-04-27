@@ -169,6 +169,9 @@ Routes currently included:
 - `POST /api/v1/auth/logout` - revokes the current session
 - `GET /admin` - protected admin dashboard placeholder
 - `GET /admin/catalog` - protected catalog overview with build creation and activation flows
+- `GET /admin/downloads` - protected download policy configuration page
+- `GET /admin/leads` - protected leads and consent review page
+- `GET /download/register` - public MVP download registration shell
 
 ### Bootstrap the first admin user
 
@@ -231,6 +234,28 @@ This step does not yet include:
 - email issuance,
 - final public download endpoint delivery,
 - storage-backed file upload or signed link generation.
+
+## Lead and consent foundation
+
+The repository now also includes the first accepted lead-capture baseline for download registration:
+- `Lead`,
+- `ConsentDefinition`,
+- `ConsentRecord`,
+- a public registration shell at `GET /download/register`,
+- admin review page at `GET /admin/leads`.
+
+This step supports:
+- recording a public download registration request tied to a selected product / edition / release channel,
+- separating required operational registration from optional marketing consent,
+- versioned consent definitions stored in the database,
+- linking the resulting `DownloadRequest` to a `Lead`,
+- reviewing recent lead and consent data in the admin panel.
+
+This step does not yet include:
+- download-link email issuance,
+- newsletter automation,
+- Brevo integration,
+- final public file delivery.
 
 ## Getting started
 

@@ -48,6 +48,8 @@ export default async function AdminDownloadsPage({ searchParams }: AdminDownload
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/admin/catalog">Back to catalog</Link>
+          <Link href="/admin/leads">Open leads and consents</Link>
+          <Link href="/download/register">Open public registration shell</Link>
           <Link href="/admin">Back to admin</Link>
         </div>
       </header>
@@ -83,8 +85,8 @@ export default async function AdminDownloadsPage({ searchParams }: AdminDownload
           <li>Download links issued: {overview.stats.downloadLinkCount}</li>
         </ul>
         <p>
-          This step establishes policy configuration and policy resolution only. It does not yet expose public
-          registration, email issuance, or download endpoints.
+          This step now connects the configured policy baseline to the public registration shell and lead capture
+          foundation. It still does not expose final email issuance or download endpoints.
         </p>
       </section>
 

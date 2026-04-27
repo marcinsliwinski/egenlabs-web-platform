@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { resolveDownloadTarget } from '@/features/downloads/download-service';
 
 export async function getCatalogOverview() {
-  const [products, releaseChannels, buildCount, activeBuildCount, downloadPolicies] = await Promise.all([
+  const [products, releaseChannels, buildCount, activeBuildCount, downloadPolicies, downloadRequestCount] = await Promise.all([
     db.product.findMany({
       orderBy: { name: 'asc' },
       include: {
@@ -27,7 +27,8 @@ export async function getCatalogOverview() {
     db.build.count({
       where: { isActive: true }
     }),
-    db.downloadPolicy.findMany()
+    db.downloadPolicy.findMany(),
+    db.downloadRequest.count()
   ]);
 
   const policyMap = new Map(
@@ -63,7 +64,8 @@ export async function getCatalogOverview() {
     },
     downloadStats: {
       policyCount: downloadPolicies.length,
-      readyCombinationCount
+      readyCombinationCount,
+      downloadRequestCount
     }
   };
 }

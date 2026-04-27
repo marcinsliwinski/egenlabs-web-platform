@@ -191,31 +191,84 @@ model DownloadLink {
   @@index([status])
 }
 
+
+model Lead {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  firstSeenAt      DateTime         @default(now())
+  lastSeenAt       DateTime         @default(now())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  downloadRequests DownloadRequest[]
+  consentRecords   ConsentRecord[]
+}
+
+model ConsentDefinition {
+  id            String          @id
+  key           String
+  version       Int
+  title         String
+  description   String?
+  isRequired    Boolean         @default(false)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  records       ConsentRecord[]
+
+  @@unique([key, version])
+  @@index([key, isActive])
+}
+
+model ConsentRecord {
+  id                String            @id @default(cuid())
+  leadId            String
+  definitionId      String
+  downloadRequestId String?
+  granted           Boolean
+  source            String
+  capturedAt        DateTime          @default(now())
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  lead              Lead              @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  definition        ConsentDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  downloadRequest   DownloadRequest?  @relation(fields: [downloadRequestId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([definitionId])
+  @@index([downloadRequestId])
+  @@index([capturedAt])
+}
 model DownloadRequest {
-  id          String                @id @default(cuid())
-  policyId    String?
-  productId   String
-  editionId   String
-  channelId   String
-  buildId     String?
-  email       String?
-  status      DownloadRequestStatus @default(PENDING)
-  requestedAt DateTime              @default(now())
-  resolvedAt  DateTime?
-  ipAddress   String?
-  userAgent   String?
-  notes       String?
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  policy      DownloadPolicy?       @relation(fields: [policyId], references: [id], onDelete: SetNull)
-  product     Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
-  edition     ProductEdition        @relation(fields: [editionId], references: [id], onDelete: Cascade)
-  channel     ReleaseChannel        @relation(fields: [channelId], references: [id], onDelete: Restrict)
-  build       Build?                @relation(fields: [buildId], references: [id], onDelete: SetNull)
-  links       DownloadLink[]
+  id             String                @id @default(cuid())
+  policyId       String?
+  productId      String
+  editionId      String
+  channelId      String
+  buildId        String?
+  leadId         String?
+  email          String?
+  status         DownloadRequestStatus @default(PENDING)
+  requestedAt    DateTime              @default(now())
+  resolvedAt     DateTime?
+  ipAddress      String?
+  userAgent      String?
+  notes          String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  policy         DownloadPolicy?       @relation(fields: [policyId], references: [id], onDelete: SetNull)
+  product        Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition        ProductEdition        @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel        ReleaseChannel        @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  build          Build?                @relation(fields: [buildId], references: [id], onDelete: SetNull)
+  lead           Lead?                 @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  links          DownloadLink[]
+  consentRecords ConsentRecord[]
 
   @@index([policyId])
   @@index([productId, editionId, channelId])
   @@index([buildId])
+  @@index([leadId])
   @@index([status])
 }

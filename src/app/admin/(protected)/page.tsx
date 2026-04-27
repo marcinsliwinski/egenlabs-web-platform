@@ -27,12 +27,19 @@ export default async function AdminHomePage() {
           <li>Active builds: {overview.stats.activeBuildCount}</li>
           <li>Configured download policies: {overview.downloadStats.policyCount}</li>
           <li>Download-ready combinations: {overview.downloadStats.readyCombinationCount}</li>
+          <li>Recorded download requests: {overview.downloadStats.downloadRequestCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>
         </p>
         <p>
           <Link href="/admin/downloads">Open download policies</Link>
+        </p>
+        <p>
+          <Link href="/admin/leads">Open leads and consents</Link>
+        </p>
+        <p>
+          <Link href="/download/register">Open public registration shell</Link>
         </p>
         <p>{canManageCatalog ? 'You can create and activate builds.' : 'You currently have read-only access to catalog data.'}</p>
       </section>
