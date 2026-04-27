@@ -202,13 +202,35 @@ This upserts:
 - edition `Essentials`,
 - release channels `stable` and `beta`.
 
-This does not upload any build files and does not create download policies yet.
+This does not upload any build files yet. Download policies can now be configured separately in the admin panel.
 
 The protected catalog page now also supports:
 - creating build metadata records,
 - optionally attaching one build asset metadata record during creation,
 - activating exactly one build per product / edition / release channel,
 - read-only catalog access for the `EDITOR` role.
+
+## Download policy foundation
+
+The repository now also includes the first foundation for the accepted download policy baseline:
+- `DownloadPolicy`,
+- `DownloadLink`,
+- `DownloadRequest`,
+- server-side policy resolution against the current active build,
+- protected admin page at `GET /admin/downloads`.
+
+This step supports:
+- configuring one download policy per product / edition / release channel,
+- selecting the policy mode (`PUBLIC_DIRECT`, `ONE_TIME`, `TEMPORARY`, `PRIVATE_STATIC`),
+- toggling whether an active build is required,
+- toggling whether future public flow will require email registration,
+- storing a temporary-link TTL value and internal notes.
+
+This step does not yet include:
+- public registration flow,
+- email issuance,
+- final public download endpoint delivery,
+- storage-backed file upload or signed link generation.
 
 ## Getting started
 

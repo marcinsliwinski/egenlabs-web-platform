@@ -58,7 +58,10 @@ export default async function AdminCatalogPage({ searchParams }: AdminCatalogPag
           <h1>Product catalog</h1>
           <p>Manage catalog metadata, builds, and active release assignments for the accepted MVP baseline.</p>
         </div>
-        <Link href="/admin">Back to admin</Link>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <Link href="/admin/downloads">Open download policies</Link>
+          <Link href="/admin">Back to admin</Link>
+        </div>
       </header>
 
       <section style={{ marginTop: '1.5rem' }}>

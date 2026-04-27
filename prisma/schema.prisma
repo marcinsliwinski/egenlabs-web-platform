@@ -12,6 +12,28 @@ enum AdminRole {
   EDITOR
 }
 
+enum DownloadPolicyMode {
+  PUBLIC_DIRECT
+  ONE_TIME
+  TEMPORARY
+  PRIVATE_STATIC
+}
+
+enum DownloadRequestStatus {
+  PENDING
+  ISSUED
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+enum DownloadLinkStatus {
+  ACTIVE
+  CONSUMED
+  EXPIRED
+  REVOKED
+}
+
 model AdminUser {
   id                  String         @id @default(cuid())
   email               String         @unique
@@ -40,42 +62,48 @@ model AdminSession {
   @@index([expiresAt])
 }
 
-
 model Product {
-  id        String          @id @default(cuid())
-  key       String          @unique
-  name      String
-  slug      String          @unique
-  isActive  Boolean         @default(true)
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  editions  ProductEdition[]
-  builds    Build[]
+  id               String            @id @default(cuid())
+  key              String            @unique
+  name             String
+  slug             String            @unique
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  editions         ProductEdition[]
+  builds           Build[]
+  downloadPolicies DownloadPolicy[]
+  downloadRequests DownloadRequest[]
 }
 
 model ProductEdition {
-  id        String    @id @default(cuid())
-  productId String
-  key       String
-  name      String
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  builds    Build[]
+  id               String            @id @default(cuid())
+  productId        String
+  key              String
+  name             String
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  product          Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  builds           Build[]
+  downloadPolicies DownloadPolicy[]
+  downloadRequests DownloadRequest[]
 
   @@unique([productId, key])
   @@index([productId])
 }
 
 model ReleaseChannel {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  name      String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  builds    Build[]
+  id               String            @id @default(cuid())
+  key              String            @unique
+  name             String
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  builds           Build[]
+  downloadPolicies DownloadPolicy[]
+  downloadRequests DownloadRequest[]
+
 }
 
 model Build {
@@ -95,6 +123,8 @@ model Build {
   edition             ProductEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
   channel             ReleaseChannel @relation(fields: [channelId], references: [id], onDelete: Restrict)
   assets              BuildAsset[]
+  downloadLinks       DownloadLink[]
+  downloadRequests    DownloadRequest[]
 
   @@unique([productId, editionId, channelId, buildNumber])
   @@index([productId, editionId, channelId])
@@ -113,4 +143,79 @@ model BuildAsset {
   build          Build    @relation(fields: [buildId], references: [id], onDelete: Cascade)
 
   @@index([buildId])
+}
+
+model DownloadPolicy {
+  id                       String             @id @default(cuid())
+  productId                String
+  editionId                String
+  channelId                String
+  mode                     DownloadPolicyMode
+  isEnabled                Boolean            @default(true)
+  linkTtlMinutes           Int?
+  requireActiveBuild       Boolean            @default(true)
+  requireEmailRegistration Boolean            @default(true)
+  internalNotes            String?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  product                  Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition                  ProductEdition     @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel                  ReleaseChannel     @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  links                    DownloadLink[]
+  requests                 DownloadRequest[]
+
+  @@unique([productId, editionId, channelId])
+  @@index([productId, editionId, channelId])
+}
+
+model DownloadLink {
+  id           String             @id @default(cuid())
+  policyId     String
+  buildId      String
+  requestId    String?
+  mode         DownloadPolicyMode
+  status       DownloadLinkStatus @default(ACTIVE)
+  tokenHash    String?            @unique
+  publicSlug   String?            @unique
+  expiresAt    DateTime?
+  consumedAt   DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  policy       DownloadPolicy     @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  build        Build              @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  request      DownloadRequest?   @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  @@index([policyId])
+  @@index([buildId])
+  @@index([requestId])
+  @@index([status])
+}
+
+model DownloadRequest {
+  id          String                @id @default(cuid())
+  policyId    String?
+  productId   String
+  editionId   String
+  channelId   String
+  buildId     String?
+  email       String?
+  status      DownloadRequestStatus @default(PENDING)
+  requestedAt DateTime              @default(now())
+  resolvedAt  DateTime?
+  ipAddress   String?
+  userAgent   String?
+  notes       String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  policy      DownloadPolicy?       @relation(fields: [policyId], references: [id], onDelete: SetNull)
+  product     Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition     ProductEdition        @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel     ReleaseChannel        @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  build       Build?                @relation(fields: [buildId], references: [id], onDelete: SetNull)
+  links       DownloadLink[]
+
+  @@index([policyId])
+  @@index([productId, editionId, channelId])
+  @@index([buildId])
+  @@index([status])
 }

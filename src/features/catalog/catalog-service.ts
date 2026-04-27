@@ -1,7 +1,8 @@
 import { db } from '@/lib/db';
+import { resolveDownloadTarget } from '@/features/downloads/download-service';
 
 export async function getCatalogOverview() {
-  const [products, releaseChannels, buildCount, activeBuildCount] = await Promise.all([
+  const [products, releaseChannels, buildCount, activeBuildCount, downloadPolicies] = await Promise.all([
     db.product.findMany({
       orderBy: { name: 'asc' },
       include: {
@@ -25,8 +26,31 @@ export async function getCatalogOverview() {
     db.build.count(),
     db.build.count({
       where: { isActive: true }
-    })
+    }),
+    db.downloadPolicy.findMany()
   ]);
+
+  const policyMap = new Map(
+    downloadPolicies.map((policy) => [
+      `${policy.productId}:${policy.editionId}:${policy.channelId}`,
+      policy
+    ])
+  );
+
+  const combinations = products.flatMap((product) =>
+    product.editions.flatMap((edition) =>
+      releaseChannels.map((channel) => {
+        const activeBuild = edition.builds.find(
+          (build) => build.channelId === channel.id && build.isActive
+        ) ?? null;
+        const policy = policyMap.get(`${product.id}:${edition.id}:${channel.id}`) ?? null;
+
+        return resolveDownloadTarget(policy, activeBuild);
+      })
+    )
+  );
+
+  const readyCombinationCount = combinations.filter((item) => item.status === 'ready').length;
 
   return {
     products,
@@ -36,6 +60,10 @@ export async function getCatalogOverview() {
       releaseChannelCount: releaseChannels.length,
       buildCount,
       activeBuildCount
+    },
+    downloadStats: {
+      policyCount: downloadPolicies.length,
+      readyCombinationCount
     }
   };
 }
