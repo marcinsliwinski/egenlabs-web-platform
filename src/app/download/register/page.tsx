@@ -10,14 +10,15 @@ type DownloadRegistrationPageProps = {
 };
 
 const successMessages: Record<string, string> = {
-  registration_saved: 'Registration saved. Email delivery is not enabled yet, but the request is now recorded for the accepted MVP flow.'
+  registration_saved: 'Registration saved. The transactional email shell created email logs and an issued download link for the accepted MVP flow.'
 };
 
 const errorMessages: Record<string, string> = {
   invalid_registration_input: 'The registration form is incomplete or invalid. Review the required fields and try again.',
   download_combination_unavailable: 'The selected download combination is no longer available for registration.',
   required_consent_missing: 'The required operational consent definition is missing. Bootstrap the latest database state and try again.',
-  marketing_consent_missing: 'The optional marketing consent definition is missing. Bootstrap the latest database state and try again.'
+  marketing_consent_missing: 'The optional marketing consent definition is missing. Bootstrap the latest database state and try again.',
+  download_issue_failed: 'The registration was recorded, but the transactional issuance shell could not prepare the email and download link. Review the admin email logs and download policy state.'
 };
 
 function getSearchParamValue(value: string | string[] | undefined): string | undefined {
@@ -37,10 +38,10 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
         <h1>Download registration</h1>
         <p>
           This public shell records the accepted MVP download registration flow: email capture, operational registration,
-          optional marketing consent, and a pending download request.
+          optional marketing consent, transactional email logging, and download link issuance.
         </p>
         <p>
-          Email issuance and final download delivery are not enabled yet in this step. Go back to the <Link href="/">home page</Link>.
+          External email delivery is still not enabled in this step. Transactional emails are logged internally, and issued shell links can be reviewed through the admin area. Go back to the <Link href="/">home page</Link>.
         </p>
       </header>
 

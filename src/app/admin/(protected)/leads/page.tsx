@@ -27,6 +27,7 @@ export default async function AdminLeadsPage() {
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/download/register">Open public registration shell</Link>
           <Link href="/admin/downloads">Back to download policies</Link>
+          <Link href="/admin/emails">Open email logs</Link>
           <Link href="/admin">Back to admin</Link>
         </div>
       </header>

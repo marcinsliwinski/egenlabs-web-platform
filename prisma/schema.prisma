@@ -34,6 +34,11 @@ enum DownloadLinkStatus {
   REVOKED
 }
 
+enum EmailLogStatus {
+  SENT
+  FAILED
+}
+
 model AdminUser {
   id                  String         @id @default(cuid())
   email               String         @unique
@@ -49,14 +54,14 @@ model AdminUser {
 }
 
 model AdminSession {
-  id         String     @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
-  tokenHash  String     @unique
-  createdAt  DateTime   @default(now())
+  tokenHash  String    @unique
+  createdAt  DateTime  @default(now())
   expiresAt  DateTime
-  lastSeenAt DateTime   @default(now())
+  lastSeenAt DateTime  @default(now())
   revokedAt  DateTime?
-  user       AdminUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
@@ -103,7 +108,6 @@ model ReleaseChannel {
   builds           Build[]
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
-
 }
 
 model Build {
@@ -184,13 +188,13 @@ model DownloadLink {
   policy       DownloadPolicy     @relation(fields: [policyId], references: [id], onDelete: Cascade)
   build        Build              @relation(fields: [buildId], references: [id], onDelete: Cascade)
   request      DownloadRequest?   @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  emailLogs    EmailLog[]
 
   @@index([policyId])
   @@index([buildId])
   @@index([requestId])
   @@index([status])
 }
-
 
 model Lead {
   id               String           @id @default(cuid())
@@ -201,19 +205,20 @@ model Lead {
   updatedAt        DateTime         @updatedAt
   downloadRequests DownloadRequest[]
   consentRecords   ConsentRecord[]
+  emailLogs        EmailLog[]
 }
 
 model ConsentDefinition {
-  id            String          @id
-  key           String
-  version       Int
-  title         String
-  description   String?
-  isRequired    Boolean         @default(false)
-  isActive      Boolean         @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  records       ConsentRecord[]
+  id          String          @id
+  key         String
+  version     Int
+  title       String
+  description String?
+  isRequired  Boolean         @default(false)
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  records     ConsentRecord[]
 
   @@unique([key, version])
   @@index([key, isActive])
@@ -240,6 +245,7 @@ model ConsentRecord {
   @@index([downloadRequestId])
   @@index([capturedAt])
 }
+
 model DownloadRequest {
   id             String                @id @default(cuid())
   policyId       String?
@@ -265,10 +271,58 @@ model DownloadRequest {
   lead           Lead?                 @relation(fields: [leadId], references: [id], onDelete: SetNull)
   links          DownloadLink[]
   consentRecords ConsentRecord[]
+  emailLogs      EmailLog[]
 
   @@index([policyId])
   @@index([productId, editionId, channelId])
   @@index([buildId])
   @@index([leadId])
   @@index([status])
+}
+
+model EmailTemplate {
+  id               String     @id @default(cuid())
+  key              String
+  version          Int
+  name             String
+  subjectTemplate  String
+  textBodyTemplate String
+  isActive         Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  emailLogs        EmailLog[]
+
+  @@unique([key, version])
+  @@index([key, isActive])
+}
+
+model EmailLog {
+  id                String         @id @default(cuid())
+  templateId        String?
+  templateKey       String
+  templateVersion   Int?
+  leadId            String?
+  downloadRequestId String?
+  downloadLinkId    String?
+  toEmail           String
+  subject           String
+  textBody          String
+  status            EmailLogStatus
+  transportMode     String
+  errorMessage      String?
+  sentAt            DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  template          EmailTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  lead              Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  downloadRequest   DownloadRequest? @relation(fields: [downloadRequestId], references: [id], onDelete: SetNull)
+  downloadLink      DownloadLink?    @relation(fields: [downloadLinkId], references: [id], onDelete: SetNull)
+
+  @@index([templateKey, templateVersion])
+  @@index([leadId])
+  @@index([downloadRequestId])
+  @@index([downloadLinkId])
+  @@index([toEmail])
+  @@index([status])
+  @@index([createdAt])
 }

@@ -171,7 +171,9 @@ Routes currently included:
 - `GET /admin/catalog` - protected catalog overview with build creation and activation flows
 - `GET /admin/downloads` - protected download policy configuration page
 - `GET /admin/leads` - protected leads and consent review page
+- `GET /admin/emails` - protected transactional email and issuance log review page
 - `GET /download/register` - public MVP download registration shell
+- `GET /download/access` - public issued-link validation shell
 
 ### Bootstrap the first admin user
 
@@ -252,10 +254,31 @@ This step supports:
 - reviewing recent lead and consent data in the admin panel.
 
 This step does not yet include:
-- download-link email issuance,
 - newsletter automation,
 - Brevo integration,
 - final public file delivery.
+
+## Transactional email and issuance shell
+
+The repository now also includes the first accepted transactional-email and issuance shell baseline:
+- `EmailTemplate`,
+- `EmailLog`,
+- transactional email logging after successful download registration,
+- issued `DownloadLink` creation aligned with the configured `DownloadPolicy`,
+- protected admin review page at `GET /admin/emails`,
+- public issued-link validation shell at `GET /download/access`.
+
+This step supports:
+- creating two transactional email logs per accepted registration (`DOWNLOAD_WELCOME` and `DOWNLOAD_LINK`),
+- generating a shell download link using the configured policy mode,
+- reusing static/public shell links where appropriate,
+- validating issued links through a public shell page,
+- reviewing recent transactional email bodies and statuses in the admin panel.
+
+This step does not yet include:
+- external provider delivery through Brevo,
+- marketing automation or newsletter campaigns,
+- final file streaming or signed storage delivery.
 
 ## Getting started
 

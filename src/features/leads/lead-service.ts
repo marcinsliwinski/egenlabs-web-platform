@@ -36,7 +36,7 @@ export async function getPublicDownloadRegistrationOverview() {
   ]);
 
   const combinations = downloadOverview.combinations
-    .filter((item) => item.resolution.status === 'ready' && item.policy?.isEnabled)
+    .filter((item) => item.resolution.status === 'ready' && item.policy?.isEnabled && item.activeBuild !== null)
     .map((item) => ({
       id: item.id,
       productId: item.product.id,

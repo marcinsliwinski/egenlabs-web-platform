@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
+import { issueTransactionalDownloadForRequest } from '@/features/email/email-service';
 import {
   getActiveConsentDefinitions,
   getPublicDownloadRegistrationOverview
@@ -72,7 +73,7 @@ export async function registerDownloadRequestAction(formData: FormData) {
   const userAgent = headerStore.get('user-agent') ?? undefined;
   const normalizedEmail = input.email.trim().toLowerCase();
 
-  await db.$transaction(async (transaction) => {
+  const downloadRequestId = await db.$transaction(async (transaction) => {
     const lead = await transaction.lead.upsert({
       where: { email: normalizedEmail },
       update: {
@@ -121,10 +122,20 @@ export async function registerDownloadRequestAction(formData: FormData) {
         }
       ]
     });
+
+    return downloadRequest.id;
   });
+
+  const issuanceResult = await issueTransactionalDownloadForRequest(downloadRequestId);
 
   revalidatePath('/admin');
   revalidatePath('/admin/downloads');
   revalidatePath('/admin/leads');
+  revalidatePath('/admin/emails');
+
+  if (!issuanceResult.success) {
+    getRedirectWithStatus('download_issue_failed', 'error');
+  }
+
   getRedirectWithStatus('registration_saved', 'success');
 }

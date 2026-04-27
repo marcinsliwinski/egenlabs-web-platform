@@ -2,15 +2,20 @@ import Link from 'next/link';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { getCatalogOverview } from '@/features/catalog/catalog-service';
+import { getEmailAdminOverview } from '@/features/email/email-service';
 
 export default async function AdminHomePage() {
-  const [admin, overview] = await Promise.all([requireAuthenticatedAdmin(), getCatalogOverview()]);
+  const [admin, overview, emailOverview] = await Promise.all([
+    requireAuthenticatedAdmin(),
+    getCatalogOverview(),
+    getEmailAdminOverview()
+  ]);
   const canManageCatalog = admin.role === 'ADMIN';
 
   return (
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
-      <p>Admin auth shell and catalog foundation are active.</p>
+      <p>Admin auth shell, download foundation, leads/consents, and transactional email shell are active.</p>
       <dl>
         <dt>Signed in as</dt>
         <dd>{admin.email}</dd>
@@ -28,6 +33,8 @@ export default async function AdminHomePage() {
           <li>Configured download policies: {overview.downloadStats.policyCount}</li>
           <li>Download-ready combinations: {overview.downloadStats.readyCombinationCount}</li>
           <li>Recorded download requests: {overview.downloadStats.downloadRequestCount}</li>
+          <li>Issued download links: {overview.downloadStats.downloadLinkCount}</li>
+          <li>Transactional email logs: {emailOverview.stats.emailLogCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>
@@ -37,6 +44,9 @@ export default async function AdminHomePage() {
         </p>
         <p>
           <Link href="/admin/leads">Open leads and consents</Link>
+        </p>
+        <p>
+          <Link href="/admin/emails">Open transactional email logs</Link>
         </p>
         <p>
           <Link href="/download/register">Open public registration shell</Link>
