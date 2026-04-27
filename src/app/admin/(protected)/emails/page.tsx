@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { resendEmailLogAction } from '@/features/email/email-actions';
 import { getEmailAdminOverview } from '@/features/email/email-service';
 
 function formatDate(value: Date | null | undefined) {
@@ -14,15 +15,36 @@ function formatDate(value: Date | null | undefined) {
   }).format(value);
 }
 
-export default async function AdminEmailsPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function getSearchParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+const successMessages: Record<string, string> = {
+  email_resent: 'Transactional email was resent successfully.'
+};
+
+const errorMessages: Record<string, string> = {
+  forbidden: 'Only ADMIN can resend transactional emails.',
+  invalid_resend_request: 'The resend request payload is invalid.',
+  email_log_not_found: 'The selected transactional email log was not found.',
+  email_resend_failed: 'The resend attempt failed. Review the latest log entry for details.'
+};
+
+export default async function AdminEmailsPage({ searchParams }: { searchParams?: SearchParams }) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const successKey = getSearchParamValue(resolvedSearchParams?.success);
+  const errorKey = getSearchParamValue(resolvedSearchParams?.error);
   const [admin, overview] = await Promise.all([requireAuthenticatedAdmin(), getEmailAdminOverview()]);
+  const canResend = admin.role === 'ADMIN';
 
   return (
     <main style={{ maxWidth: 1200, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '1.5rem' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
           <h1>Transactional emails</h1>
-          <p>Review seeded templates, transport-mode email logs, and generated download delivery links.</p>
+          <p>Review templates, provider-aware email logs, resend selected messages, and inspect issued download links.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/download/register">Open public registration shell</Link>
@@ -30,6 +52,18 @@ export default async function AdminEmailsPage() {
           <Link href="/admin">Back to admin</Link>
         </div>
       </header>
+
+      {successKey ? (
+        <p role="status" style={{ color: '#0b6b2d' }}>
+          {successMessages[successKey] ?? 'The requested email operation completed successfully.'}
+        </p>
+      ) : null}
+
+      {errorKey ? (
+        <p role="alert" style={{ color: '#b00020' }}>
+          {errorMessages[errorKey] ?? 'Unable to complete the requested email operation.'}
+        </p>
+      ) : null}
 
       <section>
         <p>
@@ -40,6 +74,8 @@ export default async function AdminEmailsPage() {
           <li>Email logs: {overview.stats.emailLogCount}</li>
           <li>Sent logs: {overview.stats.sentEmailCount}</li>
           <li>Failed logs: {overview.stats.failedEmailCount}</li>
+          <li>Brevo deliveries: {overview.stats.brevoEmailCount}</li>
+          <li>Log-only deliveries: {overview.stats.logOnlyEmailCount}</li>
           <li>Issued download links: {overview.stats.issuedLinkCount}</li>
         </ul>
       </section>
@@ -78,6 +114,7 @@ export default async function AdminEmailsPage() {
                   <p style={{ margin: '0.5rem 0 0' }}>
                     Template: {log.templateKey}
                     {log.templateVersion ? ` v${log.templateVersion}` : ''} · Transport: {log.transportMode}
+                    {log.providerName ? ` · Provider: ${log.providerName}` : ''}
                   </p>
                 </header>
 
@@ -96,9 +133,19 @@ export default async function AdminEmailsPage() {
                         ? `${log.downloadLink.mode} / ${log.downloadLink.status}`
                         : '—'}
                     </li>
+                    <li>Provider message ID: {log.providerMessageId ?? '—'}</li>
                     <li>Error: {log.errorMessage ?? '—'}</li>
                   </ul>
                 </section>
+
+                {canResend ? (
+                  <form action={resendEmailLogAction} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <input type="hidden" name="emailLogId" value={log.id} />
+                    <button type="submit">Resend this email</button>
+                  </form>
+                ) : (
+                  <p>Only ADMIN can resend transactional emails.</p>
+                )}
 
                 <details>
                   <summary>Email body preview</summary>

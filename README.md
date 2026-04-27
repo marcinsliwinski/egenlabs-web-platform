@@ -284,38 +284,72 @@ This step does not yet include:
 
 ## Getting started
 
-1. Create an empty private GitHub repository.
-2. Initialize the local repository:
+1. Clone the public repository:
 
 ```bash
-git init -b main
+git clone https://github.com/marcinsliwinski/egenlabs-web-platform.git
+cd egenlabs-web-platform
 ```
 
-3. Add the bootstrap files:
-- `.gitignore`
-- `.env.example`
-- `README.md`
-- `/docs/living-specification.md`
-
-4. Verify tracked files:
+2. Copy the local environment template:
 
 ```bash
-git status
+cp .env.example .env
 ```
 
-5. Commit the bootstrap state:
+3. Start PostgreSQL:
 
 ```bash
-git add .
-git commit -m "chore: bootstrap repository"
+docker compose up -d
 ```
 
-6. Connect the remote and push:
+4. Install dependencies:
 
 ```bash
-git remote add origin <REMOTE-URL>
-git push -u origin main
+npm ci
 ```
+
+5. Generate Prisma Client and apply migrations:
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
+
+6. Bootstrap the accepted local catalog baseline:
+
+```bash
+npm run catalog:bootstrap
+```
+
+7. Create the first admin account:
+
+```bash
+npm run admin:create -- --email=admin@example.com --password=change-me-now --role=ADMIN
+```
+
+8. Start the application:
+
+```bash
+npm run dev
+```
+
+9. Open the main flows locally:
+- `http://localhost:3000/`
+- `http://localhost:3000/admin/login`
+- `http://localhost:3000/download/register`
+- `http://localhost:3000/admin/emails`
+
+### Optional: enable Brevo transactional delivery
+
+The default local mode remains `EMAIL_TRANSPORT_MODE=LOG_ONLY`, which records email logs without calling an external provider.
+To test real transactional delivery, set:
+- `EMAIL_TRANSPORT_MODE=BREVO`
+- `BREVO_API_KEY`
+- `BREVO_SENDER_EMAIL`
+- `BREVO_SENDER_NAME`
+
+Then restart the dev server.
 
 ## Development rules
 
@@ -342,7 +376,26 @@ The repository now also includes the accepted foundation for:
 - manifest attachment fallback when the asset file is not present yet.
 
 This step still does not include:
-- real Brevo delivery,
 - external storage-backed signed URLs,
 - newsletter automation,
 - campaign management.
+
+## Brevo transactional delivery and operational hardening
+
+The repository now also includes the accepted operational hardening step for transactional email delivery:
+- `BREVO` transport mode in addition to `LOG_ONLY`,
+- provider-aware email transport abstraction,
+- `providerName` and `providerMessageId` metadata stored on `EmailLog`,
+- admin resend action for selected transactional email logs,
+- improved admin visibility for provider-backed and fallback deliveries.
+
+This step supports:
+- real transactional delivery through Brevo when `EMAIL_TRANSPORT_MODE=BREVO`,
+- safe local development through `LOG_ONLY`,
+- recording provider delivery identifiers when Brevo accepts the request,
+- reviewing resend attempts and provider metadata in `GET /admin/emails`.
+
+This step still does not include:
+- newsletter automation,
+- marketing campaigns,
+- queue workers or advanced retry orchestration.

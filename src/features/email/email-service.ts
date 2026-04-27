@@ -349,6 +349,8 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
           textBody: welcomeEmail.textBody,
           status: welcomeDispatch.status,
           transportMode: welcomeDispatch.transportMode,
+          providerName: welcomeDispatch.providerName,
+          providerMessageId: welcomeDispatch.providerMessageId,
           errorMessage: welcomeDispatch.errorMessage,
           sentAt: welcomeDispatch.sentAt
         },
@@ -364,6 +366,8 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
           textBody: downloadEmail.textBody,
           status: downloadDispatch.status,
           transportMode: downloadDispatch.transportMode,
+          providerName: downloadDispatch.providerName,
+          providerMessageId: downloadDispatch.providerMessageId,
           errorMessage: downloadDispatch.errorMessage,
           sentAt: downloadDispatch.sentAt
         }
@@ -395,8 +399,59 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
   };
 }
 
+
+export async function resendTransactionalEmailLog(emailLogId: string) {
+  const existingLog = await db.emailLog.findUnique({
+    where: { id: emailLogId },
+    include: {
+      template: true
+    }
+  });
+
+  if (!existingLog) {
+    return {
+      success: false as const,
+      reason: 'email_log_not_found' as const
+    };
+  }
+
+  const dispatch = await dispatchTransactionalEmail({
+    toEmail: existingLog.toEmail,
+    subject: existingLog.subject,
+    textBody: existingLog.textBody,
+    templateKey: existingLog.templateKey
+  });
+
+  const resentLog = await db.emailLog.create({
+    data: {
+      templateId: existingLog.templateId,
+      templateKey: existingLog.templateKey,
+      templateVersion: existingLog.templateVersion,
+      leadId: existingLog.leadId,
+      downloadRequestId: existingLog.downloadRequestId,
+      downloadLinkId: existingLog.downloadLinkId,
+      toEmail: existingLog.toEmail,
+      subject: existingLog.subject,
+      textBody: existingLog.textBody,
+      status: dispatch.status,
+      transportMode: dispatch.transportMode,
+      providerName: dispatch.providerName,
+      providerMessageId: dispatch.providerMessageId,
+      errorMessage: dispatch.errorMessage,
+      sentAt: dispatch.sentAt
+    }
+  });
+
+  return {
+    success: true as const,
+    sourceEmailLogId: existingLog.id,
+    resentEmailLogId: resentLog.id,
+    status: resentLog.status
+  };
+}
+
 export async function getEmailAdminOverview() {
-  const [templates, emailLogs, emailLogCount, sentEmailCount, failedEmailCount, issuedLinkCount] = await Promise.all([
+  const [templates, emailLogs, emailLogCount, sentEmailCount, failedEmailCount, issuedLinkCount, brevoEmailCount, logOnlyEmailCount] = await Promise.all([
     db.emailTemplate.findMany({
       orderBy: [{ key: 'asc' }, { version: 'desc' }]
     }),
@@ -430,7 +485,9 @@ export async function getEmailAdminOverview() {
     db.emailLog.count(),
     db.emailLog.count({ where: { status: EmailLogStatus.SENT } }),
     db.emailLog.count({ where: { status: EmailLogStatus.FAILED } }),
-    db.downloadLink.count()
+    db.downloadLink.count(),
+    db.emailLog.count({ where: { transportMode: 'BREVO', status: EmailLogStatus.SENT } }),
+    db.emailLog.count({ where: { transportMode: 'LOG_ONLY', status: EmailLogStatus.SENT } })
   ]);
 
   return {
@@ -441,7 +498,9 @@ export async function getEmailAdminOverview() {
       emailLogCount,
       sentEmailCount,
       failedEmailCount,
-      issuedLinkCount
+      issuedLinkCount,
+      brevoEmailCount,
+      logOnlyEmailCount
     }
   };
 }

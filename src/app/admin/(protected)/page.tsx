@@ -15,7 +15,7 @@ export default async function AdminHomePage() {
   return (
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
-      <p>Admin auth shell, download foundation, leads/consents, transactional email shell, and final delivery shell are active.</p>
+      <p>Admin auth shell, download foundation, leads/consents, transactional email delivery, and final delivery shell are active.</p>
       <dl>
         <dt>Signed in as</dt>
         <dd>{admin.email}</dd>
@@ -35,6 +35,8 @@ export default async function AdminHomePage() {
           <li>Recorded download requests: {overview.downloadStats.downloadRequestCount}</li>
           <li>Issued download links: {overview.downloadStats.downloadLinkCount}</li>
           <li>Transactional email logs: {emailOverview.stats.emailLogCount}</li>
+          <li>Brevo deliveries: {emailOverview.stats.brevoEmailCount}</li>
+          <li>Log-only deliveries: {emailOverview.stats.logOnlyEmailCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>

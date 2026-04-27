@@ -309,6 +309,8 @@ model EmailLog {
   textBody          String
   status            EmailLogStatus
   transportMode     String
+  providerName      String?
+  providerMessageId String?
   errorMessage      String?
   sentAt            DateTime?
   createdAt         DateTime       @default(now())
@@ -324,5 +326,6 @@ model EmailLog {
   @@index([downloadLinkId])
   @@index([toEmail])
   @@index([status])
+  @@index([providerMessageId])
   @@index([createdAt])
 }
