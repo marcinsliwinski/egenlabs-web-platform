@@ -184,6 +184,9 @@ Routes currently included:
 - `GET /contact` - public contact form page
 - `GET /enterprise` - public Enterprise / Pro interest page
 - `GET /admin/forms` - protected newsletter, contact, and enterprise admin review page
+- `GET /admin/desktop` - protected desktop news feed management page
+- `GET /api/v1/desktop/update` - desktop update check endpoint
+- `GET /api/v1/desktop/news` - desktop news feed endpoint
 
 ### Bootstrap the first admin user
 
@@ -473,3 +476,31 @@ npx prisma migrate deploy
 rm -rf .next
 npm run dev
 ```
+
+## Desktop API foundation
+
+The repository now also includes the accepted desktop-facing API foundation for:
+- desktop update checks,
+- desktop news feed retrieval,
+- manual admin management of desktop news items.
+
+To bootstrap the accepted baseline desktop news feed for local development, run:
+
+```bash
+npm run desktop:bootstrap
+```
+
+This upserts three published desktop news feed items for:
+- product `Fito Gen`,
+- edition `Essentials`,
+- channel `stable`.
+
+The desktop API foundation currently includes:
+- `GET /api/v1/desktop/update?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0`
+- `GET /api/v1/desktop/news?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0`
+- `GET /admin/desktop`
+
+This step intentionally does not yet include:
+- telemetry intake,
+- feature request intake,
+- software demand request intake.

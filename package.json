@@ -16,7 +16,8 @@
     "smoke:health": "node scripts/smoke-health.mjs",
     "admin:create": "node scripts/create-admin-user.mjs",
     "catalog:bootstrap": "node scripts/bootstrap-product-catalog.mjs",
-    "content:bootstrap": "node scripts/bootstrap-content.mjs"
+    "content:bootstrap": "node scripts/bootstrap-content.mjs",
+    "desktop:bootstrap": "node scripts/bootstrap-desktop-news.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

@@ -5,14 +5,16 @@ import { getCatalogOverview } from '@/features/catalog/catalog-service';
 import { getAdminContentOverview } from '@/features/content/content-service';
 import { getEmailAdminOverview } from '@/features/email/email-service';
 import { getFormsAdminOverview } from '@/features/forms/forms-service';
+import { getAdminDesktopOverview } from '@/features/desktop/desktop-service';
 
 export default async function AdminHomePage() {
-  const [admin, overview, emailOverview, contentOverview, formsOverview] = await Promise.all([
+  const [admin, overview, emailOverview, contentOverview, formsOverview, desktopOverview] = await Promise.all([
     requireAuthenticatedAdmin(),
     getCatalogOverview(),
     getEmailAdminOverview(),
     getAdminContentOverview(),
-    getFormsAdminOverview()
+    getFormsAdminOverview(),
+    getAdminDesktopOverview()
   ]);
   const canManageCatalog = admin.role === 'ADMIN';
 
@@ -48,6 +50,8 @@ export default async function AdminHomePage() {
           <li>Newsletter signups: {formsOverview.stats.newsletterCount}</li>
           <li>Contact inquiries: {formsOverview.stats.contactInquiryCount}</li>
           <li>Enterprise interest submissions: {formsOverview.stats.enterpriseInterestCount}</li>
+          <li>Desktop news items: {desktopOverview.stats.newsItemCount}</li>
+          <li>Published desktop news items: {desktopOverview.stats.publishedNewsItemCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>
@@ -68,6 +72,9 @@ export default async function AdminHomePage() {
           <Link href="/admin/forms">Open newsletter, contact, and enterprise forms</Link>
         </p>
         <p>
+          <Link href="/admin/desktop">Open desktop API management</Link>
+        </p>
+        <p>
           <Link href="/products/fito-gen">Open product landing</Link>
         </p>
         <p>
@@ -75,6 +82,9 @@ export default async function AdminHomePage() {
         </p>
         <p>
           <Link href="/newsletter">Open newsletter-only signup</Link>
+        </p>
+        <p>
+          <Link href="/api/v1/desktop/update?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0">Open desktop update sample</Link>
         </p>
         <p>{canManageCatalog ? 'You can create and activate builds.' : 'You currently have read-only access to catalog data.'}</p>
       </section>

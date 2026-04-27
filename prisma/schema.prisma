@@ -56,6 +56,12 @@ enum EnterpriseInterestStatus {
   ARCHIVED
 }
 
+enum NewsFeedCategory {
+  GENERAL
+  RELEASE
+  UPDATE
+  ALERT
+}
 
 model AdminUser {
   id                  String         @id @default(cuid())
@@ -97,6 +103,7 @@ model Product {
   builds           Build[]
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
+  newsFeedItems    NewsFeedItem[]
 }
 
 model ProductEdition {
@@ -111,6 +118,7 @@ model ProductEdition {
   builds           Build[]
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
+  newsFeedItems    NewsFeedItem[]
 
   @@unique([productId, key])
   @@index([productId])
@@ -126,6 +134,7 @@ model ReleaseChannel {
   builds           Build[]
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
+  newsFeedItems    NewsFeedItem[]
 }
 
 model Build {
@@ -382,6 +391,33 @@ model BlogPost {
   updatedAt   DateTime      @updatedAt
 
   @@index([status, publishedAt])
+}
+
+model NewsFeedItem {
+  id          String           @id @default(cuid())
+  productId   String
+  editionId   String
+  channelId   String
+  category    NewsFeedCategory @default(GENERAL)
+  slug        String           @unique
+  title       String
+  summary     String
+  content     String
+  minVersion  String?
+  maxVersion  String?
+  ctaLabel    String?
+  ctaUrl      String?
+  isPinned    Boolean          @default(false)
+  status      ContentStatus    @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  product     Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition     ProductEdition   @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel     ReleaseChannel   @relation(fields: [channelId], references: [id], onDelete: Restrict)
+
+  @@index([productId, editionId, channelId, status, publishedAt])
+  @@index([category, status, publishedAt])
 }
 
 model EmailTemplate {
