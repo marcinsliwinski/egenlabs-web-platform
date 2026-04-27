@@ -1,5 +1,3 @@
-import { createHash, randomBytes } from 'node:crypto';
-
 import {
   DownloadLinkStatus,
   DownloadPolicyMode,
@@ -9,6 +7,13 @@ import {
 
 import { db } from '@/lib/db';
 import { emailEnv } from '@/features/email/email-env';
+import { dispatchTransactionalEmail } from '@/features/email/email-transport';
+import {
+  buildDownloadAccessUrl,
+  createDownloadToken,
+  createDownloadTokenHash,
+  createPublicSlug
+} from '@/features/downloads/download-link';
 
 type TemplateKey = 'DOWNLOAD_WELCOME' | 'DOWNLOAD_LINK';
 
@@ -53,15 +58,11 @@ const FALLBACK_TEMPLATES: Record<TemplateKey, ActiveTemplate> = {
     id: null,
     key: 'DOWNLOAD_LINK',
     version: 1,
-    subjectTemplate: 'Your {{productName}} download access shell link',
+    subjectTemplate: 'Your {{productName}} download delivery shell link',
     textBodyTemplate:
-      'Hello,\n\nYour download access shell link for {{productName}} / {{editionName}} / {{channelName}} is ready:\n{{accessUrl}}\n\nPolicy mode: {{policyMode}}\nBuild: {{buildVersion}} (#{{buildNumber}})\n\nThis shell confirms issuance and link validation. Final binary delivery is not enabled yet in this step.\n\nRegards,\n{{appName}}'
+      'Hello,\n\nYour download delivery shell link for {{productName}} / {{editionName}} / {{channelName}} is ready:\n{{accessUrl}}\n\nPolicy mode: {{policyMode}}\nBuild: {{buildVersion}} (#{{buildNumber}})\n\nThis shell confirms issuance, validation, and delivery endpoint access. Final external storage delivery is not enabled yet in this step.\n\nRegards,\n{{appName}}'
   }
 };
-
-function normalizeBaseUrl(url: string) {
-  return url.endsWith('/') ? url.slice(0, -1) : url;
-}
 
 function interpolateTemplate(template: string, values: Record<string, string>) {
   return template.replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (_, key: string) => values[key] ?? '');
@@ -89,33 +90,6 @@ function buildTemplateValues(input: {
     policyMode: input.policyMode,
     accessUrl: input.accessUrl
   } satisfies Record<string, string>;
-}
-
-function createDownloadToken() {
-  return randomBytes(24).toString('hex');
-}
-
-function createDownloadTokenHash(token: string) {
-  return createHash('sha256').update(token).digest('hex');
-}
-
-function createPublicSlug() {
-  return `dl_${randomBytes(12).toString('hex')}`;
-}
-
-function getAccessUrl(input: { token?: string; slug?: string }) {
-  const baseUrl = normalizeBaseUrl(emailEnv.APP_URL);
-  const searchParams = new URLSearchParams();
-
-  if (input.token) {
-    searchParams.set('token', input.token);
-  }
-
-  if (input.slug) {
-    searchParams.set('slug', input.slug);
-  }
-
-  return `${baseUrl}/download/access?${searchParams.toString()}`;
 }
 
 async function getActiveTemplates(): Promise<Record<TemplateKey, ActiveTemplate>> {
@@ -237,15 +211,7 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
         lead: true,
         product: true,
         edition: true,
-        channel: true,
-        links: {
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        },
-        emailLogs: {
-          orderBy: { createdAt: 'desc' },
-          take: 10
-        }
+        channel: true
       }
     })
   ]);
@@ -306,7 +272,7 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
       ? reusableLink?.publicSlug ?? createPublicSlug()
       : null;
 
-  const accessUrl = getAccessUrl({
+  const accessUrl = buildDownloadAccessUrl(emailEnv.APP_URL, {
     token: rawToken ?? undefined,
     slug: publicSlug ?? undefined
   });
@@ -332,6 +298,20 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
 
   const welcomeEmail = renderFromTemplate(templates.DOWNLOAD_WELCOME);
   const downloadEmail = renderFromTemplate(templates.DOWNLOAD_LINK);
+
+  const welcomeDispatch = await dispatchTransactionalEmail({
+    toEmail: existingRequest.email!,
+    subject: welcomeEmail.subject,
+    textBody: welcomeEmail.textBody,
+    templateKey: welcomeEmail.templateKey
+  });
+
+  const downloadDispatch = await dispatchTransactionalEmail({
+    toEmail: existingRequest.email!,
+    subject: downloadEmail.subject,
+    textBody: downloadEmail.textBody,
+    templateKey: downloadEmail.templateKey
+  });
 
   const result = await db.$transaction(async (transaction) => {
     const downloadLink =
@@ -367,9 +347,10 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
           toEmail: existingRequest.email!,
           subject: welcomeEmail.subject,
           textBody: welcomeEmail.textBody,
-          status: EmailLogStatus.SENT,
-          transportMode: emailEnv.EMAIL_TRANSPORT_MODE,
-          sentAt: now
+          status: welcomeDispatch.status,
+          transportMode: welcomeDispatch.transportMode,
+          errorMessage: welcomeDispatch.errorMessage,
+          sentAt: welcomeDispatch.sentAt
         },
         {
           templateId: downloadEmail.templateId,
@@ -381,9 +362,10 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
           toEmail: existingRequest.email!,
           subject: downloadEmail.subject,
           textBody: downloadEmail.textBody,
-          status: EmailLogStatus.SENT,
-          transportMode: emailEnv.EMAIL_TRANSPORT_MODE,
-          sentAt: now
+          status: downloadDispatch.status,
+          transportMode: downloadDispatch.transportMode,
+          errorMessage: downloadDispatch.errorMessage,
+          sentAt: downloadDispatch.sentAt
         }
       ]
     });
@@ -461,149 +443,5 @@ export async function getEmailAdminOverview() {
       failedEmailCount,
       issuedLinkCount
     }
-  };
-}
-
-export async function resolveIssuedDownloadLinkAccess(input: { token?: string; slug?: string }) {
-  const normalizedToken = input.token?.trim();
-  const normalizedSlug = input.slug?.trim();
-
-  if (!normalizedToken && !normalizedSlug) {
-    return {
-      status: 'missing' as const,
-      summary: 'Provide a token or slug to inspect an issued download shell link.'
-    };
-  }
-
-  const downloadLink = await db.downloadLink.findFirst({
-    where: normalizedToken
-      ? {
-          tokenHash: createDownloadTokenHash(normalizedToken)
-        }
-      : {
-          publicSlug: normalizedSlug ?? undefined
-        },
-    include: {
-      policy: true,
-      request: {
-        include: {
-          product: true,
-          edition: true,
-          channel: true,
-          lead: true
-        }
-      },
-      build: {
-        include: {
-          assets: true,
-          product: true,
-          edition: true,
-          channel: true
-        }
-      }
-    }
-  });
-
-  if (!downloadLink) {
-    return {
-      status: 'not_found' as const,
-      summary: 'The requested download shell link does not exist.'
-    };
-  }
-
-  if (downloadLink.status === DownloadLinkStatus.REVOKED) {
-    return {
-      status: 'revoked' as const,
-      summary: 'This download shell link has been revoked.'
-    };
-  }
-
-  if (downloadLink.expiresAt && downloadLink.expiresAt <= new Date()) {
-    const expiredLink =
-      downloadLink.status === DownloadLinkStatus.ACTIVE
-        ? await db.downloadLink.update({
-            where: { id: downloadLink.id },
-            data: {
-              status: DownloadLinkStatus.EXPIRED
-            },
-            include: {
-              policy: true,
-              request: {
-                include: {
-                  product: true,
-                  edition: true,
-                  channel: true,
-                  lead: true
-                }
-              },
-              build: {
-                include: {
-                  assets: true,
-                  product: true,
-                  edition: true,
-                  channel: true
-                }
-              }
-            }
-          })
-        : downloadLink;
-
-    return {
-      status: 'expired' as const,
-      summary: 'This download shell link has expired.',
-      link: expiredLink
-    };
-  }
-
-  if (downloadLink.status === DownloadLinkStatus.CONSUMED) {
-    return {
-      status: 'consumed' as const,
-      summary: 'This one-time download shell link has already been consumed.',
-      link: downloadLink
-    };
-  }
-
-  let consumedNow = false;
-  let resolvedLink = downloadLink;
-
-  if (downloadLink.mode === DownloadPolicyMode.ONE_TIME && downloadLink.status === DownloadLinkStatus.ACTIVE) {
-    resolvedLink = await db.downloadLink.update({
-      where: { id: downloadLink.id },
-      data: {
-        status: DownloadLinkStatus.CONSUMED,
-        consumedAt: new Date()
-      },
-      include: {
-        policy: true,
-        request: {
-          include: {
-            product: true,
-            edition: true,
-            channel: true,
-            lead: true
-          }
-        },
-        build: {
-          include: {
-            assets: true,
-            product: true,
-            edition: true,
-            channel: true
-          }
-        }
-      }
-    });
-
-    consumedNow = true;
-  }
-
-  return {
-    status: 'ready' as const,
-    summary:
-      downloadLink.mode === DownloadPolicyMode.ONE_TIME
-        ? 'One-time download shell link validated. The shell link has now been consumed.'
-        : 'Download shell link validated. Final file delivery is not enabled yet in this step.',
-    consumedNow,
-    link: resolvedLink
   };
 }

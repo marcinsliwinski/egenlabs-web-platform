@@ -15,7 +15,7 @@ export default async function AdminHomePage() {
   return (
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
-      <p>Admin auth shell, download foundation, leads/consents, and transactional email shell are active.</p>
+      <p>Admin auth shell, download foundation, leads/consents, transactional email shell, and final delivery shell are active.</p>
       <dl>
         <dt>Signed in as</dt>
         <dd>{admin.email}</dd>

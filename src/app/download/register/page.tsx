@@ -18,7 +18,7 @@ const errorMessages: Record<string, string> = {
   download_combination_unavailable: 'The selected download combination is no longer available for registration.',
   required_consent_missing: 'The required operational consent definition is missing. Bootstrap the latest database state and try again.',
   marketing_consent_missing: 'The optional marketing consent definition is missing. Bootstrap the latest database state and try again.',
-  download_issue_failed: 'The registration was recorded, but the transactional issuance shell could not prepare the email and download link. Review the admin email logs and download policy state.'
+  download_issue_failed: 'The registration was recorded, but the transactional issuance shell could not prepare the email and issued download link. Review the admin email logs and download policy state.'
 };
 
 function getSearchParamValue(value: string | string[] | undefined): string | undefined {
@@ -41,7 +41,7 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
           optional marketing consent, transactional email logging, and download link issuance.
         </p>
         <p>
-          External email delivery is still not enabled in this step. Transactional emails are logged internally, and issued shell links can be reviewed through the admin area. Go back to the <Link href="/">home page</Link>.
+          External provider delivery is still not enabled in this step. Transactional emails are logged internally, and issued download links can be reviewed through the admin area or used through the delivery shell. Go back to the <Link href="/">home page</Link>.
         </p>
       </header>
 

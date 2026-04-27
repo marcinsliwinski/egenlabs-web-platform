@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { resolveIssuedDownloadLinkAccess } from '@/features/email/email-service';
+import { inspectIssuedDownloadLinkAccess } from '@/features/downloads/download-service';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -27,15 +27,15 @@ export default async function DownloadAccessPage({ searchParams }: DownloadAcces
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const token = getSearchParamValue(resolvedSearchParams?.token);
   const slug = getSearchParamValue(resolvedSearchParams?.slug);
-  const result = await resolveIssuedDownloadLinkAccess({ token, slug });
+  const result = await inspectIssuedDownloadLinkAccess({ token, slug });
 
   return (
     <main style={{ maxWidth: 900, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '1.5rem' }}>
       <header style={{ display: 'grid', gap: '0.75rem' }}>
         <h1>Download access shell</h1>
         <p>
-          This page validates issued download shell links and confirms the accepted MVP issuance flow. Final binary delivery
-          is not enabled yet in this step.
+          This page validates issued download links and confirms the accepted MVP flow for issuance and delivery.
+          When the link is valid, use the delivery button below to trigger the final download delivery shell.
         </p>
         <p>
           Go back to the <Link href="/download/register">registration page</Link> or the <Link href="/">home page</Link>.
@@ -47,7 +47,7 @@ export default async function DownloadAccessPage({ searchParams }: DownloadAcces
         <p>{result.summary}</p>
       </section>
 
-      {'link' in result && result.link ? (
+      {result.link ? (
         <section style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '1rem' }}>
           <h2>Issued link details</h2>
           <ul>
@@ -65,7 +65,7 @@ export default async function DownloadAccessPage({ searchParams }: DownloadAcces
           <section>
             <h3>Available asset metadata</h3>
             {result.link.build.assets.length === 0 ? (
-              <p>No build assets are attached yet. This shell only confirms link issuance.</p>
+              <p>No build assets are attached yet. The delivery endpoint will return a manifest attachment instead of a binary file.</p>
             ) : (
               <ul>
                 {result.link.build.assets.map((asset) => (
@@ -78,6 +78,19 @@ export default async function DownloadAccessPage({ searchParams }: DownloadAcces
               </ul>
             )}
           </section>
+
+          {'deliveryUrl' in result ? (
+            <section style={{ display: 'grid', gap: '0.75rem' }}>
+              <h3>Delivery shell</h3>
+              <p>
+                Use this button to trigger the final download delivery shell. For one-time links, the link will be consumed by the
+                delivery endpoint, not by opening this page.
+              </p>
+              <p>
+                <a href={result.deliveryUrl}>Download via delivery shell</a>
+              </p>
+            </section>
+          ) : null}
         </section>
       ) : null}
     </main>

@@ -87,7 +87,7 @@ export default async function AdminDownloadsPage({ searchParams }: AdminDownload
         </ul>
         <p>
           This step now connects the configured policy baseline to the public registration shell, lead capture
-          foundation, and transactional issuance shell. Final binary delivery is still not enabled.
+          foundation, transactional issuance shell, and final delivery shell. External storage-backed delivery is still not enabled.
         </p>
       </section>
 

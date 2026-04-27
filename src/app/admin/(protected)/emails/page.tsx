@@ -22,7 +22,7 @@ export default async function AdminEmailsPage() {
       <header style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
           <h1>Transactional emails</h1>
-          <p>Review seeded templates, transactional issuance logs, and generated download shell links.</p>
+          <p>Review seeded templates, transport-mode email logs, and generated download delivery links.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/download/register">Open public registration shell</Link>
