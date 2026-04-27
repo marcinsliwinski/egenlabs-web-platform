@@ -63,6 +63,19 @@ enum NewsFeedCategory {
   ALERT
 }
 
+enum TelemetrySeverity {
+  INFO
+  WARN
+  ERROR
+}
+
+enum FeedbackItemStatus {
+  NEW
+  REVIEWED
+  PLANNED
+  ARCHIVED
+}
+
 model AdminUser {
   id                  String         @id @default(cuid())
   email               String         @unique
@@ -104,6 +117,9 @@ model Product {
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
   newsFeedItems    NewsFeedItem[]
+  telemetryEvents  DesktopTelemetryEvent[]
+  featureRequests  FeatureRequest[]
+  softwareDemandRequests SoftwareDemandRequest[]
 }
 
 model ProductEdition {
@@ -119,6 +135,9 @@ model ProductEdition {
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
   newsFeedItems    NewsFeedItem[]
+  telemetryEvents  DesktopTelemetryEvent[]
+  featureRequests  FeatureRequest[]
+  softwareDemandRequests SoftwareDemandRequest[]
 
   @@unique([productId, key])
   @@index([productId])
@@ -135,6 +154,9 @@ model ReleaseChannel {
   downloadPolicies DownloadPolicy[]
   downloadRequests DownloadRequest[]
   newsFeedItems    NewsFeedItem[]
+  telemetryEvents  DesktopTelemetryEvent[]
+  featureRequests  FeatureRequest[]
+  softwareDemandRequests SoftwareDemandRequest[]
 }
 
 model Build {
@@ -418,6 +440,79 @@ model NewsFeedItem {
 
   @@index([productId, editionId, channelId, status, publishedAt])
   @@index([category, status, publishedAt])
+}
+
+model DesktopTelemetryEvent {
+  id             String            @id @default(cuid())
+  productId      String
+  editionId      String
+  channelId      String
+  installationId String?
+  appVersion     String
+  eventType      String
+  severity       TelemetrySeverity @default(INFO)
+  message        String?
+  payloadJson    String?
+  occurredAt     DateTime?
+  receivedAt     DateTime          @default(now())
+  ipAddress      String?
+  userAgent      String?
+  product        Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition        ProductEdition    @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel        ReleaseChannel    @relation(fields: [channelId], references: [id], onDelete: Restrict)
+
+  @@index([productId, editionId, channelId, receivedAt])
+  @@index([installationId])
+  @@index([eventType, receivedAt])
+  @@index([severity, receivedAt])
+}
+
+model FeatureRequest {
+  id             String             @id @default(cuid())
+  productId      String
+  editionId      String
+  channelId      String
+  installationId String?
+  appVersion     String?
+  email          String?
+  title          String
+  description    String
+  status         FeedbackItemStatus @default(NEW)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  product        Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition        ProductEdition     @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel        ReleaseChannel     @relation(fields: [channelId], references: [id], onDelete: Restrict)
+
+  @@index([productId, editionId, channelId, createdAt])
+  @@index([installationId])
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model SoftwareDemandRequest {
+  id                    String             @id @default(cuid())
+  productId             String
+  editionId             String
+  channelId             String
+  installationId        String?
+  appVersion            String?
+  email                 String?
+  company               String?
+  requestedSoftwareName String
+  useCase               String
+  details               String?
+  status                FeedbackItemStatus @default(NEW)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  product               Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  edition               ProductEdition     @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  channel               ReleaseChannel     @relation(fields: [channelId], references: [id], onDelete: Restrict)
+
+  @@index([productId, editionId, channelId, createdAt])
+  @@index([installationId])
+  @@index([status, createdAt])
+  @@index([email])
 }
 
 model EmailTemplate {

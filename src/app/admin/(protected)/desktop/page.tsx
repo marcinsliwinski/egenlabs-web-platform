@@ -57,7 +57,7 @@ export default async function AdminDesktopPage({ searchParams }: AdminDesktopPag
       <header style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
           <h1>Desktop API management</h1>
-          <p>Manage desktop news feed items and review the accepted MVP update/news API foundation.</p>
+          <p>Manage desktop news feed items and review the accepted MVP desktop API foundation for updates, news, telemetry, and feedback intake.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/admin">Back to admin</Link>
@@ -67,6 +67,7 @@ export default async function AdminDesktopPage({ searchParams }: AdminDesktopPag
           <Link href="/api/v1/desktop/news?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0">
             Open news endpoint sample
           </Link>
+          <Link href="/admin/desktop/intake">Open telemetry and feedback intake</Link>
         </div>
       </header>
 
@@ -92,6 +93,7 @@ export default async function AdminDesktopPage({ searchParams }: AdminDesktopPag
           <li>News feed items: {overview.stats.newsItemCount}</li>
           <li>Published news items: {overview.stats.publishedNewsItemCount}</li>
           <li>Pinned news items: {overview.stats.pinnedNewsItemCount}</li>
+          <li><Link href="/admin/desktop/intake">Open telemetry and feedback intake review</Link></li>
           <li>Desktop update endpoint: <code>GET /api/v1/desktop/update</code></li>
           <li>Desktop news endpoint: <code>GET /api/v1/desktop/news</code></li>
         </ul>

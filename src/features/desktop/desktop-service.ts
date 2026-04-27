@@ -1,4 +1,4 @@
-import { ContentStatus, NewsFeedCategory } from '@prisma/client';
+import { ContentStatus, FeedbackItemStatus, NewsFeedCategory, TelemetrySeverity } from '@prisma/client';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { db } from '@/lib/db';
@@ -83,6 +83,38 @@ function clampNewsLimit(value: number | undefined) {
   }
 
   return Math.max(1, Math.min(value, 50));
+}
+
+export async function resolveDesktopContextByKeys(productKey: string, editionKey: string, channelKey: string) {
+  const [product, channel] = await Promise.all([
+    db.product.findFirst({
+      where: {
+        key: productKey,
+        editions: {
+          some: { key: editionKey }
+        }
+      },
+      include: {
+        editions: {
+          where: { key: editionKey },
+          take: 1
+        }
+      }
+    }),
+    db.releaseChannel.findUnique({ where: { key: channelKey } })
+  ]);
+
+  const edition = product?.editions[0] ?? null;
+
+  if (!product || !edition || !channel) {
+    return null;
+  }
+
+  return {
+    product,
+    edition,
+    channel
+  };
 }
 
 async function resolveDesktopCombination(productKey: string, editionKey: string, channelKey: string) {
@@ -205,27 +237,9 @@ export async function getDesktopUpdateSnapshot(filters: DesktopUpdateFilters) {
 
 export async function getDesktopNewsFeed(filters: DesktopNewsFilters) {
   const limit = clampNewsLimit(filters.limit);
-  const [product, channel] = await Promise.all([
-    db.product.findFirst({
-      where: {
-        key: filters.productKey,
-        editions: {
-          some: { key: filters.editionKey }
-        }
-      },
-      include: {
-        editions: {
-          where: { key: filters.editionKey },
-          take: 1
-        }
-      }
-    }),
-    db.releaseChannel.findUnique({ where: { key: filters.channelKey } })
-  ]);
+  const context = await resolveDesktopContextByKeys(filters.productKey, filters.editionKey, filters.channelKey);
 
-  const edition = product?.editions[0] ?? null;
-
-  if (!product || !edition || !channel) {
+  if (!context) {
     return {
       found: false as const,
       status: 'combination_not_found' as const,
@@ -235,9 +249,9 @@ export async function getDesktopNewsFeed(filters: DesktopNewsFilters) {
 
   const newsItems = await db.newsFeedItem.findMany({
     where: {
-      productId: product.id,
-      editionId: edition.id,
-      channelId: channel.id,
+      productId: context.product.id,
+      editionId: context.edition.id,
+      channelId: context.channel.id,
       status: ContentStatus.PUBLISHED,
       publishedAt: {
         lte: new Date()
@@ -270,17 +284,17 @@ export async function getDesktopNewsFeed(filters: DesktopNewsFilters) {
     found: true as const,
     status: 'ok' as const,
     product: {
-      key: product.key,
-      name: product.name,
-      slug: product.slug
+      key: context.product.key,
+      name: context.product.name,
+      slug: context.product.slug
     },
     edition: {
-      key: edition.key,
-      name: edition.name
+      key: context.edition.key,
+      name: context.edition.name
     },
     channel: {
-      key: channel.key,
-      name: channel.name
+      key: context.channel.key,
+      name: context.channel.name
     },
     filters: {
       currentVersion: filters.currentVersion ?? null,
@@ -334,5 +348,61 @@ export async function getAdminDesktopOverview() {
       pinnedNewsItemCount: stats[2]
     },
     newsItems
+  };
+}
+
+export async function getAdminDesktopIntakeOverview() {
+  const admin = await requireAuthenticatedAdmin();
+  const [stats, telemetryEvents, featureRequests, softwareDemandRequests] = await Promise.all([
+    Promise.all([
+      db.desktopTelemetryEvent.count(),
+      db.desktopTelemetryEvent.count({ where: { severity: TelemetrySeverity.ERROR } }),
+      db.featureRequest.count(),
+      db.featureRequest.count({ where: { status: FeedbackItemStatus.NEW } }),
+      db.softwareDemandRequest.count(),
+      db.softwareDemandRequest.count({ where: { status: FeedbackItemStatus.NEW } })
+    ]),
+    db.desktopTelemetryEvent.findMany({
+      include: {
+        product: true,
+        edition: true,
+        channel: true
+      },
+      orderBy: [{ receivedAt: 'desc' }],
+      take: 50
+    }),
+    db.featureRequest.findMany({
+      include: {
+        product: true,
+        edition: true,
+        channel: true
+      },
+      orderBy: [{ createdAt: 'desc' }],
+      take: 50
+    }),
+    db.softwareDemandRequest.findMany({
+      include: {
+        product: true,
+        edition: true,
+        channel: true
+      },
+      orderBy: [{ createdAt: 'desc' }],
+      take: 50
+    })
+  ]);
+
+  return {
+    admin,
+    stats: {
+      telemetryEventCount: stats[0],
+      errorTelemetryCount: stats[1],
+      featureRequestCount: stats[2],
+      newFeatureRequestCount: stats[3],
+      softwareDemandCount: stats[4],
+      newSoftwareDemandCount: stats[5]
+    },
+    telemetryEvents,
+    featureRequests,
+    softwareDemandRequests
   };
 }

@@ -55,8 +55,8 @@ export async function GET(request: Request) {
 
   return NextResponse.json(
     {
-      status: 'ok',
-      ...result
+      ...result,
+      status: 'ok'
     },
     { status: 200, headers: { 'Cache-Control': 'no-store' } }
   );

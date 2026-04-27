@@ -187,6 +187,10 @@ Routes currently included:
 - `GET /admin/desktop` - protected desktop news feed management page
 - `GET /api/v1/desktop/update` - desktop update check endpoint
 - `GET /api/v1/desktop/news` - desktop news feed endpoint
+- `POST /api/v1/desktop/telemetry` - desktop telemetry intake endpoint
+- `POST /api/v1/desktop/feature-requests` - desktop feature request intake endpoint
+- `POST /api/v1/desktop/software-demand` - desktop software demand intake endpoint
+- `GET /admin/desktop/intake` - protected telemetry and desktop feedback review page
 
 ### Bootstrap the first admin user
 
@@ -504,3 +508,69 @@ This step intentionally does not yet include:
 - telemetry intake,
 - feature request intake,
 - software demand request intake.
+
+
+## Desktop telemetry and feedback intake foundation
+
+The repository now also includes the accepted MVP foundation for desktop-side write APIs:
+- telemetry intake endpoint,
+- feature request intake endpoint,
+- software demand intake endpoint,
+- protected admin review page at `GET /admin/desktop/intake`.
+
+This step supports:
+- `POST /api/v1/desktop/telemetry` with product / edition / channel scoping,
+- `POST /api/v1/desktop/feature-requests`,
+- `POST /api/v1/desktop/software-demand`,
+- admin visibility into accepted telemetry events and desktop-side feedback records.
+
+Example telemetry request:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/desktop/telemetry \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product": "fito-gen",
+    "edition": "essentials",
+    "channel": "stable",
+    "installationId": "demo-installation-001",
+    "appVersion": "0.1.0",
+    "eventType": "APP_STARTED",
+    "severity": "INFO",
+    "message": "Desktop client started successfully",
+    "payload": {"launchMode": "manual"}
+  }'
+```
+
+Example feature request:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/desktop/feature-requests \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product": "fito-gen",
+    "edition": "essentials",
+    "channel": "stable",
+    "installationId": "demo-installation-001",
+    "appVersion": "0.1.0",
+    "title": "Add batch label printing",
+    "description": "It would help nursery operations if labels could be printed in batches for selected plants."
+  }'
+```
+
+Example software demand request:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/desktop/software-demand \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product": "fito-gen",
+    "edition": "essentials",
+    "channel": "stable",
+    "installationId": "demo-installation-001",
+    "appVersion": "0.1.0",
+    "requestedSoftwareName": "eGen Inventory",
+    "useCase": "We need a lightweight inventory and stock tracking tool for nursery operations.",
+    "company": "Demo Nursery"
+  }'
+```
