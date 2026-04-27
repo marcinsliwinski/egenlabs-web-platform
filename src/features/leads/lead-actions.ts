@@ -61,11 +61,14 @@ export async function registerDownloadRequestAction(formData: FormData) {
     getRedirectWithStatus('download_combination_unavailable', 'error');
   }
 
-  if (!consentDefinitions.downloadRegistration) {
+  const downloadRegistrationDefinition = consentDefinitions.downloadRegistration;
+  const marketingEmailDefinition = consentDefinitions.marketingEmail;
+
+  if (!downloadRegistrationDefinition) {
     getRedirectWithStatus('required_consent_missing', 'error');
   }
 
-  if (!consentDefinitions.marketingEmail) {
+  if (!marketingEmailDefinition) {
     getRedirectWithStatus('marketing_consent_missing', 'error');
   }
 
@@ -104,7 +107,7 @@ export async function registerDownloadRequestAction(formData: FormData) {
       data: [
         {
           leadId: lead.id,
-          definitionId: consentDefinitions.downloadRegistration.id,
+          definitionId: downloadRegistrationDefinition.id,
           downloadRequestId: downloadRequest.id,
           granted: true,
           source: 'PUBLIC_DOWNLOAD_REGISTRATION',
@@ -113,7 +116,7 @@ export async function registerDownloadRequestAction(formData: FormData) {
         },
         {
           leadId: lead.id,
-          definitionId: consentDefinitions.marketingEmail.id,
+          definitionId: marketingEmailDefinition.id,
           downloadRequestId: downloadRequest.id,
           granted: Boolean(input.marketingConsent),
           source: 'PUBLIC_DOWNLOAD_REGISTRATION',

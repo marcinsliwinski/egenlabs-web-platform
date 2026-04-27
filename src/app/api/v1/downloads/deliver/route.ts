@@ -29,7 +29,9 @@ export async function GET(request: Request) {
     );
   }
 
-  return new NextResponse(result.body, {
+  const responseBody = Uint8Array.from(result.body);
+
+  return new NextResponse(responseBody, {
     status: 200,
     headers: {
       'Content-Type': result.contentType,
