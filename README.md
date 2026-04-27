@@ -175,6 +175,11 @@ Routes currently included:
 - `GET /download/register` - public MVP download registration shell
 - `GET /download/access` - public issued-link validation shell
 - `GET /api/v1/downloads/deliver` - final download delivery shell endpoint
+- `GET /admin/content` - protected manual FAQ and blog content management page
+- `GET /products/fito-gen` - public product landing foundation for Fito Gen Essentials
+- `GET /faq` - public FAQ page
+- `GET /blog` - public blog list page
+- `GET /blog/[slug]` - public blog article detail page
 
 ### Bootstrap the first admin user
 
@@ -399,3 +404,32 @@ This step still does not include:
 - newsletter automation,
 - marketing campaigns,
 - queue workers or advanced retry orchestration.
+
+
+## Content module foundation
+
+The repository now also includes the accepted shell for public-site and content management MVP scope:
+- `FaqEntry`
+- `BlogPost`
+- manual content management at `GET /admin/content`
+- public content routes:
+  - `GET /faq`
+  - `GET /blog`
+  - `GET /blog/[slug]`
+  - `GET /products/fito-gen`
+
+To bootstrap the accepted local starter content, run:
+
+```bash
+npm run content:bootstrap
+```
+
+This upserts:
+- 3 published FAQ entries,
+- 3 published launch blog posts.
+
+This step intentionally avoids:
+- enterprise CMS workflow,
+- preview publishing,
+- rich asset management,
+- advanced editorial states beyond `DRAFT` and `PUBLISHED`.

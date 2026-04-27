@@ -2,20 +2,25 @@ import Link from 'next/link';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { getCatalogOverview } from '@/features/catalog/catalog-service';
+import { getAdminContentOverview } from '@/features/content/content-service';
 import { getEmailAdminOverview } from '@/features/email/email-service';
 
 export default async function AdminHomePage() {
-  const [admin, overview, emailOverview] = await Promise.all([
+  const [admin, overview, emailOverview, contentOverview] = await Promise.all([
     requireAuthenticatedAdmin(),
     getCatalogOverview(),
-    getEmailAdminOverview()
+    getEmailAdminOverview(),
+    getAdminContentOverview()
   ]);
   const canManageCatalog = admin.role === 'ADMIN';
 
   return (
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
-      <p>Admin auth shell, download foundation, leads/consents, transactional email delivery, and final delivery shell are active.</p>
+      <p>
+        Admin auth shell, content foundation, download foundation, leads/consents, transactional email delivery, and
+        final delivery shell are active.
+      </p>
       <dl>
         <dt>Signed in as</dt>
         <dd>{admin.email}</dd>
@@ -37,6 +42,8 @@ export default async function AdminHomePage() {
           <li>Transactional email logs: {emailOverview.stats.emailLogCount}</li>
           <li>Brevo deliveries: {emailOverview.stats.brevoEmailCount}</li>
           <li>Log-only deliveries: {emailOverview.stats.logOnlyEmailCount}</li>
+          <li>FAQ entries: {contentOverview.stats.faqCount}</li>
+          <li>Published blog posts: {contentOverview.stats.publishedBlogPostCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>
@@ -49,6 +56,12 @@ export default async function AdminHomePage() {
         </p>
         <p>
           <Link href="/admin/emails">Open transactional email logs</Link>
+        </p>
+        <p>
+          <Link href="/admin/content">Open content management</Link>
+        </p>
+        <p>
+          <Link href="/products/fito-gen">Open product landing</Link>
         </p>
         <p>
           <Link href="/download/register">Open public registration shell</Link>
