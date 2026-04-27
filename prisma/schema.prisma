@@ -44,6 +44,18 @@ enum ContentStatus {
   PUBLISHED
 }
 
+enum ContactInquiryStatus {
+  NEW
+  REVIEWED
+  CLOSED
+}
+
+enum EnterpriseInterestStatus {
+  NEW
+  QUALIFIED
+  ARCHIVED
+}
+
 
 model AdminUser {
   id                  String         @id @default(cuid())
@@ -203,15 +215,18 @@ model DownloadLink {
 }
 
 model Lead {
-  id               String           @id @default(cuid())
-  email            String           @unique
-  firstSeenAt      DateTime         @default(now())
-  lastSeenAt       DateTime         @default(now())
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  downloadRequests DownloadRequest[]
-  consentRecords   ConsentRecord[]
-  emailLogs        EmailLog[]
+  id                     String                 @id @default(cuid())
+  email                  String                 @unique
+  firstSeenAt            DateTime               @default(now())
+  lastSeenAt             DateTime               @default(now())
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  downloadRequests       DownloadRequest[]
+  consentRecords         ConsentRecord[]
+  emailLogs              EmailLog[]
+  newsletterSubscription NewsletterSubscription?
+  contactInquiries       ContactInquiry[]
+  enterpriseInterests    EnterpriseInterest[]
 }
 
 model ConsentDefinition {
@@ -286,6 +301,60 @@ model DownloadRequest {
   @@index([status])
 }
 
+
+
+model NewsletterSubscription {
+  id            String   @id @default(cuid())
+  leadId        String   @unique
+  source        String
+  isActive      Boolean  @default(true)
+  subscribedAt  DateTime @default(now())
+  unsubscribedAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, subscribedAt])
+}
+
+model ContactInquiry {
+  id                     String               @id @default(cuid())
+  leadId                 String?
+  email                  String
+  name                   String
+  company                String?
+  topic                  String
+  message                String
+  marketingConsentGranted Boolean            @default(false)
+  status                 ContactInquiryStatus @default(NEW)
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  lead                   Lead?                @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model EnterpriseInterest {
+  id                     String                   @id @default(cuid())
+  leadId                 String?
+  email                  String
+  name                   String
+  company                String
+  role                   String?
+  teamSize               String?
+  message                String
+  marketingConsentGranted Boolean                @default(false)
+  status                 EnterpriseInterestStatus @default(NEW)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  lead                   Lead?                    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([status, createdAt])
+  @@index([email])
+}
 
 model FaqEntry {
   id          String        @id @default(cuid())

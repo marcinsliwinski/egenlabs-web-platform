@@ -180,6 +180,10 @@ Routes currently included:
 - `GET /faq` - public FAQ page
 - `GET /blog` - public blog list page
 - `GET /blog/[slug]` - public blog article detail page
+- `GET /newsletter` - public newsletter-only signup page
+- `GET /contact` - public contact form page
+- `GET /enterprise` - public Enterprise / Pro interest page
+- `GET /admin/forms` - protected newsletter, contact, and enterprise admin review page
 
 ### Bootstrap the first admin user
 
@@ -287,6 +291,26 @@ This step does not yet include:
 - marketing automation or newsletter campaigns,
 - external storage-backed signed delivery.
 
+
+## Public forms foundation
+
+The repository now also includes the accepted public-form foundation for the remaining MVP communication entry points:
+- newsletter-only signup without download,
+- contact form,
+- Enterprise / Pro interest form,
+- protected admin review page at `GET /admin/forms`.
+
+This step supports:
+- storing newsletter signups as dedicated records linked to existing `Lead` entries,
+- recording marketing consent history for newsletter-only, contact, and enterprise submissions,
+- storing contact inquiries and enterprise-interest submissions in dedicated tables,
+- reviewing the latest submissions in the admin panel.
+
+This step intentionally avoids:
+- marketing automation,
+- CRM pipeline orchestration,
+- advanced anti-spam or routing workflows.
+
 ## Getting started
 
 1. Clone the public repository:
@@ -343,7 +367,11 @@ npm run dev
 - `http://localhost:3000/`
 - `http://localhost:3000/admin/login`
 - `http://localhost:3000/download/register`
+- `http://localhost:3000/newsletter`
+- `http://localhost:3000/contact`
+- `http://localhost:3000/enterprise`
 - `http://localhost:3000/admin/emails`
+- `http://localhost:3000/admin/forms`
 
 ### Optional: enable Brevo transactional delivery
 
@@ -433,3 +461,15 @@ This step intentionally avoids:
 - preview publishing,
 - rich asset management,
 - advanced editorial states beyond `DRAFT` and `PUBLISHED`.
+
+
+### Tip after schema changes
+
+If a newly added Prisma model appears as `undefined` during `next dev`, regenerate Prisma Client and clear the local Next.js cache before restarting the server:
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+rm -rf .next
+npm run dev
+```

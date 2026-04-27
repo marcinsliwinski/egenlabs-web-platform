@@ -26,6 +26,9 @@ export default async function HomePage() {
           <Link href="/download/register">Open download registration</Link>
           <Link href="/faq">Open FAQ</Link>
           <Link href="/blog">Open blog</Link>
+          <Link href="/newsletter">Open newsletter signup</Link>
+          <Link href="/contact">Open contact form</Link>
+          <Link href="/enterprise">Open enterprise form</Link>
         </div>
       </header>
 
@@ -40,7 +43,7 @@ export default async function HomePage() {
         </article>
         <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
           <h2>Launch flow</h2>
-          <p>Users can already register, receive transactional email issuance, and access the delivery shell.</p>
+          <p>Users can already register, receive transactional email issuance, access the delivery shell, and submit newsletter, contact, or enterprise-interest forms.</p>
         </article>
       </section>
 

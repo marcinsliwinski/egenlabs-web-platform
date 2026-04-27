@@ -4,13 +4,15 @@ import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { getCatalogOverview } from '@/features/catalog/catalog-service';
 import { getAdminContentOverview } from '@/features/content/content-service';
 import { getEmailAdminOverview } from '@/features/email/email-service';
+import { getFormsAdminOverview } from '@/features/forms/forms-service';
 
 export default async function AdminHomePage() {
-  const [admin, overview, emailOverview, contentOverview] = await Promise.all([
+  const [admin, overview, emailOverview, contentOverview, formsOverview] = await Promise.all([
     requireAuthenticatedAdmin(),
     getCatalogOverview(),
     getEmailAdminOverview(),
-    getAdminContentOverview()
+    getAdminContentOverview(),
+    getFormsAdminOverview()
   ]);
   const canManageCatalog = admin.role === 'ADMIN';
 
@@ -18,8 +20,7 @@ export default async function AdminHomePage() {
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
       <p>
-        Admin auth shell, content foundation, download foundation, leads/consents, transactional email delivery, and
-        final delivery shell are active.
+        Admin auth shell, content foundation, download foundation, leads/consents, transactional email delivery, public form foundations, and final delivery shell are active.
       </p>
       <dl>
         <dt>Signed in as</dt>
@@ -44,6 +45,9 @@ export default async function AdminHomePage() {
           <li>Log-only deliveries: {emailOverview.stats.logOnlyEmailCount}</li>
           <li>FAQ entries: {contentOverview.stats.faqCount}</li>
           <li>Published blog posts: {contentOverview.stats.publishedBlogPostCount}</li>
+          <li>Newsletter signups: {formsOverview.stats.newsletterCount}</li>
+          <li>Contact inquiries: {formsOverview.stats.contactInquiryCount}</li>
+          <li>Enterprise interest submissions: {formsOverview.stats.enterpriseInterestCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>
@@ -61,10 +65,16 @@ export default async function AdminHomePage() {
           <Link href="/admin/content">Open content management</Link>
         </p>
         <p>
+          <Link href="/admin/forms">Open newsletter, contact, and enterprise forms</Link>
+        </p>
+        <p>
           <Link href="/products/fito-gen">Open product landing</Link>
         </p>
         <p>
           <Link href="/download/register">Open public registration shell</Link>
+        </p>
+        <p>
+          <Link href="/newsletter">Open newsletter-only signup</Link>
         </p>
         <p>{canManageCatalog ? 'You can create and activate builds.' : 'You currently have read-only access to catalog data.'}</p>
       </section>

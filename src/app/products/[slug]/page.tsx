@@ -34,6 +34,9 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
           <Link href="/faq">FAQ</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/download/register">Download registration</Link>
+          <Link href="/newsletter">Newsletter</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="/enterprise">Enterprise</Link>
         </nav>
         <div>
           <h1>{product.name} {primaryEdition ? primaryEdition.name : ''}</h1>
@@ -46,6 +49,7 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
           <Link href="/download/register">Register and download</Link>
           <Link href="/faq">Read FAQ</Link>
           <Link href="/blog">Read launch articles</Link>
+          <Link href="/enterprise">Discuss enterprise needs</Link>
         </div>
       </header>
 
@@ -61,7 +65,7 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
         </article>
         <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
           <h2>Next user action</h2>
-          <p>The public MVP path continues through registration, transactional email issuance, and final delivery shell access.</p>
+          <p>The public MVP path now includes download registration, newsletter-only signup, direct contact, and enterprise-interest capture.</p>
         </article>
       </section>
 
