@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { PdfVisibility } from '@prisma/client';
+
 import { getPublicProductLandingOverview } from '@/features/content/content-service';
 
 function renderPublishedAt(value: Date | null) {
@@ -25,6 +27,9 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
 
   const product = overview.product;
   const primaryEdition = product.editions[0];
+  const publicPdf = product.marketingPdf && product.marketingPdf.isEnabled && product.marketingPdf.visibility === PdfVisibility.PUBLIC
+    ? product.marketingPdf
+    : null;
 
   return (
     <main style={{ maxWidth: 1040, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '2rem' }}>
@@ -37,6 +42,7 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
           <Link href="/newsletter">Newsletter</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/enterprise">Enterprise</Link>
+          {publicPdf ? <Link href={`/one-pager/${publicPdf.slug}`}>Product PDF</Link> : null}
         </nav>
         <div>
           <h1>{product.name} {primaryEdition ? primaryEdition.name : ''}</h1>
@@ -50,13 +56,14 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
           <Link href="/faq">Read FAQ</Link>
           <Link href="/blog">Read launch articles</Link>
           <Link href="/enterprise">Discuss enterprise needs</Link>
+          {publicPdf ? <Link href={`/one-pager/${publicPdf.slug}`}>Open one-pager PDF</Link> : null}
         </div>
       </header>
 
       <section style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
         <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
           <h2>Current focus</h2>
-          <p>Fito Gen Essentials supports the accepted MVP launch with manual content management, controlled download delivery, and lead capture.</p>
+          <p>Fito Gen Essentials supports the accepted MVP launch with manual content management, controlled download delivery, public forms, and a configurable PDF one-pager.</p>
         </article>
         <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
           <h2>Release readiness</h2>
@@ -65,9 +72,20 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
         </article>
         <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
           <h2>Next user action</h2>
-          <p>The public MVP path now includes download registration, newsletter-only signup, direct contact, and enterprise-interest capture.</p>
+          <p>The public MVP path now includes download registration, newsletter-only signup, direct contact, enterprise-interest capture, and product PDF delivery.</p>
         </article>
       </section>
+
+      {publicPdf ? (
+        <section style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.5rem' }}>
+          <h2 style={{ marginTop: 0 }}>Product PDF one-pager</h2>
+          <p style={{ margin: 0 }}>{publicPdf.title}</p>
+          <p style={{ margin: 0 }}>{publicPdf.description ?? 'A concise downloadable PDF overview for the currently supported product.'}</p>
+          <div>
+            <Link href={`/one-pager/${publicPdf.slug}`}>Open PDF one-pager</Link>
+          </div>
+        </section>
+      ) : null}
 
       <section style={{ display: 'grid', gap: '1rem' }}>
         <h2>Latest launch articles</h2>

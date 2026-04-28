@@ -176,6 +176,9 @@ Routes currently included:
 - `GET /download/access` - public issued-link validation shell
 - `GET /api/v1/downloads/deliver` - final download delivery shell endpoint
 - `GET /admin/content` - protected manual FAQ and blog content management page
+- `GET /admin/pdfs` - protected PDF one-pager management page
+- `GET /one-pager/[slug]` - public or admin-only PDF one-pager detail page
+- `GET /api/v1/pdf/download` - PDF one-pager delivery endpoint
 - `GET /products/fito-gen` - public product landing foundation for Fito Gen Essentials
 - `GET /faq` - public FAQ page
 - `GET /blog` - public blog list page
@@ -358,19 +361,27 @@ npx prisma migrate deploy
 npm run catalog:bootstrap
 ```
 
-7. Create the first admin account:
+7. Bootstrap starter content, desktop news, and the PDF one-pager sample:
+
+```bash
+npm run content:bootstrap
+npm run desktop:bootstrap
+npm run pdf:bootstrap
+```
+
+8. Create the first admin account:
 
 ```bash
 npm run admin:create -- --email=admin@example.com --password=change-me-now --role=ADMIN
 ```
 
-8. Start the application:
+9. Start the application:
 
 ```bash
 npm run dev
 ```
 
-9. Open the main flows locally:
+10. Open the main flows locally:
 - `http://localhost:3000/`
 - `http://localhost:3000/admin/login`
 - `http://localhost:3000/download/register`
@@ -379,6 +390,8 @@ npm run dev
 - `http://localhost:3000/enterprise`
 - `http://localhost:3000/admin/emails`
 - `http://localhost:3000/admin/forms`
+- `http://localhost:3000/admin/pdfs`
+- `http://localhost:3000/one-pager/fito-gen-one-pager`
 
 ### Optional: enable Brevo transactional delivery
 
@@ -480,6 +493,33 @@ npx prisma migrate deploy
 rm -rf .next
 npm run dev
 ```
+
+
+## PDF one-pager foundation
+
+The repository now also includes the accepted MVP foundation for product PDF handling:
+- `MarketingPdf`
+- public/private visibility configuration
+- protected admin page at `GET /admin/pdfs`
+- public or admin-only PDF page at `GET /one-pager/[slug]`
+- PDF delivery endpoint at `GET /api/v1/pdf/download?slug=...`
+
+To bootstrap the accepted baseline PDF record for local development, run:
+
+```bash
+npm run pdf:bootstrap
+```
+
+This step supports:
+- one PDF one-pager per product,
+- public or private visibility,
+- manual storage-path configuration without a full asset manager,
+- direct PDF delivery from `storage/media` when the file exists.
+
+This step intentionally avoids:
+- multi-asset media library workflows,
+- gated PDF campaigns,
+- full upload management for all marketing materials.
 
 ## Desktop API foundation
 

@@ -68,7 +68,8 @@ export async function getPublicProductLandingOverview(productSlug: string) {
             assets: true
           },
           orderBy: [{ updatedAt: 'desc' }]
-        }
+        },
+        marketingPdf: true
       }
     }),
     getPublicSiteOverview()

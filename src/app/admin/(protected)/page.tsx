@@ -6,16 +6,18 @@ import { getAdminContentOverview } from '@/features/content/content-service';
 import { getEmailAdminOverview } from '@/features/email/email-service';
 import { getFormsAdminOverview } from '@/features/forms/forms-service';
 import { getAdminDesktopIntakeOverview, getAdminDesktopOverview } from '@/features/desktop/desktop-service';
+import { getAdminPdfOverview } from '@/features/pdf/pdf-service';
 
 export default async function AdminHomePage() {
-  const [admin, overview, emailOverview, contentOverview, formsOverview, desktopOverview, desktopIntakeOverview] = await Promise.all([
+  const [admin, overview, emailOverview, contentOverview, formsOverview, desktopOverview, desktopIntakeOverview, pdfOverview] = await Promise.all([
     requireAuthenticatedAdmin(),
     getCatalogOverview(),
     getEmailAdminOverview(),
     getAdminContentOverview(),
     getFormsAdminOverview(),
     getAdminDesktopOverview(),
-    getAdminDesktopIntakeOverview()
+    getAdminDesktopIntakeOverview(),
+    getAdminPdfOverview()
   ]);
   const canManageCatalog = admin.role === 'ADMIN';
 
@@ -23,7 +25,7 @@ export default async function AdminHomePage() {
     <main style={{ maxWidth: 720, margin: '4rem auto', padding: '0 1rem' }}>
       <h1>Admin panel</h1>
       <p>
-        Admin auth shell, content foundation, download foundation, leads/consents, transactional email delivery, public form foundations, and desktop-facing API foundations are active.
+        Admin auth shell, content foundation, download foundation, PDF one-pager management, leads/consents, transactional email delivery, public form foundations, and desktop-facing API foundations are active.
       </p>
       <dl>
         <dt>Signed in as</dt>
@@ -48,6 +50,8 @@ export default async function AdminHomePage() {
           <li>Log-only deliveries: {emailOverview.stats.logOnlyEmailCount}</li>
           <li>FAQ entries: {contentOverview.stats.faqCount}</li>
           <li>Published blog posts: {contentOverview.stats.publishedBlogPostCount}</li>
+          <li>Configured PDF one-pagers: {pdfOverview.stats.totalPdfCount}</li>
+          <li>Enabled PDF one-pagers: {pdfOverview.stats.enabledPdfCount}</li>
           <li>Newsletter signups: {formsOverview.stats.newsletterCount}</li>
           <li>Contact inquiries: {formsOverview.stats.contactInquiryCount}</li>
           <li>Enterprise interest submissions: {formsOverview.stats.enterpriseInterestCount}</li>
@@ -73,6 +77,9 @@ export default async function AdminHomePage() {
           <Link href="/admin/content">Open content management</Link>
         </p>
         <p>
+          <Link href="/admin/pdfs">Open PDF one-pager management</Link>
+        </p>
+        <p>
           <Link href="/admin/forms">Open newsletter, contact, and enterprise forms</Link>
         </p>
         <p>
@@ -83,6 +90,9 @@ export default async function AdminHomePage() {
         </p>
         <p>
           <Link href="/products/fito-gen">Open product landing</Link>
+        </p>
+        <p>
+          <Link href="/one-pager/fito-gen-one-pager">Open PDF one-pager sample</Link>
         </p>
         <p>
           <Link href="/download/register">Open public registration shell</Link>
