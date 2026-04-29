@@ -676,3 +676,23 @@ Current CSV exports include:
 - desktop telemetry events.
 
 Exports are available through the admin UI and protected endpoints under `GET /api/v1/admin/exports/[dataset]`.
+
+
+## MVP release checkpoint
+
+The repository now includes a dedicated release-checkpoint layer for final MVP review:
+- `docs/mvp-release-checkpoint.md` - operational release-readiness checklist,
+- `docs/mvp-gap-analysis.md` - practical implementation gap summary,
+- `npm run smoke:mvp` - automated smoke checks for public routes and desktop-facing read APIs,
+- `npm run checkpoint:mvp` - shorthand for `typecheck`, `lint`, `smoke:health`, and `smoke:mvp`.
+
+Before a final checkpoint review, run:
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+rm -rf .next
+npm run checkpoint:mvp
+```
+
+Then review the manual checkpoint steps in `docs/mvp-release-checkpoint.md`.

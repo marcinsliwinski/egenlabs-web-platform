@@ -23,7 +23,9 @@
     "ops:backup:storage": "bash scripts/backup-storage.sh",
     "ops:backup:all": "bash scripts/backup-all.sh",
     "ops:restore:db": "bash scripts/restore-postgres.sh",
-    "ops:restore:storage": "bash scripts/restore-storage.sh"
+    "ops:restore:storage": "bash scripts/restore-storage.sh",
+    "smoke:mvp": "node scripts/smoke-mvp.mjs",
+    "checkpoint:mvp": "npm run typecheck && npm run lint && npm run smoke:health && npm run smoke:mvp"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
