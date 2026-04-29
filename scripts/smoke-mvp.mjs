@@ -78,14 +78,12 @@ async function main() {
   }
 
   if (failures > 0) {
-    console.error(`
-MVP smoke checks failed: ${failures} failing check(s).`);
+    console.error(`\nMVP smoke checks failed: ${failures} failing check(s).`);
     process.exitCode = 1;
     return;
   }
 
-  console.log('
-All MVP smoke checks passed.');
+  console.log('\nAll MVP smoke checks passed.');
 }
 
 await main();
