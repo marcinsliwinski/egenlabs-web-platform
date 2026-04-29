@@ -40,7 +40,7 @@ export default async function AdminOperationsPage() {
     <main style={{ maxWidth: 960, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '2rem' }}>
       <header>
         <h1>Operations</h1>
-        <p>Audit logging and CSV export foundation for admin operations.</p>
+        <p>Audit logging, CSV export, and backup/restore runbook foundation for admin operations.</p>
         <p>
           Signed in as <strong>{auditOverview.admin.email}</strong> ({auditOverview.admin.role})
         </p>
@@ -52,6 +52,20 @@ export default async function AdminOperationsPage() {
           <li>Total audit entries: {auditOverview.stats.auditLogCount}</li>
           <li>Audit entries in the last 24h: {auditOverview.stats.recentAuditLogCount}</li>
         </ul>
+      </section>
+
+      <section>
+        <h2>Backup and restore runbook</h2>
+        <p>Default backup root is intentionally kept outside the repository: <code>../egenlabs-web-platform-backups</code>.</p>
+        <ul>
+          <li><code>npm run ops:backup:all</code></li>
+          <li><code>npm run ops:backup:db</code></li>
+          <li><code>npm run ops:backup:storage</code></li>
+          <li><code>npm run ops:restore:db -- --file=/path/to/postgres.sql</code></li>
+          <li><code>npm run ops:restore:storage -- --file=/path/to/storage.tar.gz</code></li>
+        </ul>
+        <p>Runbook location: <code>docs/operations-backup-restore.md</code></p>
+        <p>Backups and restored artifacts must stay outside Git and outside tracked project files.</p>
       </section>
 
       <section>

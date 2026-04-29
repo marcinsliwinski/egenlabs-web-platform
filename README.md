@@ -53,7 +53,7 @@ The first production version includes:
 - news feed endpoint,
 - telemetry intake endpoint,
 - feature request and software demand request endpoints,
-- audit logging, backup, restore, and basic observability.
+- audit logging, CSV exports, backup, restore, and basic observability.
 
 ## Proposed stack
 
@@ -194,7 +194,7 @@ Routes currently included:
 - `POST /api/v1/desktop/feature-requests` - desktop feature request intake endpoint
 - `POST /api/v1/desktop/software-demand` - desktop software demand intake endpoint
 - `GET /admin/desktop/intake` - protected telemetry and desktop feedback review page
-- `GET /admin/operations` - protected audit log and CSV export operations page
+- `GET /admin/operations` - protected audit log, CSV export, and recovery operations page
 - `GET /api/v1/admin/exports/[dataset]` - protected CSV export endpoint for operational datasets
 
 ### Bootstrap the first admin user
@@ -323,6 +323,37 @@ This step intentionally avoids:
 - CRM pipeline orchestration,
 - advanced anti-spam or routing workflows.
 
+## Backup and restore shell
+
+The repository now also includes the accepted MVP shell for operational backup and restore:
+- PostgreSQL backup via `pg_dump` inside the Docker Compose postgres service,
+- storage backup for `storage/builds` and `storage/media`,
+- manual restore commands for both database and storage,
+- a documented runbook in `docs/operations-backup-restore.md`,
+- admin visibility for recovery commands and export operations at `GET /admin/operations`.
+
+Available commands:
+
+```bash
+npm run ops:backup:all
+npm run ops:backup:db
+npm run ops:backup:storage
+npm run ops:restore:db -- --file=/path/to/postgres.sql
+npm run ops:restore:storage -- --file=/path/to/storage.tar.gz
+```
+
+Backups are intentionally written **outside the Git repository** by default to:
+
+```text
+../egenlabs-web-platform-backups
+```
+
+This step intentionally avoids:
+- automated backup scheduling,
+- in-app restore execution,
+- backup storage inside Git,
+- advanced retention orchestration.
+
 ## Getting started
 
 1. Clone the public repository:
@@ -383,7 +414,13 @@ npm run admin:create -- --email=admin@example.com --password=change-me-now --rol
 npm run dev
 ```
 
-10. Open the main flows locally:
+10. Optional: create a full local backup shell snapshot outside the repository:
+
+```bash
+npm run ops:backup:all
+```
+
+11. Open the main flows locally:
 - `http://localhost:3000/`
 - `http://localhost:3000/admin/login`
 - `http://localhost:3000/download/register`
@@ -394,6 +431,10 @@ npm run dev
 - `http://localhost:3000/admin/forms`
 - `http://localhost:3000/admin/pdfs`
 - `http://localhost:3000/one-pager/fito-gen-one-pager`
+
+### Optional: recovery runbook
+
+See `docs/operations-backup-restore.md` for manual backup and restore procedures.
 
 ### Optional: enable Brevo transactional delivery
 

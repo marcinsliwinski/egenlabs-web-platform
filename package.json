@@ -18,7 +18,12 @@
     "catalog:bootstrap": "node scripts/bootstrap-product-catalog.mjs",
     "content:bootstrap": "node scripts/bootstrap-content.mjs",
     "desktop:bootstrap": "node scripts/bootstrap-desktop-news.mjs",
-    "pdf:bootstrap": "node scripts/bootstrap-pdf-one-pager.mjs"
+    "pdf:bootstrap": "node scripts/bootstrap-pdf-one-pager.mjs",
+    "ops:backup:db": "bash scripts/backup-postgres.sh",
+    "ops:backup:storage": "bash scripts/backup-storage.sh",
+    "ops:backup:all": "bash scripts/backup-all.sh",
+    "ops:restore:db": "bash scripts/restore-postgres.sh",
+    "ops:restore:storage": "bash scripts/restore-storage.sh"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
