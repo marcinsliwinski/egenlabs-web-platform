@@ -7,9 +7,10 @@ import { getEmailAdminOverview } from '@/features/email/email-service';
 import { getFormsAdminOverview } from '@/features/forms/forms-service';
 import { getAdminDesktopIntakeOverview, getAdminDesktopOverview } from '@/features/desktop/desktop-service';
 import { getAdminPdfOverview } from '@/features/pdf/pdf-service';
+import { getAdminAuditSummary } from '@/features/audit/audit-service';
 
 export default async function AdminHomePage() {
-  const [admin, overview, emailOverview, contentOverview, formsOverview, desktopOverview, desktopIntakeOverview, pdfOverview] = await Promise.all([
+  const [admin, overview, emailOverview, contentOverview, formsOverview, desktopOverview, desktopIntakeOverview, pdfOverview, auditSummary] = await Promise.all([
     requireAuthenticatedAdmin(),
     getCatalogOverview(),
     getEmailAdminOverview(),
@@ -17,7 +18,8 @@ export default async function AdminHomePage() {
     getFormsAdminOverview(),
     getAdminDesktopOverview(),
     getAdminDesktopIntakeOverview(),
-    getAdminPdfOverview()
+    getAdminPdfOverview(),
+    getAdminAuditSummary()
   ]);
   const canManageCatalog = admin.role === 'ADMIN';
 
@@ -60,6 +62,8 @@ export default async function AdminHomePage() {
           <li>Telemetry events: {desktopIntakeOverview.stats.telemetryEventCount}</li>
           <li>Feature requests: {desktopIntakeOverview.stats.featureRequestCount}</li>
           <li>Software demand requests: {desktopIntakeOverview.stats.softwareDemandCount}</li>
+          <li>Audit log entries: {auditSummary.auditLogCount}</li>
+          <li>Audit log entries in last 24h: {auditSummary.recentAuditLogCount}</li>
         </ul>
         <p>
           <Link href="/admin/catalog">Open product catalog</Link>
@@ -87,6 +91,9 @@ export default async function AdminHomePage() {
         </p>
         <p>
           <Link href="/admin/desktop/intake">Open telemetry and feedback intake</Link>
+        </p>
+        <p>
+          <Link href="/admin/operations">Open audit log and CSV exports</Link>
         </p>
         <p>
           <Link href="/products/fito-gen">Open product landing</Link>

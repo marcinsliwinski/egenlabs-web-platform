@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
 
 const ADMIN_PDF_PATH = '/admin/pdfs';
@@ -51,7 +52,7 @@ function getPublishedAt(isEnabled: boolean, currentValue: Date | null | undefine
 }
 
 export async function upsertMarketingPdfAction(formData: FormData) {
-  await requireAuthenticatedAdmin();
+  const admin = await requireAuthenticatedAdmin();
 
   const parsed = marketingPdfSchema.safeParse({
     productId: formData.get('productId'),
@@ -85,7 +86,7 @@ export async function upsertMarketingPdfAction(formData: FormData) {
 
   const fileSizeBytes = await resolveFileSizeBytes(input.storagePath);
 
-  await db.marketingPdf.upsert({
+  const marketingPdf = await db.marketingPdf.upsert({
     where: { productId: input.productId },
     update: {
       title: input.title,
@@ -112,6 +113,15 @@ export async function upsertMarketingPdfAction(formData: FormData) {
       isEnabled: input.isEnabled,
       publishedAt: getPublishedAt(input.isEnabled, null)
     }
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: existing ? "PDF_UPDATED" : "PDF_CREATED",
+    entityType: "MarketingPdf",
+    entityId: marketingPdf.id,
+    summary: `${existing ? 'Updated' : 'Created'} marketing PDF ${marketingPdf.slug}.`,
+    metadata: { visibility: marketingPdf.visibility, isEnabled: marketingPdf.isEnabled, productId: input.productId }
   });
 
   revalidatePath('/');

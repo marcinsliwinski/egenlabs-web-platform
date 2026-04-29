@@ -93,7 +93,29 @@ model AdminUser {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   sessions            AdminSession[]
+  auditLogs           AuditLog[]
 }
+
+model AuditLog {
+  id               String    @id @default(cuid())
+  actorAdminUserId String
+  actionType       String
+  entityType       String
+  entityId         String?
+  summary          String
+  metadataJson     String?
+  occurredAt       DateTime  @default(now())
+  ipAddress        String?
+  userAgent        String?
+  createdAt        DateTime  @default(now())
+  actor            AdminUser @relation(fields: [actorAdminUserId], references: [id], onDelete: Cascade)
+
+  @@index([actorAdminUserId, occurredAt])
+  @@index([entityType, occurredAt])
+  @@index([actionType, occurredAt])
+  @@index([occurredAt])
+}
+
 
 model AdminSession {
   id         String    @id @default(cuid())

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
 
 const CONTENT_PATH = '/admin/content';
@@ -61,7 +62,7 @@ function revalidateContentPaths(slug?: string) {
 }
 
 export async function createFaqEntryAction(formData: FormData) {
-  await requireContentWriteAccess();
+  const admin = await requireContentWriteAccess();
 
   const parsed = faqSchema.safeParse({
     slug: formData.get('slug'),
@@ -76,14 +77,13 @@ export async function createFaqEntryAction(formData: FormData) {
   }
 
   const input = parsed.data;
-
   const existing = await db.faqEntry.findUnique({ where: { slug: input.slug } });
 
   if (existing) {
     getRedirectWithStatus('faq_slug_exists', 'error');
   }
 
-  await db.faqEntry.create({
+  const faqEntry = await db.faqEntry.create({
     data: {
       slug: input.slug,
       question: input.question,
@@ -94,12 +94,21 @@ export async function createFaqEntryAction(formData: FormData) {
     }
   });
 
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'FAQ_CREATED',
+    entityType: 'FaqEntry',
+    entityId: faqEntry.id,
+    summary: `Created FAQ entry ${faqEntry.slug}.`,
+    metadata: { status: faqEntry.status }
+  });
+
   revalidateContentPaths();
   getRedirectWithStatus('faq_created', 'success');
 }
 
 export async function updateFaqEntryAction(formData: FormData) {
-  await requireContentWriteAccess();
+  const admin = await requireContentWriteAccess();
 
   const parsed = faqSchema.extend({
     id: z.string().min(1)
@@ -129,7 +138,7 @@ export async function updateFaqEntryAction(formData: FormData) {
     getRedirectWithStatus('faq_slug_exists', 'error');
   }
 
-  await db.faqEntry.update({
+  const updatedFaqEntry = await db.faqEntry.update({
     where: { id: input.id },
     data: {
       slug: input.slug,
@@ -141,12 +150,21 @@ export async function updateFaqEntryAction(formData: FormData) {
     }
   });
 
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'FAQ_UPDATED',
+    entityType: 'FaqEntry',
+    entityId: updatedFaqEntry.id,
+    summary: `Updated FAQ entry ${updatedFaqEntry.slug}.`,
+    metadata: { previousSlug: existing.slug, status: updatedFaqEntry.status }
+  });
+
   revalidateContentPaths();
   getRedirectWithStatus('faq_updated', 'success');
 }
 
 export async function createBlogPostAction(formData: FormData) {
-  await requireContentWriteAccess();
+  const admin = await requireContentWriteAccess();
 
   const parsed = blogPostSchema.safeParse({
     slug: formData.get('slug'),
@@ -167,7 +185,7 @@ export async function createBlogPostAction(formData: FormData) {
     getRedirectWithStatus('blog_slug_exists', 'error');
   }
 
-  await db.blogPost.create({
+  const blogPost = await db.blogPost.create({
     data: {
       slug: input.slug,
       title: input.title,
@@ -178,12 +196,21 @@ export async function createBlogPostAction(formData: FormData) {
     }
   });
 
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'BLOG_CREATED',
+    entityType: 'BlogPost',
+    entityId: blogPost.id,
+    summary: `Created blog post ${blogPost.slug}.`,
+    metadata: { status: blogPost.status }
+  });
+
   revalidateContentPaths(input.slug);
   getRedirectWithStatus('blog_created', 'success');
 }
 
 export async function updateBlogPostAction(formData: FormData) {
-  await requireContentWriteAccess();
+  const admin = await requireContentWriteAccess();
 
   const parsed = blogPostSchema.extend({
     id: z.string().min(1)
@@ -213,7 +240,7 @@ export async function updateBlogPostAction(formData: FormData) {
     getRedirectWithStatus('blog_slug_exists', 'error');
   }
 
-  await db.blogPost.update({
+  const updatedBlogPost = await db.blogPost.update({
     where: { id: input.id },
     data: {
       slug: input.slug,
@@ -223,6 +250,15 @@ export async function updateBlogPostAction(formData: FormData) {
       status: input.status,
       publishedAt: getPublishedAt(input.status, existing.publishedAt)
     }
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'BLOG_UPDATED',
+    entityType: 'BlogPost',
+    entityId: updatedBlogPost.id,
+    summary: `Updated blog post ${updatedBlogPost.slug}.`,
+    metadata: { previousSlug: existing.slug, status: updatedBlogPost.status }
   });
 
   revalidateContentPaths(existing.slug);

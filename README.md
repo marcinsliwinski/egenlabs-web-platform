@@ -194,6 +194,8 @@ Routes currently included:
 - `POST /api/v1/desktop/feature-requests` - desktop feature request intake endpoint
 - `POST /api/v1/desktop/software-demand` - desktop software demand intake endpoint
 - `GET /admin/desktop/intake` - protected telemetry and desktop feedback review page
+- `GET /admin/operations` - protected audit log and CSV export operations page
+- `GET /api/v1/admin/exports/[dataset]` - protected CSV export endpoint for operational datasets
 
 ### Bootstrap the first admin user
 
@@ -614,3 +616,22 @@ curl -X POST http://localhost:3000/api/v1/desktop/software-demand \
     "company": "Demo Nursery"
   }'
 ```
+
+## Audit logging and CSV export foundation
+
+The repository now also includes the first operational foundation for:
+- audit logging of key administrative write actions,
+- protected CSV exports for operational datasets,
+- a protected operations page at `GET /admin/operations`.
+
+Current CSV exports include:
+- leads,
+- consent records,
+- newsletter subscriptions,
+- contact inquiries,
+- enterprise-interest submissions,
+- desktop feature requests,
+- desktop software demand requests,
+- desktop telemetry events.
+
+Exports are available through the admin UI and protected endpoints under `GET /api/v1/admin/exports/[dataset]`.

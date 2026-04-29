@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
 
 const DESKTOP_ADMIN_PATH = '/admin/desktop';
@@ -68,7 +69,7 @@ async function ensureDesktopCombinationExists(productId: string, editionId: stri
 }
 
 export async function createDesktopNewsItemAction(formData: FormData) {
-  await requireDesktopWriteAccess();
+  const admin = await requireDesktopWriteAccess();
 
   const parsed = desktopNewsSchema.safeParse({
     productId: formData.get('productId'),
@@ -99,7 +100,7 @@ export async function createDesktopNewsItemAction(formData: FormData) {
     getRedirectWithStatus('news_slug_exists', 'error');
   }
 
-  await db.newsFeedItem.create({
+  const newsItem = await db.newsFeedItem.create({
     data: {
       productId: parsed.data.productId,
       editionId: parsed.data.editionId,
@@ -119,12 +120,21 @@ export async function createDesktopNewsItemAction(formData: FormData) {
     }
   });
 
+  await logAdminAuditEvent({
+    admin,
+    actionType: "DESKTOP_NEWS_CREATED",
+    entityType: "NewsFeedItem",
+    entityId: newsItem.id,
+    summary: `Created desktop news item ${newsItem.slug}.`,
+    metadata: { category: newsItem.category, status: newsItem.status }
+  });
+
   revalidateDesktopPaths();
   getRedirectWithStatus('news_created', 'success');
 }
 
 export async function updateDesktopNewsItemAction(formData: FormData) {
-  await requireDesktopWriteAccess();
+  const admin = await requireDesktopWriteAccess();
 
   const parsed = desktopNewsSchema.extend({
     id: z.string().min(1)
@@ -164,7 +174,7 @@ export async function updateDesktopNewsItemAction(formData: FormData) {
     getRedirectWithStatus('news_slug_exists', 'error');
   }
 
-  await db.newsFeedItem.update({
+  const updatedNewsItem = await db.newsFeedItem.update({
     where: { id: parsed.data.id },
     data: {
       productId: parsed.data.productId,
@@ -183,6 +193,15 @@ export async function updateDesktopNewsItemAction(formData: FormData) {
       status: parsed.data.status,
       publishedAt: getPublishedAt(parsed.data.status, existing.publishedAt)
     }
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: "DESKTOP_NEWS_UPDATED",
+    entityType: "NewsFeedItem",
+    entityId: updatedNewsItem.id,
+    summary: `Updated desktop news item ${updatedNewsItem.slug}.`,
+    metadata: { previousSlug: existing.slug, category: updatedNewsItem.category, status: updatedNewsItem.status }
   });
 
   revalidateDesktopPaths();

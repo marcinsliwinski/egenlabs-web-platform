@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
 
 const CATALOG_PATH = '/admin/catalog';
@@ -67,7 +68,7 @@ async function requireAdminWriteAccess() {
 }
 
 export async function createBuildAction(formData: FormData) {
-  await requireAdminWriteAccess();
+  const admin = await requireAdminWriteAccess();
 
   const parsedInput = createBuildSchema.safeParse({
     productId: formData.get('productId'),
@@ -124,7 +125,7 @@ export async function createBuildAction(formData: FormData) {
     getRedirectWithStatus('build_number_exists', 'error');
   }
 
-  await db.$transaction(async (transaction) => {
+  const createdBuild = await db.$transaction(async (transaction) => {
     if (input.activateNow) {
       await transaction.build.updateMany({
         where: {
@@ -166,6 +167,22 @@ export async function createBuildAction(formData: FormData) {
         }
       });
     }
+
+    return build;
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'BUILD_CREATED',
+    entityType: 'Build',
+    entityId: createdBuild.id,
+    summary: `Created build ${createdBuild.version} (#${createdBuild.buildNumber}).`,
+    metadata: {
+      productId: input.productId,
+      editionId: input.editionId,
+      channelId: input.channelId,
+      activateNow: input.activateNow
+    }
   });
 
   revalidatePath(CATALOG_PATH);
@@ -174,7 +191,7 @@ export async function createBuildAction(formData: FormData) {
 }
 
 export async function activateBuildAction(formData: FormData) {
-  await requireAdminWriteAccess();
+  const admin = await requireAdminWriteAccess();
 
   const parsedInput = activateBuildSchema.safeParse({
     buildId: formData.get('buildId')
@@ -224,6 +241,19 @@ export async function activateBuildAction(formData: FormData) {
         publishedAt: build.publishedAt ?? new Date()
       }
     });
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'BUILD_ACTIVATED',
+    entityType: 'Build',
+    entityId: build.id,
+    summary: 'Activated build for release channel.',
+    metadata: {
+      productId: build.productId,
+      editionId: build.editionId,
+      channelId: build.channelId
+    }
   });
 
   revalidatePath(CATALOG_PATH);

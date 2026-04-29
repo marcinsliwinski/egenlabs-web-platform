@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
 
 const DOWNLOADS_PATH = '/admin/downloads';
@@ -47,7 +48,7 @@ async function requireAdminWriteAccess() {
 }
 
 export async function saveDownloadPolicyAction(formData: FormData) {
-  await requireAdminWriteAccess();
+  const admin = await requireAdminWriteAccess();
 
   const parsedInput = updateDownloadPolicySchema.safeParse({
     productId: formData.get('productId'),
@@ -89,7 +90,7 @@ export async function saveDownloadPolicyAction(formData: FormData) {
     getRedirectWithStatus('ttl_required', 'error');
   }
 
-  await db.downloadPolicy.upsert({
+  const policy = await db.downloadPolicy.upsert({
     where: {
       productId_editionId_channelId: {
         productId: input.productId,
@@ -120,6 +121,15 @@ export async function saveDownloadPolicyAction(formData: FormData) {
         : null,
       internalNotes: input.internalNotes
     }
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: "DOWNLOAD_POLICY_SAVED",
+    entityType: "DownloadPolicy",
+    entityId: policy.id,
+    summary: `Saved download policy ${policy.mode}.`,
+    metadata: { productId: input.productId, editionId: input.editionId, channelId: input.channelId, isEnabled: policy.isEnabled }
   });
 
   revalidatePath(DOWNLOADS_PATH);

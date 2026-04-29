@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
+import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { resendTransactionalEmailLog } from '@/features/email/email-service';
 
 const ADMIN_EMAILS_PATH = '/admin/emails';
@@ -28,7 +29,7 @@ async function requireAdminWriteAccess() {
 }
 
 export async function resendEmailLogAction(formData: FormData) {
-  await requireAdminWriteAccess();
+  const admin = await requireAdminWriteAccess();
 
   const parsedInput = resendEmailLogSchema.safeParse({
     emailLogId: formData.get('emailLogId')
@@ -39,6 +40,15 @@ export async function resendEmailLogAction(formData: FormData) {
   }
 
   const resendResult = await resendTransactionalEmailLog(parsedInput.data.emailLogId);
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: "EMAIL_RESEND_REQUESTED",
+    entityType: "EmailLog",
+    entityId: parsedInput.data.emailLogId,
+    summary: `Resent transactional email log ${parsedInput.data.emailLogId}.`,
+    metadata: { resultStatus: resendResult.status }
+  });
 
   revalidatePath(ADMIN_EMAILS_PATH);
   revalidatePath('/admin');
