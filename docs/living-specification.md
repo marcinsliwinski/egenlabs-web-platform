@@ -77,6 +77,8 @@ Pełny uzgodniony zakres projektu obejmuje:
 - news feed dla aplikacji desktopowej,
 - telemetry intake dla aplikacji desktopowej,
 - obsługę zgłoszeń ulepszeń, zapotrzebowania na oprogramowanie i zainteresowania wyższą edycją,
+- wspólną warstwę Universal Desktop Support API v1 dla wielu aplikacji desktopowych publikowanych przez eGen Labs,
+- manifesty i paczki referencyjne / słownikowe dla aplikacji desktopowych,
 - podstawy bezpieczeństwa, backupu, obserwowalności i wdrożenia.
 
 ## 7. Zakres MVP
@@ -110,6 +112,9 @@ Do pierwszej wersji produkcyjnej wchodzi:
 - audyt działań administracyjnych,
 - backup i restore na poziomie MVP,
 - środowiska dev, staging i prod.
+
+Zakres MVP pozostaje zorientowany na uruchomienie i obsługę pierwszego produktu.
+Po zielonym checkpointcie MVP kolejną fazą platformy jest Universal Desktop Support API v1 jako wspólna warstwa wsparcia dla wielu aplikacji desktopowych publikowanych przez eGen Labs.
 
 ## 8. Poza zakresem
 Poza MVP pozostają:
@@ -147,6 +152,11 @@ Poza MVP pozostają:
 - Do repozytorium nie wolno commitować sekretów, plików środowiskowych, backupów, dumpów baz danych, logów z danymi wrażliwymi, prywatnych buildów, lokalnych uploadów ani eksportów danych użytkowników.
 - Plik `/docs/living-specification.md` oraz pozostała dokumentacja projektowa nie mogą zawierać haseł, kluczy API, tokenów, danych osobowych użytkowników, surowych eksportów, prywatnych URL-i z tokenami ani innych danych wrażliwych.
 - ORM dla web platformy to Prisma.
+- Aplikacje desktopowe eGen Labs pozostają offline-first i nie mogą wymagać stałego połączenia z internetem do podstawowej pracy operacyjnej.
+- Universal Desktop Support API v1 ma wspierać wiele aplikacji desktopowych, nie tylko Fito Gen.
+- Web platforma publikuje manifesty, paczki i kontrakty wspierające, ale nie staje się właścicielem operacyjnych danych desktopowych aplikacji.
+- Paczki referencyjne i słownikowe powinny być projektowane w sposób zgodny z lokalnym importem po stronie aplikacji desktopowej.
+- Dokumentacja platformowa pozostaje po polsku, a techniczne nazwy endpointów, pól i payloadów pozostają po angielsku.
 
 ## 10. Pytania otwarte
 - Czy oraz kiedy dodać 2FA do panelu administracyjnego po MVP lub w późniejszej fazie hardeningu.
@@ -157,6 +167,10 @@ Poza MVP pozostają:
 - Szczegółowy model preview i workflow redakcyjnego treści w panelu.
 - Czy PDF one-pager w konkretnych kampaniach ma działać także w trybie gated.
 - Dokładne progi biznesowe i produktowe uruchomienia wersji Pro.
+- Czy Dictionary Package API v1 ma publikować paczki w formacie CSV, ZIP+CSV, czy JSON?
+- Czy Telemetry API pozostaje częścią twardego zakresu Universal Desktop Support API v1, czy przechodzi do v1.1?
+- Czy Feedback API v1 obejmuje tylko tekstowe zgłoszenia, czy również załączniki w późniejszej fazie?
+- Czy paczki referencyjne mają być publikowane na etapie pierwszego wdrożenia wyłącznie dla Fito Gen, czy od razu jako mechanizm uniwersalny dla wielu aplikacji?
 
 ## 11. Role użytkowników i aktorzy
 - Visitor – użytkownik publicznej strony, który przegląda ofertę, treści i formularze.
@@ -200,6 +214,12 @@ Poza MVP pozostają:
 - WF-030: System ma umożliwiać upload buildów instalatorów i materiałów marketingowych.
 - WF-031: System ma udostępniać blog z minimum 3 artykułami startowymi w MVP.
 - WF-032: System ma umożliwiać konfigurację publicznej lub prywatnej widoczności PDF one-pagera.
+- WF-033: Platforma ma udostępniać Universal Desktop Support API v1 jako wspólną warstwę wsparcia dla wielu aplikacji desktopowych eGen Labs.
+- WF-034: Universal Desktop Support API v1 ma rozróżniać co najmniej `product`, `edition`, `channel`, `platform`, `appVersion` i `locale`.
+- WF-035: Platforma ma publikować Dictionary Package API v1 z manifestem wersji paczek referencyjnych i słownikowych.
+- WF-036: Platforma ma udostępniać wersjonowane paczki referencyjne w formacie zgodnym z lokalnym importem po stronie aplikacji desktopowej.
+- WF-037: Platforma ma utrzymywać wspólną dokumentację kontraktów Universal Desktop Support API v1 dla wielu aplikacji desktopowych.
+- WF-038: Platforma nie może przejmować operacyjnych danych domenowych aplikacji desktopowych bez odrębnej zaakceptowanej decyzji architektonicznej.
 
 ## 13. Wymagania niefunkcjonalne
 - WNF-001: Typowa odpowiedź publicznej strony powinna mieścić się w czasie poniżej 2 sekund.
@@ -283,6 +303,9 @@ Granica odpowiedzialności:
 - Web platforma jest systemem promocji, dystrybucji, obsługi leadów, treści, komunikacji, update/news/telemetry i administracji.
 - W MVP nie ma synchronizacji danych operacyjnych desktopu z chmurą.
 
+Po checkpointcie MVP architektura platformy obejmuje dodatkowo wspólną warstwę Application Support / Universal Desktop Support API v1 dla aplikacji desktopowych publikowanych przez eGen Labs.
+Warstwa ta dostarcza manifesty aktualizacji, news feed, manifesty i paczki referencyjne, feedback intake oraz telemetry intake, ale nie przejmuje odpowiedzialności za operacyjne dane domenowe aplikacji desktopowych.
+
 ## 17. Struktura modułów
 - Auth Module – logowanie administracyjne e-mail + hasło, serwerowe sesje, role Admin/Editor, ochrona tras `/admin`, kontrola dostępu oraz reset hasła jako funkcja planowana w ramach MVP, lecz niekoniecznie w pierwszym inkremencie auth shell.
 - Admin Module – panel administracyjny i operacje zaplecza.
@@ -295,6 +318,7 @@ Granica odpowiedzialności:
 - Telemetry Module – intake telemetrii, zapis zdarzeń, filtrowanie danych diagnostycznych.
 - Audit Module – log audytowy działań administracyjnych.
 - Public Website Module – publiczne renderowanie treści, landingów i formularzy.
+- Universal Desktop Support API Module – wspólne kontrakty wsparcia dla wielu aplikacji desktopowych eGen Labs, obejmujące Update API, News Feed API, Dictionary Package API, Feedback API i Telemetry API.
 - Infrastructure Module – konfiguracja środowisk, storage, backup, monitoring, integracje techniczne.
 
 ## 18. Przegląd modelu danych
@@ -351,6 +375,7 @@ Granica odpowiedzialności:
 - TelemetryEvent jest powiązany z installation_id oraz opcjonalnie z lead_id.
 - MediaAsset obsługuje widoczność publiczną lub prywatną.
 - Subscriber jako osobna encja nie jest potrzebny w MVP; stan subskrypcji wynika z Lead i ConsentRecord.
+- Universal Desktop Support API v1 przechowuje wyłącznie metadane manifestów, paczek i kontraktów wspierających aplikacje desktopowe; nie przechowuje ich operacyjnych danych domenowych.
 
 ## 19. Integracje
 ### Integracje zewnętrzne
@@ -362,12 +387,18 @@ Granica odpowiedzialności:
 ### Integracje wewnętrzne i produktowe
 - Desktop -> check_updates
 - Desktop -> fetch_news_feed
+- Desktop -> fetch_dictionary_manifest
+- Desktop -> fetch_dictionary_package
 - Desktop -> send_telemetry
 - Desktop -> submit_feature_request
 - Desktop -> submit_software_demand_request
 - Web -> expose_release_metadata
 - Web -> expose_news_items
 - Web -> expose_download_targets
+- Web -> expose_dictionary_manifests
+- Web -> expose_reference_packages
+
+Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integracyjna dla wielu aplikacji desktopowych publikowanych przez eGen Labs, z pierwszym klientem w postaci Fito Gen Essentials.
 
 ### Import / eksport
 - eksport leadów do CSV,
@@ -394,6 +425,10 @@ Granica odpowiedzialności:
   - `/api/v1/feedback/...`
   - `/api/v1/content/...` jako opcjonalna grupa publicznych treści strukturalnych, gdy będzie potrzebna
 - Komunikacja desktopu z web platformą ma odbywać się przez JSON.
+- Universal Desktop Support API v1 ma wspierać wspólny zestaw parametrów identyfikujących klienta desktopowego: `product`, `edition`, `channel`, `platform`, `appVersion`, `locale`.
+- Capability groups Universal Desktop Support API v1 to: Update API, News Feed API, Dictionary Package API, Feedback API i Telemetry API.
+- Read-only kontrakty manifestów i news feedu mają pozostawać publiczne lub półpubliczne zgodnie z konfiguracją produktu, ale nie mogą ujawniać prywatnych ścieżek storage.
+- Dictionary Package API ma publikować manifesty i wersjonowane paczki referencyjne zgodne z lokalnym importem po stronie klienta desktopowego.
 - Auth panelu administracyjnego w MVP korzysta z serwerowej sesji i mechanizmów aplikacji webowej; nie zakłada się publicznego token-based API dla logowania administratorów jako podstawowego modelu dostępu.
 - Endpointy i akcje związane z auth mają służyć wyłącznie obsłudze panelu administracyjnego oraz kontroli sesji, a nie zewnętrznym integracjom.
 - Wewnętrzne zdarzenia systemu pozostają w modularnym monolicie i nie wymagają brokera w MVP.
@@ -431,6 +466,9 @@ Granica odpowiedzialności:
 - Telemetria traktowana jako dane diagnostyczne, wymagające świadomego modelu dostępu i retencji.
 - 2FA pozostaje poza MVP jako potencjalne rozszerzenie i temat przyszłej decyzji hardeningowej.
 - `.gitignore` jest obowiązkowym elementem ochrony operacyjnej repozytorium, ale nie zastępuje kontroli review, walidacji commitów i dyscypliny nieumieszczania danych wrażliwych w dokumentacji.
+- Publiczne endpointy read-only Universal Desktop Support API v1 nie mogą ujawniać prywatnych ścieżek storage ani danych wrażliwych.
+- Endpointy intake Universal Desktop Support API v1 muszą uwzględniać walidację wejścia, ograniczanie nadużyć i bezpieczne logowanie błędów.
+- Paczki referencyjne publikowane przez platformę powinny posiadać metadane integralności, w szczególności checksumy.
 
 ## 22. Założenia infrastrukturalne i wdrożeniowe
 - Środowiska: dev, staging, prod.
@@ -447,6 +485,8 @@ Granica odpowiedzialności:
 - Staging wymagany ze względu na update flow, telemetry i panel administracyjny.
 - Repozytorium GitHub musi publikować wyłącznie kod, dokumentację techniczną, migracje, bezpieczne przykłady konfiguracji oraz jawnie dozwolone assety.
 - Pliki środowiskowe, sekrety, prywatne buildy, backupy, dumpy baz, lokalne storage i dane eksportowane z systemu muszą pozostawać poza repozytorium i być objęte `.gitignore`.
+- Platforma musi wspierać publikację wersjonowanych manifestów i paczek dla Universal Desktop Support API v1.
+- Wdrożenie Universal Desktop Support API v1 wymaga stabilnych URL-i dla manifestów i paczek oraz kontrolowanego procesu publikacji nowych wersji.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -470,6 +510,7 @@ Granica odpowiedzialności:
 - Retencja wymaga późniejszego potwierdzenia prawnego i operacyjnego.
 - Telemetria identyfikowalna powinna mieć krótszy cykl życia niż dane stricte biznesowe.
 - Backup snapshots powinny mieć kontrolowaną rotację.
+- Universal Desktop Support API v1 wymaga smoke testów kontraktów, kontroli zgodności payloadów oraz procedur publikacji i aktualizacji manifestów i paczek.
 
 ## 24. Fazy dostarczenia
 - Faza 1: Foundation
@@ -504,6 +545,12 @@ Granica odpowiedzialności:
   - polityki,
   - staging/prod deploy,
   - treści launchowe.
+- Faza 5: Universal Desktop Support API v1
+  - capability map,
+  - dokumentacja kontraktów,
+  - dictionary package manifest i paczki referencyjne,
+  - gap analysis repo względem kontraktów,
+  - wdrożenie brakujących kontraktów potrzebnych dla Fito Gen Essentials oraz kolejnych aplikacji.
 
 ## 25. Obszary backlogu
 - Platform Foundation
@@ -514,6 +561,7 @@ Granica odpowiedzialności:
 - Admin Panel & Content Management
 - Desktop Support APIs
 - Telemetry & Feedback
+- Universal Desktop Support API v1
 - Security & Compliance
 - Deployment & Operations
 
@@ -533,6 +581,13 @@ Granica odpowiedzialności:
 - Feature request i software demand request działają.
 - Backup i restore są opisane i sprawdzone.
 - Środowiska staging i prod są uruchomione.
+
+### Kryteria akceptacyjne fazy Universal Desktop Support API v1
+- Istnieje zatwierdzona capability map Universal Desktop Support API v1.
+- Istnieje kompletna dokumentacja kontraktów API v1 dla klientów desktopowych.
+- Zidentyfikowano i opisano granice odpowiedzialności między web platformą a aplikacjami desktopowymi.
+- Zidentyfikowano lukę między obecnym repo a wymaganymi kontraktami dla Fito Gen Essentials.
+- Wdrożono lub zaplanowano brakujące kontrakty dla Update API, News Feed API i Dictionary Package API.
 
 ### Definition of done dla pojedynczego feature
 Feature jest ukończony, gdy:
@@ -572,6 +627,7 @@ Feature jest ukończony, gdy:
 - Braki w audycie działań administracyjnych.
 - Brak regularnego testu odtwarzania backupu.
 - Ryzyko wycieku prywatnych assetów lub linków pobrania przy złej konfiguracji.
+- Ryzyko scope creepu po stronie web platformy, jeśli Universal Desktop Support API v1 zacznie przejmować rolę backendu operacyjnego dla aplikacji desktopowych.
 
 ## 28. Dziennik zmian
 - 2026-04-10 – utworzono początkową wersję dokumentu po zakończeniu etapów inicjacji projektu.
@@ -717,6 +773,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Security
 - Podsumowanie: Przyjęto, że pierwszy inkrement auth dla panelu administracyjnego będzie oparty o logowanie e-mail + hasło, serwerowe sesje, role Admin/Editor oraz ochronę tras `/admin`, bez 2FA w tym etapie.
 - Sekcje, których dotyczy: 10, 16, 17, 20, 21, 24, 26
+
+### DEC-016
+- ADR ID: ADR-008
+- Tytuł: Universal Desktop Support API v1 jako capability platformy
+- Status: Accepted
+- Data: 2026-04-30
+- Kategoria: Architecture / Integration / Product
+- Podsumowanie: Platforma egenlabs.eu zostaje rozszerzona o wspólną warstwę Universal Desktop Support API v1 dla aplikacji desktopowych publikowanych przez eGen Labs. Warstwa ta dostarcza kontrakty wsparcia, manifesty i paczki referencyjne, ale nie przejmuje operacyjnych danych domenowych aplikacji desktopowych.
+- Sekcje, których dotyczy: 6, 7, 9, 10, 12, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1012,6 +1077,81 @@ Wybrana opcja daje najlepszy kompromis między bezpieczeństwem, prostotą wdro�
 - 21. Bezpieczeństwo i kontrola dostępu
 - 24. Fazy dostarczenia
 - 26. Kryteria akceptacyjne
+
+### Zastępuje / Zastąpiony przez
+- Brak
+
+## 37. ADR-008: Universal Desktop Support API v1 jako wspólna warstwa wsparcia aplikacji desktopowych
+Status: Accepted
+Data: 2026-04-30
+
+### Kontekst
+Platforma egenlabs.eu została zbudowana jako web platforma promocyjno-dystrybucyjna dla produktów eGen Labs. W toku rozwoju pojawiła się potrzeba wspólnego, wieloproduktowego API wspierającego aplikacje desktopowe, w szczególności Fito Gen Essentials, a docelowo także inne aplikacje publikowane przez eGen Labs.
+
+Aplikacje desktopowe wymagają wspólnej warstwy wsparcia dla:
+- aktualizacji aplikacji,
+- news feedu,
+- manifestów i paczek referencyjnych,
+- zgłoszeń ulepszeń,
+- telemetrii.
+
+Jednocześnie produkty desktopowe, w tym Fito Gen, pozostają aplikacjami offline-first i przechowują własne operacyjne dane domenowe lokalnie.
+
+### Decyzja
+Platforma egenlabs.eu przyjmuje odpowiedzialność za Universal Desktop Support API v1 jako wspólną capability platformy.
+
+Warstwa ta obejmuje:
+- Update API
+- News Feed API
+- Dictionary Package API
+- Feedback API
+- Telemetry API
+
+Platforma publikuje kontrakty, manifesty, metadane i wersjonowane paczki wspierające aplikacje desktopowe, ale nie przejmuje operacyjnych danych domenowych tych aplikacji.
+
+### Rozważane opcje
+- Opcja A: osobne, niespójne API dla każdego produktu desktopowego
+- Opcja B: wspólne Universal Desktop Support API v1 dla wielu produktów
+- Opcja C: pełny backend operacyjny dla aplikacji desktopowych
+
+### Uzasadnienie
+Wybrano opcję B, ponieważ:
+- wspiera wiele produktów bez duplikacji kontraktów,
+- zachowuje prostotę i niski koszt utrzymania,
+- nie wymusza migracji danych operacyjnych do chmury,
+- jest zgodna z offline-first charakterem Fito Gen Essentials,
+- tworzy spójną podstawę dla kolejnych aplikacji desktopowych eGen Labs.
+
+Nie wybrano opcji A, ponieważ prowadziłaby do duplikacji i rozjazdu kontraktów.
+Nie wybrano opcji C, ponieważ byłaby zbyt szeroka, zbyt kosztowna i wykraczałaby poza obecny zakres platformy.
+
+### Konsekwencje
+- Platforma uzyskuje nową, wspólną capability dla wielu aplikacji desktopowych.
+- Kontrakty API muszą być projektowane jako wieloproduktowe i wersjonowane.
+- Potrzebna jest jawna dokumentacja odpowiedzialności i granic integracji.
+- Wymagane są testy kontraktowe i smoke testy manifestów oraz paczek.
+- Dane operacyjne aplikacji desktopowych pozostają poza zakresem platformy webowej.
+
+### Ryzyka
+- scope creep po stronie web platformy,
+- rozjechanie wspólnego kontraktu przez potrzeby kolejnych produktów,
+- niejasność właścicielstwa danych referencyjnych,
+- pokusa rozszerzenia platformy do roli backendu operacyjnego.
+
+### Dalsze działania
+- przygotować Capability Map v1,
+- przygotować pełną dokumentację Universal Desktop Support API v1,
+- wykonać gap analysis obecnego repo,
+- wdrożyć brakujące kontrakty wymagane przez Fito Gen Essentials,
+- dodać testy kontraktowe i smoke testy API.
+
+### Powiązane sekcje
+- 16. Przegląd architektury
+- 17. Struktura modułów
+- 19. Integracje
+- 20. Założenia API i komunikacji
+- 21. Bezpieczeństwo i kontrola dostępu
+- 23. Aspekty operacyjne
 
 ### Zastępuje / Zastąpiony przez
 - Brak
