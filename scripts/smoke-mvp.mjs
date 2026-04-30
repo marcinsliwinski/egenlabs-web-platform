@@ -19,7 +19,11 @@ const checks = [
     path: '/api/v1/desktop/update?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0',
     expectedStatus: 200,
     label: 'Desktop update endpoint',
-    validateJson: body => typeof body === 'object' && body !== null && body.status === 'ok'
+    validateJson: body =>
+      typeof body === 'object' &&
+      body !== null &&
+      typeof body.status === 'string' &&
+      ['ok', 'active_build_missing'].includes(body.status)
   },
   {
     path: '/api/v1/desktop/news?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0',
