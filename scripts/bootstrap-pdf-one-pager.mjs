@@ -54,9 +54,9 @@ async function main() {
   await prisma.marketingPdf.upsert({
     where: { productId: product.id },
     update: {
-      title: 'Fito Gen Essentials one-pager',
+      title: 'Fito Gen Essentials — materiał informacyjny',
       slug: 'fito-gen-one-pager',
-      description: 'Concise PDF overview for Fito Gen Essentials and the accepted MVP launch baseline.',
+      description: 'Krótki materiał informacyjny dla Fito Gen Essentials i publicznej komunikacji eGen Labs.',
       visibility: 'PUBLIC',
       fileName: 'fito-gen-one-pager.pdf',
       storagePath: relativeStoragePath,
@@ -67,9 +67,9 @@ async function main() {
     },
     create: {
       productId: product.id,
-      title: 'Fito Gen Essentials one-pager',
+      title: 'Fito Gen Essentials — materiał informacyjny',
       slug: 'fito-gen-one-pager',
-      description: 'Concise PDF overview for Fito Gen Essentials and the accepted MVP launch baseline.',
+      description: 'Krótki materiał informacyjny dla Fito Gen Essentials i publicznej komunikacji eGen Labs.',
       visibility: 'PUBLIC',
       fileName: 'fito-gen-one-pager.pdf',
       storagePath: relativeStoragePath,

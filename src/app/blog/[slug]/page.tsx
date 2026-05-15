@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { PageContainer, PublicShell } from '@/components/public-site';
 import { getPublicBlogPostBySlug } from '@/features/content/content-service';
 
 function renderPublishedAt(value: Date | null) {
   if (!value) {
-    return 'Draft';
+    return 'W przygotowaniu';
   }
 
   return new Intl.DateTimeFormat('pl-PL', {
@@ -27,22 +28,18 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
   }
 
   return (
-    <main style={{ maxWidth: 860, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '1.5rem' }}>
-      <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <Link href="/">Home</Link>
-        <Link href="/blog">Back to blog</Link>
-        <Link href="/faq">FAQ</Link>
-        <Link href="/products/fito-gen">Product landing</Link>
-      </nav>
-
-      <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1.5rem', display: 'grid', gap: '1rem' }}>
-        <header>
-          <p style={{ margin: 0, color: '#555' }}>{renderPublishedAt(post.publishedAt)}</p>
-          <h1 style={{ marginBottom: '0.5rem' }}>{post.title}</h1>
-          <p style={{ marginBottom: 0, fontSize: '1.05rem' }}>{post.excerpt}</p>
-        </header>
-        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{post.content}</div>
-      </article>
-    </main>
+    <PublicShell>
+      <PageContainer>
+        <article className="card article-card">
+          <Link className="text-link" href="/blog">← Wróć do bloga</Link>
+          <header>
+            <p className="meta-text">{renderPublishedAt(post.publishedAt)}</p>
+            <h1>{post.title}</h1>
+            <p>{post.excerpt}</p>
+          </header>
+          <div className="prose">{post.content}</div>
+        </article>
+      </PageContainer>
+    </PublicShell>
   );
 }

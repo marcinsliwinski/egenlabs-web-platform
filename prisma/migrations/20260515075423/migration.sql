@@ -1,0 +1,8 @@
+-- RenameIndex
+ALTER INDEX "DesktopTelemetryEvent_productId_editionId_channelId_receivedAt_" RENAME TO "DesktopTelemetryEvent_productId_editionId_channelId_receive_idx";
+
+-- RenameIndex
+ALTER INDEX "NewsFeedItem_productId_editionId_channelId_status_publishedAt_i" RENAME TO "NewsFeedItem_productId_editionId_channelId_status_published_idx";
+
+-- RenameIndex
+ALTER INDEX "SoftwareDemandRequest_productId_editionId_channelId_createdAt_i" RENAME TO "SoftwareDemandRequest_productId_editionId_channelId_created_idx";

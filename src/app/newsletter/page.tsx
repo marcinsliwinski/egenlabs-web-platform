@@ -1,14 +1,15 @@
 import Link from 'next/link';
 
+import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 import { createNewsletterSignupAction } from '@/features/forms/forms-actions';
 
 const successMessages: Record<string, string> = {
-  newsletter_saved: 'Your newsletter signup was recorded successfully.'
+  newsletter_saved: 'Dziękujemy. Zapis do newslettera został zapisany.'
 };
 
 const errorMessages: Record<string, string> = {
-  invalid_newsletter_input: 'Provide a valid email address and confirm the marketing consent checkbox.',
-  marketing_consent_missing: 'The current marketing consent definition is not available. Try again after admin review.'
+  invalid_newsletter_input: 'Podaj prawidłowy adres email i potwierdź zgodę marketingową.',
+  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -23,38 +24,41 @@ export default async function NewsletterPage({ searchParams }: { searchParams?: 
   const errorKey = getSearchParamValue(resolvedSearchParams?.error);
 
   return (
-    <main style={{ maxWidth: 760, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '1.5rem' }}>
-      <header style={{ display: 'grid', gap: '1rem' }}>
-        <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link href="/">Home</Link>
-          <Link href="/products/fito-gen">Fito Gen</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="/enterprise">Enterprise</Link>
-        </nav>
-        <div>
-          <h1>Newsletter signup</h1>
-          <p>Subscribe to product updates, launch announcements, and future eGen Labs marketing communication without downloading the application.</p>
-        </div>
-      </header>
+    <PublicShell>
+      <PageContainer>
+        <section className="split-layout">
+          <div>
+            <SectionHeader eyebrow="Newsletter" title="Otrzymuj informacje o produktach eGen Labs.">
+              <p>
+                Zapisz się, aby dostać informacje o starcie Fito Gen Essentials, nowych materiałach oraz kolejnych narzędziach eGen Labs.
+              </p>
+            </SectionHeader>
+            <div className="cta-row">
+              <Link className="text-link" href="/">Wróć na stronę główną</Link>
+              <Link className="text-link" href="/contact">Kontakt</Link>
+            </div>
+          </div>
 
-      {successKey ? <p role="status" style={{ color: '#0b6b2d' }}>{successMessages[successKey] ?? 'The newsletter signup was saved successfully.'}</p> : null}
-      {errorKey ? <p role="alert" style={{ color: '#b00020' }}>{errorMessages[errorKey] ?? 'Unable to save the newsletter signup.'}</p> : null}
+          <section className="form-card">
+            {successKey ? <p role="status" className="alert alert--success">{successMessages[successKey] ?? 'Zapis został zapisany.'}</p> : null}
+            {errorKey ? <p role="alert" className="alert alert--error">{errorMessages[errorKey] ?? 'Nie udało się zapisać zgłoszenia.'}</p> : null}
 
-      <section style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-        <form action={createNewsletterSignupAction} style={{ display: 'grid', gap: '1rem' }}>
-          <label style={{ display: 'grid', gap: '0.4rem' }}>
-            <span>Email</span>
-            <input type="email" name="email" required maxLength={320} placeholder="name@example.com" />
-          </label>
+            <form action={createNewsletterSignupAction} className="form-grid">
+              <label className="form-label">
+                <span>Email</span>
+                <input type="email" name="email" required maxLength={320} placeholder="name@example.com" />
+              </label>
 
-          <label style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-            <input type="checkbox" name="marketingConsent" required />
-            <span>I agree to receive future marketing and newsletter email communication from eGen Labs.</span>
-          </label>
+              <label className="checkbox-label">
+                <input type="checkbox" name="marketingConsent" required />
+                <span>Wyrażam zgodę na otrzymywanie komunikacji marketingowej i newslettera eGen Labs.</span>
+              </label>
 
-          <button type="submit">Save newsletter signup</button>
-        </form>
-      </section>
-    </main>
+              <button type="submit">Zapisz mnie</button>
+            </form>
+          </section>
+        </section>
+      </PageContainer>
+    </PublicShell>
   );
 }

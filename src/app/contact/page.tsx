@@ -1,14 +1,15 @@
 import Link from 'next/link';
 
+import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 import { createContactInquiryAction } from '@/features/forms/forms-actions';
 
 const successMessages: Record<string, string> = {
-  contact_saved: 'Your contact request was recorded successfully.'
+  contact_saved: 'Dziękujemy. Wiadomość została zapisana.'
 };
 
 const errorMessages: Record<string, string> = {
-  invalid_contact_input: 'Complete all required contact fields before submitting the form.',
-  marketing_consent_missing: 'The current marketing consent definition is not available. Try again after admin review.'
+  invalid_contact_input: 'Uzupełnij wymagane pola formularza.',
+  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -23,63 +24,66 @@ export default async function ContactPage({ searchParams }: { searchParams?: Sea
   const errorKey = getSearchParamValue(resolvedSearchParams?.error);
 
   return (
-    <main style={{ maxWidth: 760, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '1.5rem' }}>
-      <header style={{ display: 'grid', gap: '1rem' }}>
-        <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link href="/">Home</Link>
-          <Link href="/products/fito-gen">Fito Gen</Link>
-          <Link href="/newsletter">Newsletter</Link>
-          <Link href="/enterprise">Enterprise</Link>
-        </nav>
-        <div>
-          <h1>Contact eGen Labs</h1>
-          <p>Use this form for general product questions, support requests, or partnership conversations.</p>
-        </div>
-      </header>
+    <PublicShell>
+      <PageContainer>
+        <section className="split-layout">
+          <div>
+            <SectionHeader eyebrow="Kontakt" title="Porozmawiajmy o produkcie, dokumentacji albo współpracy.">
+              <p>
+                Napisz, czego potrzebujesz: informacji o Fito Gen, materiałów branżowych, dokumentacji, współpracy albo przyszłych produktach eGen Labs.
+              </p>
+            </SectionHeader>
+            <div className="cta-row">
+              <Link className="text-link" href="/">Wróć na stronę główną</Link>
+              <Link className="text-link" href="/newsletter">Newsletter</Link>
+            </div>
+          </div>
 
-      {successKey ? <p role="status" style={{ color: '#0b6b2d' }}>{successMessages[successKey] ?? 'The contact request was saved successfully.'}</p> : null}
-      {errorKey ? <p role="alert" style={{ color: '#b00020' }}>{errorMessages[errorKey] ?? 'Unable to save the contact request.'}</p> : null}
+          <section className="form-card">
+            {successKey ? <p role="status" className="alert alert--success">{successMessages[successKey] ?? 'Wiadomość została zapisana.'}</p> : null}
+            {errorKey ? <p role="alert" className="alert alert--error">{errorMessages[errorKey] ?? 'Nie udało się zapisać wiadomości.'}</p> : null}
 
-      <section style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-        <form action={createContactInquiryAction} style={{ display: 'grid', gap: '1rem' }}>
-          <label style={{ display: 'grid', gap: '0.4rem' }}>
-            <span>Name</span>
-            <input type="text" name="name" required maxLength={120} />
-          </label>
+            <form action={createContactInquiryAction} className="form-grid">
+              <label className="form-label">
+                <span>Imię i nazwisko</span>
+                <input type="text" name="name" required maxLength={120} />
+              </label>
 
-          <label style={{ display: 'grid', gap: '0.4rem' }}>
-            <span>Email</span>
-            <input type="email" name="email" required maxLength={320} />
-          </label>
+              <label className="form-label">
+                <span>Email</span>
+                <input type="email" name="email" required maxLength={320} />
+              </label>
 
-          <label style={{ display: 'grid', gap: '0.4rem' }}>
-            <span>Company (optional)</span>
-            <input type="text" name="company" maxLength={160} />
-          </label>
+              <label className="form-label">
+                <span>Firma (opcjonalnie)</span>
+                <input type="text" name="company" maxLength={160} />
+              </label>
 
-          <label style={{ display: 'grid', gap: '0.4rem' }}>
-            <span>Topic</span>
-            <select name="topic" defaultValue="GENERAL">
-              <option value="GENERAL">General</option>
-              <option value="PRODUCT">Product</option>
-              <option value="SUPPORT">Support</option>
-              <option value="PARTNERSHIP">Partnership</option>
-            </select>
-          </label>
+              <label className="form-label">
+                <span>Temat</span>
+                <select name="topic" defaultValue="GENERAL">
+                  <option value="GENERAL">Ogólny kontakt</option>
+                  <option value="PRODUCT">Produkt</option>
+                  <option value="SUPPORT">Wsparcie</option>
+                  <option value="PARTNERSHIP">Współpraca</option>
+                </select>
+              </label>
 
-          <label style={{ display: 'grid', gap: '0.4rem' }}>
-            <span>Message</span>
-            <textarea name="message" required minLength={10} maxLength={4000} rows={8} />
-          </label>
+              <label className="form-label">
+                <span>Wiadomość</span>
+                <textarea name="message" required minLength={10} maxLength={4000} rows={8} />
+              </label>
 
-          <label style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-            <input type="checkbox" name="marketingConsent" />
-            <span>I also agree to receive future marketing and newsletter email communication from eGen Labs.</span>
-          </label>
+              <label className="checkbox-label">
+                <input type="checkbox" name="marketingConsent" />
+                <span>Wyrażam zgodę na przyszłą komunikację marketingową i newsletter eGen Labs.</span>
+              </label>
 
-          <button type="submit">Send contact request</button>
-        </form>
-      </section>
-    </main>
+              <button type="submit">Wyślij wiadomość</button>
+            </form>
+          </section>
+        </section>
+      </PageContainer>
+    </PublicShell>
   );
 }

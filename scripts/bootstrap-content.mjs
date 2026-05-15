@@ -61,21 +61,21 @@ const faqEntries = [
 const blogPosts = [
   {
     slug: 'launching-egenlabs-web-platform-foundation',
-    title: 'Launching the eGen Labs web platform foundation',
-    excerpt: 'Why the project starts from a modular monolith, controlled download flow, and manual admin operations.',
-    content: 'The launch foundation focuses on a modular monolith, explicit download policies, and a controlled admin workflow.\n\nThis gives the project a simple but extensible base for future products without forcing premature architectural complexity.'
+    title: 'Profesjonalny start platformy eGen Labs',
+    excerpt: 'Dlaczego strona startuje jako praktyczna wizytówka marki, zanim opublikujemy finalny program Fito Gen.',
+    content: 'Pierwszy publiczny krok eGen Labs powinien budować zaufanie: jasny opis marki, prosty kontakt, polskie treści i brak obietnic funkcji, które nie są jeszcze gotowe.\n\nPlatforma pozostaje przygotowana pod dystrybucję aplikacji desktopowych, ale start wizualny może nastąpić wcześniej niż finalne udostępnienie programu.'
   },
   {
     slug: 'why-fito-gen-starts-with-essentials',
-    title: 'Why Fito Gen starts with Essentials',
-    excerpt: 'The first product edition keeps the launch narrow, measurable, and easier to validate with real nursery businesses.',
-    content: 'Fito Gen Essentials intentionally starts as a narrow launch edition.\n\nThis helps validate distribution, registration, delivery, and feedback workflows before any broader commercial packaging or Pro scope is added.'
+    title: 'Dlaczego Fito Gen startuje od edycji Essentials',
+    excerpt: 'Pierwsza edycja ma pozostać wąska, praktyczna i łatwa do zweryfikowania z realnymi użytkownikami.',
+    content: 'Fito Gen Essentials celowo zaczyna od ograniczonego zakresu. Taka strategia zmniejsza ryzyko, skraca czas do pierwszej walidacji i pozwala zebrać jakościowy feedback od szkółek roślin.\n\nDopiero po potwierdzeniu wartości produktu warto rozszerzać komunikację sprzedażową, materiały i docelowy flow pobrania.'
   },
   {
     slug: 'how-download-policies-shape-the-mvp',
-    title: 'How download policies shape the MVP',
-    excerpt: 'Public, one-time, temporary, and private-static policies already influence the shape of the accepted MVP user flow.',
-    content: 'Download policies are a central part of the platform baseline.\n\nThey affect registration, email issuance, delivery validation, and future operational controls. Building them early keeps the rest of the flow consistent.'
+    title: 'Jak polityki pobrania wspierają MVP',
+    excerpt: 'Mechanizm pobrania jest gotowy technicznie, ale publiczne uruchomienie linku powinno poczekać na finalny program.',
+    content: 'Polityki pobrania są ważną częścią platformy, ponieważ porządkują rejestrację, zgody, wydawanie linków i późniejsze wsparcie użytkownika.\n\nW publicznym starcie wizualnym nie trzeba jednak eksponować pobierania aplikacji, jeśli desktopowe MVP nie jest jeszcze gotowe do publikacji.'
   }
 ];
 
@@ -118,7 +118,7 @@ async function main() {
     });
   }
 
-  console.log('Content baseline ready: 3 FAQ entries and 3 blog posts.');
+  console.log('Polish public content baseline ready: 3 FAQ entries and 3 blog posts.');
 }
 
 main()

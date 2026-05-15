@@ -3,11 +3,12 @@ import { notFound } from 'next/navigation';
 
 import { PdfVisibility } from '@prisma/client';
 
+import { Card, PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 import { getPublicProductLandingOverview } from '@/features/content/content-service';
 
 function renderPublishedAt(value: Date | null) {
   if (!value) {
-    return 'Draft';
+    return 'W przygotowaniu';
   }
 
   return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'medium' }).format(value);
@@ -32,90 +33,133 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
     : null;
 
   return (
-    <main style={{ maxWidth: 1040, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '2rem' }}>
-      <header style={{ display: 'grid', gap: '1rem' }}>
-        <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link href="/">Home</Link>
-          <Link href="/faq">FAQ</Link>
-          <Link href="/blog">Blog</Link>
-          <Link href="/download/register">Download registration</Link>
-          <Link href="/newsletter">Newsletter</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="/enterprise">Enterprise</Link>
-          {publicPdf ? <Link href={`/one-pager/${publicPdf.slug}`}>Product PDF</Link> : null}
-        </nav>
-        <div>
-          <h1>{product.name} {primaryEdition ? primaryEdition.name : ''}</h1>
-          <p>
-            Product landing foundation for the accepted MVP baseline. The first supported product stays focused on Polish
-            nursery businesses that need a lightweight desktop-first workflow and a simple download path.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link href="/download/register">Register and download</Link>
-          <Link href="/faq">Read FAQ</Link>
-          <Link href="/blog">Read launch articles</Link>
-          <Link href="/enterprise">Discuss enterprise needs</Link>
-          {publicPdf ? <Link href={`/one-pager/${publicPdf.slug}`}>Open one-pager PDF</Link> : null}
-        </div>
-      </header>
+    <PublicShell>
+      <PageContainer>
+        <section className="hero">
+          <div className="hero__content">
+            <span className="eyebrow">Produkt w przygotowaniu</span>
+            <h1>{product.name} {primaryEdition ? primaryEdition.name : ''}</h1>
+            <p className="hero__lead">
+              Fito Gen Essentials to desktopowa aplikacja dla polskich szkółek roślin. Produkt pozostaje offline-first,
+              prosty w użyciu i przygotowany do pracy lokalnej bez stałego połączenia z internetem.
+            </p>
+            <div className="hero__actions">
+              <Link className="button" href="/contact">Zapytaj o Fito Gen</Link>
+              <Link className="button button--secondary" href="/newsletter">Zapisz się po aktualizacje</Link>
+            </div>
+          </div>
+          <aside className="hero__panel">
+            <span className="status-pill">Program zostanie dodany później</span>
+            <h2>Bez przedwczesnej publikacji</h2>
+            <p>
+              Link do programu i finalny flow pobrania zostaną udostępnione dopiero po zakończeniu desktopowego MVP.
+              Obecnie strona buduje wiarygodność marki i przygotowuje komunikację produktową.
+            </p>
+            <div className="metric-grid">
+              <div className="metric">
+                <strong>{product.builds.length}</strong>
+                <span>buildów w konfiguracji</span>
+              </div>
+              <div className="metric">
+                <strong>{product.editions.length}</strong>
+                <span>aktywnych edycji</span>
+              </div>
+            </div>
+          </aside>
+        </section>
 
-      <section style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-        <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-          <h2>Current focus</h2>
-          <p>Fito Gen Essentials supports the accepted MVP launch with manual content management, controlled download delivery, public forms, and a configurable PDF one-pager.</p>
-        </article>
-        <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-          <h2>Release readiness</h2>
-          <p>Active builds currently configured: {product.builds.length}</p>
-          <p>Active editions: {product.editions.length}</p>
-        </article>
-        <article style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-          <h2>Next user action</h2>
-          <p>The public MVP path now includes download registration, newsletter-only signup, direct contact, enterprise-interest capture, and product PDF delivery.</p>
-        </article>
-      </section>
-
-      {publicPdf ? (
-        <section style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.5rem' }}>
-          <h2 style={{ marginTop: 0 }}>Product PDF one-pager</h2>
-          <p style={{ margin: 0 }}>{publicPdf.title}</p>
-          <p style={{ margin: 0 }}>{publicPdf.description ?? 'A concise downloadable PDF overview for the currently supported product.'}</p>
-          <div>
-            <Link href={`/one-pager/${publicPdf.slug}`}>Open PDF one-pager</Link>
+        <section className="section">
+          <SectionHeader eyebrow="Założenie produktu" title="Prosty desktop dla szkółek roślin.">
+            <p>
+              Strona produktu jest przygotowana pod publiczną komunikację w języku polskim, ale nie wymusza jeszcze pobrania aplikacji.
+            </p>
+          </SectionHeader>
+          <div className="card-grid">
+            <Card title="Offline-first">
+              <p>Dane operacyjne użytkownika pozostają lokalnie po stronie aplikacji desktopowej.</p>
+            </Card>
+            <Card title="Praktyczny workflow">
+              <p>Produkt ma wspierać codzienną pracę szkółki bez ciężkiego wdrożenia i bez nadmiarowej złożoności.</p>
+            </Card>
+            <Card title="Wsparcie z platformy">
+              <p>egenlabs.eu będzie publikować aktualizacje, news feed i paczki słownikowe, ale nie przejmie domenowych danych desktopu.</p>
+            </Card>
           </div>
         </section>
-      ) : null}
 
-      <section style={{ display: 'grid', gap: '1rem' }}>
-        <h2>Latest launch articles</h2>
-        {overview.siteOverview.blogPosts.length === 0 ? (
-          <p>No published articles yet.</p>
-        ) : (
-          overview.siteOverview.blogPosts.map((post) => (
-            <article key={post.id} style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-              <p style={{ margin: 0, color: '#555' }}>{renderPublishedAt(post.publishedAt)}</p>
-              <h3 style={{ marginBottom: '0.5rem' }}>{post.title}</h3>
-              <p>{post.excerpt}</p>
-              <Link href={`/blog/${post.slug}`}>Read article</Link>
+        <section className="section">
+          <SectionHeader eyebrow="Status" title="Co jest gotowe na stronie, a co czeka na program?">
+            <p>Ten podział chroni markę przed publikacją niedokończonego produktu i pozwala wystartować wizualnie szybciej.</p>
+          </SectionHeader>
+          <div className="card-grid card-grid--two">
+            <article className="card">
+              <h3>Gotowe do publicznej strony</h3>
+              <ul className="feature-list">
+                <li>opis marki eGen Labs,</li>
+                <li>komunikacja produktowa po polsku,</li>
+                <li>kontakt i newsletter,</li>
+                <li>blog, FAQ i materiały informacyjne.</li>
+              </ul>
             </article>
-          ))
-        )}
-      </section>
+            <article className="card">
+              <h3>Kolejny krok po desktop MVP</h3>
+              <ul className="feature-list">
+                <li>finalny link do pobrania Fito Gen,</li>
+                <li>instrukcje użytkowania programu,</li>
+                <li>materiały onboardingowe,</li>
+                <li>pełny product launch flow.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
 
-      <section style={{ display: 'grid', gap: '1rem' }}>
-        <h2>FAQ snapshot</h2>
-        {overview.siteOverview.faqEntries.length === 0 ? (
-          <p>No FAQ entries yet.</p>
-        ) : (
-          overview.siteOverview.faqEntries.map((entry) => (
-            <article key={entry.id} style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-              <h3 style={{ marginTop: 0 }}>{entry.question}</h3>
-              <p style={{ marginBottom: 0 }}>{entry.answer}</p>
+        {publicPdf ? (
+          <section className="card">
+            <span className="status-pill">Materiał PDF</span>
+            <h2>{publicPdf.title}</h2>
+            <p>{publicPdf.description ?? 'Krótki materiał informacyjny dla produktu.'}</p>
+            <Link className="text-link" href={`/one-pager/${publicPdf.slug}`}>Otwórz materiał PDF</Link>
+          </section>
+        ) : null}
+
+        <section className="section">
+          <SectionHeader eyebrow="Wiedza" title="Aktualności i FAQ produktu.">
+            <p>Te treści mogą rosnąć jeszcze przed publikacją programu.</p>
+          </SectionHeader>
+          <div className="card-grid card-grid--two">
+            <article className="card">
+              <h3>Najnowsze wpisy</h3>
+              {overview.siteOverview.blogPosts.length === 0 ? (
+                <p>Nie ma jeszcze opublikowanych wpisów.</p>
+              ) : (
+                <div className="article-card">
+                  {overview.siteOverview.blogPosts.map((post) => (
+                    <div key={post.id}>
+                      <p className="meta-text">{renderPublishedAt(post.publishedAt)}</p>
+                      <h4>{post.title}</h4>
+                      <p>{post.excerpt}</p>
+                      <Link className="text-link" href={`/blog/${post.slug}`}>Czytaj dalej</Link>
+                    </div>
+                  ))}
+                </div>
+              )}
             </article>
-          ))
-        )}
-      </section>
-    </main>
+            <article className="card">
+              <h3>FAQ</h3>
+              {overview.siteOverview.faqEntries.length === 0 ? (
+                <p>Nie ma jeszcze opublikowanych wpisów FAQ.</p>
+              ) : (
+                <ul className="feature-list">
+                  {overview.siteOverview.faqEntries.map((entry) => (
+                    <li key={entry.id}>{entry.question}</li>
+                  ))}
+                </ul>
+              )}
+              <Link className="text-link" href="/faq">Przejdź do FAQ</Link>
+            </article>
+          </div>
+        </section>
+      </PageContainer>
+    </PublicShell>
   );
 }

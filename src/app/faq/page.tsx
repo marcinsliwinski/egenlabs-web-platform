@@ -1,33 +1,32 @@
-import Link from 'next/link';
-
+import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 import { getPublicFaqEntries } from '@/features/content/content-service';
 
 export default async function FaqPage() {
   const faqEntries = await getPublicFaqEntries();
 
   return (
-    <main style={{ maxWidth: 960, margin: '4rem auto', padding: '0 1rem', display: 'grid', gap: '1.5rem' }}>
-      <header style={{ display: 'grid', gap: '0.75rem' }}>
-        <h1>FAQ</h1>
-        <p>Answers to the most important questions about eGen Labs and Fito Gen Essentials.</p>
-        <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link href="/">Home</Link>
-          <Link href="/products/fito-gen">Product landing</Link>
-          <Link href="/blog">Blog</Link>
-          <Link href="/download/register">Download registration</Link>
-        </nav>
-      </header>
+    <PublicShell>
+      <PageContainer>
+        <SectionHeader eyebrow="FAQ" title="Najczęstsze pytania">
+          <p>Odpowiedzi dotyczące eGen Labs, kierunku produktów i pierwszego produktu Fito Gen Essentials.</p>
+        </SectionHeader>
 
-      {faqEntries.length === 0 ? (
-        <p>No published FAQ entries are available yet.</p>
-      ) : (
-        faqEntries.map((entry) => (
-          <article key={entry.id} id={entry.slug} style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
-            <h2 style={{ marginTop: 0 }}>{entry.question}</h2>
-            <p style={{ marginBottom: 0, whiteSpace: 'pre-wrap' }}>{entry.answer}</p>
-          </article>
-        ))
-      )}
-    </main>
+        {faqEntries.length === 0 ? (
+          <section className="card">
+            <h2>Brak opublikowanych pytań</h2>
+            <p>FAQ zostanie uzupełnione przed szerszą komunikacją produktową.</p>
+          </section>
+        ) : (
+          <section className="section">
+            {faqEntries.map((entry) => (
+              <article key={entry.id} id={entry.slug} className="card">
+                <h2>{entry.question}</h2>
+                <p className="prose">{entry.answer}</p>
+              </article>
+            ))}
+          </section>
+        )}
+      </PageContainer>
+    </PublicShell>
   );
 }

@@ -16,21 +16,28 @@ Każda nowa propozycja, zmiana lub decyzja powinna być oceniana względem tego 
 
 ## 3. Opis projektu
 - Nazwa projektu: eGen Labs Web Platform
-- Typ produktu: platforma webowa marki eGen Labs dla dystrybucji, komunikacji, obsługi leadów i wsparcia produktów software
+- Typ produktu: platforma webowa i produktowe zaplecze marki eGen Labs dla komunikacji, obsługi leadów, publikacji treści, dystrybucji oraz wsparcia produktów eGen
 - Krótki opis:
-  Platforma webowa eGen Labs wspiera promocję firmy i produktów, dystrybucję aplikacji desktopowych, gromadzenie leadów, obsługę newslettera, publikację treści, telemetry intake oraz komunikację pomiędzy aplikacjami desktopowymi a zapleczem webowym. MVP koncentruje się na pierwszym produkcie: Fito Gen Essentials.
+  Platforma webowa eGen Labs wspiera komunikację produktową, publikację wiedzy i dokumentacji, dystrybucję aplikacji desktopowych, gromadzenie leadów, obsługę newslettera, telemetry intake oraz komunikację pomiędzy aplikacjami desktopowymi a zapleczem webowym. MVP koncentruje się na pierwszym produkcie: Fito Gen Essentials.
 
 ## 4. Cel biznesowy
 Celem biznesowym projektu jest uruchomienie profesjonalnej, skalowalnej platformy webowej eGen Labs, która:
-- wspiera budowę marki eGen Labs jako producenta oprogramowania,
+- wspiera budowę marki eGen Labs jako platformy produktowej i product lab ekosystemu eGen,
 - umożliwia skuteczną dystrybucję pierwszego produktu, Fito Gen Essentials,
 - pozyskuje użytkowników i jakościowy feedback z rynku,
 - buduje bazę kontaktów i zgód marketingowych,
 - przygotowuje fundament pod wersję Pro oraz kolejne produkty eGen Labs.
 
-Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie pojedynczy landing dla jednego programu.
+Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie pojedynczy landing dla jednego programu ani klasyczną narrację usługowego software studio.
 
 ## 5. Kryteria sukcesu
+### Kryteria sukcesu Visual Launch Candidate
+- Publiczna strona eGen Labs może zostać uruchomiona jako profesjonalna wizytówka marki przed publikacją finalnego programu Fito Gen Essentials.
+- Strona główna, kontakt, newsletter, FAQ, blog i podstawowe materiały informacyjne są prezentowane po polsku i w spójnej estetyce eGen Labs.
+- Fito Gen Essentials może być komunikowany jako produkt w przygotowaniu, bez eksponowania finalnego linku pobrania i bez obietnicy dostępności programu przed zakończeniem desktopowego MVP.
+- Główne CTA prowadzą do Fito Gen, kontaktu i newslettera, ale nie do pobrania niedokończonego programu.
+- Publiczny przekaz jasno komunikuje eGen Labs jako platformę produktową / product lab, a nie software studio ani software house.
+
 ### Kryteria sukcesu MVP launch
 - Serwis działa produkcyjnie pod domeną egenlabs.eu.
 - Użytkownik może przejść pełny flow: wejście na stronę, rejestracja, zapis zgód, otrzymanie e-maila, pobranie aplikacji.
@@ -66,7 +73,7 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 ## 6. Zakres
 Pełny uzgodniony zakres projektu obejmuje:
 - platformę webową eGen Labs projektowaną od początku jako system multi-product,
-- publiczną stronę główną eGen Labs,
+- publiczną stronę główną eGen Labs jako platformy produktowej / product lab,
 - prezentację i dystrybucję pierwszego produktu Fito Gen Essentials,
 - mechanizmy rejestracji leadów i obsługi zgód,
 - newsletter i komunikację e-mailową,
@@ -114,7 +121,12 @@ Do pierwszej wersji produkcyjnej wchodzi:
 - środowiska dev, staging i prod.
 
 Zakres MVP pozostaje zorientowany na uruchomienie i obsługę pierwszego produktu.
-Po zielonym checkpointcie MVP kolejną fazą platformy jest Universal Desktop Support API v1 jako wspólna warstwa wsparcia dla wielu aplikacji desktopowych publikowanych przez eGen Labs.
+
+Po decyzji o szybkim starcie publicznej strony wprowadzono rozróżnienie między:
+- Visual Launch Candidate – profesjonalną, publiczną wizytówką eGen Labs bez finalnego linku do programu,
+- Product Download Launch – późniejszym krokiem uruchamianym po ukończeniu desktopowego Fito Gen Essentials.
+
+Po zielonym checkpointcie MVP kolejną fazą platformy pozostaje Universal Desktop Support API v1 jako wspólna warstwa wsparcia dla wielu aplikacji desktopowych publikowanych przez eGen Labs, ale bieżący priorytet operacyjny przesunięto na visual launch pass, aby jak najszybciej wystartować z profesjonalną stroną publiczną.
 
 ## 8. Poza zakresem
 Poza MVP pozostają:
@@ -133,7 +145,7 @@ Poza MVP pozostają:
 
 ## 9. Założenia
 - Marka nadrzędna projektu to eGen.
-- Operacyjną submarką software/web jest eGen Labs.
+- Operacyjną submarką produktowo-webową i product lab ekosystemu eGen jest eGen Labs.
 - Pierwszym produktem wspieranym przez platformę jest Fito Gen w edycji Essentials.
 - Rynek startowy to Polska i język polski.
 - Projekt ma być od początku gotowy architektonicznie pod kolejne produkty.
@@ -159,6 +171,7 @@ Poza MVP pozostają:
 - Dokumentacja platformowa pozostaje po polsku, a techniczne nazwy endpointów, pól i payloadów pozostają po angielsku.
 
 ## 10. Pytania otwarte
+- Czy sekcja Elektronika / Krótkofalarstwo ma stać się osobnym obszarem treści produktowo-dokumentacyjnych eGen Labs, czy powinna zostać wydzielona do późniejszego projektu / subbrandu?
 - Czy oraz kiedy dodać 2FA do panelu administracyjnego po MVP lub w późniejszej fazie hardeningu.
 - Czy reset hasła ma wejść do pierwszego inkrementu auth shell, czy do kolejnego kroku w ramach MVP panelu administracyjnego.
 - Ostateczny model zgody dla telemetrii powiązanej z leadem i installation_id.
@@ -184,6 +197,7 @@ Poza MVP pozostają:
 ## 12. Wymagania funkcjonalne
 - WF-001: System ma udostępniać publiczną stronę główną eGen Labs.
 - WF-002: System ma udostępniać landing page produktu Fito Gen Essentials.
+- WF-002A: System ma umożliwiać publiczny visual launch eGen Labs bez eksponowania finalnego linku do Fito Gen Essentials, dopóki desktopowe MVP programu nie jest ukończone.
 - WF-003: Użytkownik ma mieć możliwość rejestracji e-mailowej w celu pobrania aplikacji.
 - WF-004: System ma umożliwiać zapis do newslettera bez pobierania aplikacji.
 - WF-005: System ma rejestrować i wersjonować zgody użytkownika.
@@ -545,6 +559,12 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - polityki,
   - staging/prod deploy,
   - treści launchowe.
+- Faza 4A: Public Site Visual Launch Candidate
+  - profesjonalizacja wyglądu public site,
+  - polska komunikacja marki eGen Labs,
+  - start strony bez finalnego linku do programu Fito Gen,
+  - CTA na kontakt i newsletter,
+  - przygotowanie strony pod późniejszy Product Download Launch.
 - Faza 5: Universal Desktop Support API v1
   - capability map,
   - dokumentacja kontraktów,
@@ -555,6 +575,8 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 ## 25. Obszary backlogu
 - Platform Foundation
 - Public Website
+- Public Site Visual Launch
+- Brand & Visual Correction Pass
 - Lead Capture & Consent
 - Email & Newsletter
 - Download Management
@@ -566,6 +588,15 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Deployment & Operations
 
 ## 26. Kryteria akceptacyjne
+### Kryteria akceptacyjne Visual Launch Candidate
+- Strona główna wygląda profesjonalnie i jest spójna z kierunkiem eGen Labs jako platformy produktowej / product lab.
+- Publiczna komunikacja jest po polsku.
+- Główne CTA prowadzą do Fito Gen, kontaktu i newslettera, ale nie do pobrania niedokończonego programu.
+- Publiczny przekaz jasno komunikuje eGen Labs jako platformę produktową / product lab, a nie software studio ani software house.
+- Fito Gen Essentials może być pokazany jako produkt w przygotowaniu.
+- Download flow pozostaje technicznie dostępny, ale nie jest promowany w głównej nawigacji do czasu ukończenia desktopowego MVP.
+- Publiczne strony formularzy, bloga, FAQ i materiału PDF są spójne wizualnie.
+
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
 - Użytkownik może się zarejestrować i otrzymać e-mail z linkiem do pobrania.
@@ -611,6 +642,13 @@ Feature jest ukończony, gdy:
 - Narastający dług techniczny przy pracy solo i szybkim tempie.
 - Zbyt wczesne komplikowanie procesu stable/beta.
 
+### Ryzyka publicznego visual launch
+- Ryzyko opublikowania strony zbyt technicznej lub zbyt anglojęzycznej względem polskiego rynku startowego.
+- Ryzyko obietnicy pobrania programu przed ukończeniem desktopowego Fito Gen Essentials.
+- Ryzyko rozmycia pozycjonowania marki przez zbyt wiele kierunków produktowych naraz, w tym przedwczesną sekcję Elektronika / Krótkofalarstwo.
+- Ryzyko opóźnienia Product Download Launch, jeśli visual pass zacznie rozszerzać zakres zamiast poprawiać prezentację.
+- Ryzyko błędnego pozycjonowania eGen Labs jako software studio lub software house zamiast platformy produktowej / product lab.
+
 ### Ryzyka biznesowe
 - Niski współczynnik konwersji download po formularzu.
 - Zbyt mała liczba jakościowego feedbacku od szkółek.
@@ -636,6 +674,7 @@ Feature jest ukończony, gdy:
 - 2026-04-10 – dodano wymagania repozytoryjne dotyczące `.gitignore`, higieny repozytorium i ochrony danych wrażliwych przed publikacją na GitHubie.
 - 2026-04-23 – doprecyzowano baseline auth dla panelu administracyjnego: logowanie e-mail + hasło, serwerowe sesje, role Admin/Editor oraz ochrona tras `/admin`.
 - 2026-04-23 – zamknięto otwarte pytanie dotyczące modelu auth i sesji dla panelu administracyjnego oraz dodano decyzję i ADR dla admin auth shell MVP.
+- 2026-05-15 – zaakceptowano korektę pozycjonowania public site: eGen Labs jako platforma produktowa / product lab ekosystemu eGen, nie software studio ani software house.
 
 ## 29. Decision Log
 
@@ -645,7 +684,7 @@ Feature jest ukończony, gdy:
 - Status: Accepted
 - Data: 2026-04-10
 - Kategoria: Product
-- Podsumowanie: Przyjęto strukturę eGen jako marka nadrzędna, eGen Labs jako submarka software/web oraz Fito Gen jako produkt z edycją Essentials.
+- Podsumowanie: Przyjęto strukturę eGen jako marka nadrzędna, eGen Labs jako submarka produktowo-webowa / product lab oraz Fito Gen jako produkt z edycją Essentials.
 - Sekcje, których dotyczy: 3, 4, 6, 7, 9
 
 ### DEC-002
@@ -782,6 +821,33 @@ Feature jest ukończony, gdy:
 - Kategoria: Architecture / Integration / Product
 - Podsumowanie: Platforma egenlabs.eu zostaje rozszerzona o wspólną warstwę Universal Desktop Support API v1 dla aplikacji desktopowych publikowanych przez eGen Labs. Warstwa ta dostarcza kontrakty wsparcia, manifesty i paczki referencyjne, ale nie przejmuje operacyjnych danych domenowych aplikacji desktopowych.
 - Sekcje, których dotyczy: 6, 7, 9, 10, 12, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26
+
+### DEC-017
+- ADR ID: ADR-009
+- Tytuł: Contract Design Freeze dla Universal Desktop Support API v1 Core
+- Status: Accepted
+- Data: 2026-05-13
+- Kategoria: Architecture / Integration / API / Product
+- Podsumowanie: Po zielonym Web MVP checkpoint kolejnym etapem projektu jest stabilizacja kontraktów Core Universal Desktop Support API v1 przed dalszym kodowaniem i integracją Fito Gen Essentials. Core v1 obejmuje Update API, News Feed API i Dictionary Package API.
+- Sekcje, których dotyczy: 10, 12, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27
+
+### DEC-018
+- ADR ID: ADR-010
+- Tytuł: Public Site Visual Launch Candidate przed publikacją programu Fito Gen
+- Status: Accepted
+- Data: 2026-05-15
+- Kategoria: Product / UX / Brand / Delivery
+- Podsumowanie: Priorytet bieżącego kroku zostaje przesunięty na profesjonalny visual launch publicznej strony eGen Labs. Link do Fito Gen Essentials i sam program zostaną dodane w kolejnym kroku po ukończeniu desktopowego MVP. Strona ma startować jako spójna, polska i wiarygodna wizytówka marki z CTA na kontakt i newsletter.
+- Sekcje, których dotyczy: 4, 5, 6, 7, 9, 10, 12, 24, 25, 26, 27
+
+### DEC-019
+- ADR ID: Brak
+- Tytuł: Pozycjonowanie public site jako eGen product platform, nie software studio
+- Status: Accepted
+- Data: 2026-05-15
+- Kategoria: Product / UX / Brand
+- Podsumowanie: Publiczna strona eGen Labs ma komunikować markę jako platformę produktową i product lab ekosystemu eGen. Główny przekaz nie może sugerować klasycznego software studio, software house ani usług programistycznych na zamówienie. Strona ma eksponować produkty własne, praktyczną dokumentację, wiedzę branżową, Fito Gen jako pierwszy produkt oraz przyszłe kierunki produktowe bez rozmywania startu MVP.
+- Sekcje, których dotyczy: 3, 4, 5, 6, 7, 9, 24, 25, 26, 27
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1155,3 +1221,85 @@ Nie wybrano opcji C, ponieważ byłaby zbyt szeroka, zbyt kosztowna i wykraczał
 
 ### Zastępuje / Zastąpiony przez
 - Brak
+
+
+## 38. ADR-009: Contract Design Freeze dla Universal Desktop Support API v1 Core
+Status: Accepted  
+Data: 2026-05-13
+
+### Kontekst
+Po osiągnięciu zielonego Web MVP checkpoint projekt eGen Labs Web Platform przechodzi do kolejnej fazy v1 związanej z Universal Desktop Support API v1. Repozytorium zawiera fundamenty wybranych endpointów desktopowych, ale Dictionary Package API i pełne kontrakty wymagają stabilizacji przed integracją Fito Gen Essentials.
+
+### Decyzja
+Projekt przyjmuje etap Contract Design Freeze dla Universal Desktop Support API v1 Core. Core v1 obejmuje Update API, News Feed API i Dictionary Package API. Najpierw należy przygotować stabilne kontrakty endpointów, parametrów, payloadów, statusów, błędów i testów kontraktowych, a dopiero potem wdrażać brakujące capability.
+
+### Rozważane opcje
+- Opcja A: najpierw implementować brakujące endpointy, a dokumentację przygotować później.
+- Opcja B: najpierw zamrozić kontrakty Core v1, potem wdrożyć brakujące endpointy i testy.
+- Opcja C: odłożyć Dictionary Package API do v1.1.
+
+### Uzasadnienie
+Wybrano opcję B, ponieważ Fito Gen Essentials jest rozwijany poza repozytorium web platformy i wymaga stabilnych kontraktów integracyjnych.
+
+### Konsekwencje
+- Dokumentacja kontraktów API staje się wymaganym krokiem przed implementacją brakujących capability.
+- Existing Update API i News Feed API mogą wymagać ujednolicenia pól.
+- Testy kontraktowe i smoke testy Core v1 stają się warunkiem akceptacji fazy.
+
+### Ryzyka
+- Zbyt długi etap dokumentacyjny może opóźnić implementację.
+- Zbyt wczesne zamrożenie payloadów może utrudnić korekty wynikające z realnej integracji.
+- Niejasność `currentVersion` vs `appVersion` może utrudnić utrzymanie API.
+
+### Dalsze działania
+- Przygotować szczegółową dokumentację kontraktów Core v1.
+- Zaprojektować Dictionary Package API.
+- Po akceptacji kontraktów przejść do implementacji brakujących endpointów i testów.
+
+### Powiązane sekcje
+- 10, 12, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27
+
+### Zastępuje / Zastąpiony przez
+- Brak.
+
+## 39. ADR-010: Public Site Visual Launch Candidate przed publikacją programu Fito Gen
+Status: Accepted  
+Data: 2026-05-15
+
+### Kontekst
+Po zielonym checkpointcie MVP i po rozpoczęciu planowania Universal Desktop Support API v1 pojawiła się potrzeba jak najszybszego uruchomienia profesjonalnej publicznej strony eGen Labs. Fito Gen Essentials pozostaje produktem rozwijanym poza tym repozytorium i nie jest jeszcze gotowy do publikacji jako finalny program do pobrania.
+
+### Decyzja
+Projekt przyjmuje Public Site Visual Launch Candidate jako bieżący priorytet operacyjny. Publiczna strona eGen Labs ma zostać wizualnie dopracowana i uruchomiona jako wiarygodna wizytówka marki, bez eksponowania finalnego linku do programu Fito Gen Essentials. Link do Fito Gen i sam program zostaną dodane w kolejnym kroku po ukończeniu desktopowego MVP.
+
+### Rozważane opcje
+- Opcja A: kontynuować najpierw prace nad Universal Desktop Support API v1 i odłożyć visual pass.
+- Opcja B: wykonać visual launch pass teraz, bez publikowania niedokończonego programu.
+- Opcja C: opublikować stronę od razu z linkiem do nieukończonego programu.
+
+### Uzasadnienie
+Wybrano opcję B, ponieważ umożliwia szybki start wizerunkowy, budowanie zaufania i zbieranie kontaktów bez ryzyka obiecywania pobrania produktu, który nie jest jeszcze gotowy. Decyzja nie usuwa Universal Desktop Support API v1 z planu, tylko przesuwa bieżący operacyjny priorytet na publiczną prezentację marki.
+
+### Konsekwencje
+- Główne CTA public site prowadzą do kontaktu i newslettera.
+- Download flow pozostaje technicznie dostępny, ale nie jest eksponowany w głównej nawigacji.
+- Strona produktu Fito Gen komunikuje status produktu w przygotowaniu.
+- Visual pass nie dodaje nowych funkcji domenowych i nie zmienia granic danych desktopu.
+- Sekcja Elektronika / Krótkofalarstwo wymaga osobnej decyzji, aby nie rozmyć publicznego startu eGen Labs.
+
+### Ryzyka
+- Zbyt wczesne dodanie wielu kierunków produktowych może osłabić jasność komunikacji.
+- Publiczna strona może wymagać kolejnego dopracowania po dodaniu finalnego programu i materiałów użytkownika.
+- Jeżeli visual pass zacznie obejmować nowe funkcje, może opóźnić launch.
+
+### Dalsze działania
+- Uruchomić lokalnie stronę i wykonać QA wizualno-treściowe.
+- Dopisać brakujące treści blog/FAQ w języku polskim.
+- Wdrożyć publiczną stronę jako wizytówkę eGen Labs.
+- Po ukończeniu Fito Gen Essentials dodać finalny link, program i materiały użytkownika.
+
+### Powiązane sekcje
+- 4, 5, 6, 7, 9, 10, 12, 24, 25, 26, 27
+
+### Zastępuje / Zastąpiony przez
+- Brak.
