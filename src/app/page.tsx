@@ -22,14 +22,14 @@ export default async function HomePage() {
         <section className="hero">
           <div className="hero__content">
             <span className="eyebrow">eGen Labs · platforma produktowa</span>
-            <h1>Praktyczne produkty eGen dla wyspecjalizowanych branż.</h1>
+            <h1>Praktyczne produkty eGen dla wyspecjalizowanych branż</h1>
             <p className="hero__lead">
               eGen Labs rozwija własne narzędzia cyfrowe, dokumentację i produkty techniczne tam, gdzie liczą się proces,
               zgodność, powtarzalność i spokojne wdrożenie. To zaplecze produktowe ekosystemu eGen.
             </p>
             <div className="hero__actions">
               <Link className="button" href="/products/fito-gen">Poznaj Fito Gen</Link>
-              <Link className="button button--secondary" href="/contact">Skontaktuj się</Link>
+              <Link className="button button--secondary" href="/products/gen-fed">Zobacz GEN-FED</Link>
             </div>
           </div>
           <aside className="hero__panel" aria-label="Status platformy">
@@ -61,7 +61,7 @@ export default async function HomePage() {
         </section>
 
         <section id="platforma" className="section">
-          <SectionHeader eyebrow="Tożsamość" title="eGen Labs jako platforma produktowa ekosystemu eGen.">
+          <SectionHeader eyebrow="Tożsamość" title="eGen Labs jako platforma produktowa ekosystemu eGen">
             <p>
               Publiczna strona ma budować zaufanie do produktów eGen. Główny przekaz koncentruje się na narzędziach własnych,
               materiałach, dokumentacji i rozwiązaniach dla konkretnych zastosowań biznesowych oraz technicznych.
@@ -81,7 +81,7 @@ export default async function HomePage() {
         </section>
 
         <section id="produkty" className="section">
-          <SectionHeader eyebrow="Pierwszy produkt" title="Fito Gen Essentials — praktyczny desktop dla szkółek roślin.">
+          <SectionHeader eyebrow="Pierwszy produkt" title="Fito Gen Essentials — praktyczny desktop dla szkółek roślin">
             <p>
               Fito Gen Essentials pozostaje pierwszym produktem eGen Labs. Strona może już teraz pokazywać kierunek produktu,
               ale pobranie programu zostanie uruchomione dopiero po zakończeniu desktopowego MVP.
@@ -119,7 +119,7 @@ export default async function HomePage() {
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Kierunki rozwoju" title="Jedna marka, kilka praktycznych linii produktowych.">
+          <SectionHeader eyebrow="Kierunki rozwoju" title="Jedna marka, kilka praktycznych linii produktowych">
             <p>
               eGen Labs powinno wyglądać jak wiarygodny producent produktów i wiedzy, który może rozwijać kolejne linie bez rozmywania pierwszego launchu.
             </p>
@@ -131,14 +131,15 @@ export default async function HomePage() {
             <Card title="Desktop Support Platform">
               <p>Wspólne capability dla aplikacji desktopowych eGen: aktualizacje, newsy, paczki referencyjne i kanały feedbacku.</p>
             </Card>
-            <Card title="Knowledge & Technical Products">
-              <p>Przyszły obszar na instrukcje, opisy, checklisty i produkty techniczne — w tym elektronikę i krótkofalarstwo po osobnej decyzji.</p>
+            <Card title="GEN-FED">
+              <p>Linia kompletnych zestawów antenowych 40-10 i 80-10, samodzielnych Un-Unów oraz współpracujących dławików CMC-GEN.</p>
+              <Link className="text-link" href="/products/gen-fed">Zobacz linię GEN-FED</Link>
             </Card>
           </div>
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Wizerunek" title="Pierwsze wrażenie ma być spokojne, konkretne i profesjonalne.">
+          <SectionHeader eyebrow="Wizerunek" title="Pierwsze wrażenie ma być spokojne, konkretne i profesjonalne">
             <p>
               Strona startowa nie ma wyglądać jak ogólna oferta usług IT. Ma jasno pokazać, że eGen Labs buduje własne produkty,
               publikuje wiedzę i przygotowuje ekosystem pod kolejne narzędzia.
@@ -158,7 +159,7 @@ export default async function HomePage() {
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Wiedza" title="Aktualności i materiały.">
+          <SectionHeader eyebrow="Wiedza" title="Aktualności i materiały">
             <p>Blog i FAQ mogą wspierać start strony, nawet zanim program desktopowy zostanie opublikowany.</p>
           </SectionHeader>
           <div className="card-grid card-grid--two">
@@ -197,7 +198,7 @@ export default async function HomePage() {
 
         <section className="card card--accent">
           <span className="status-pill">Następny krok</span>
-          <h2>Start strony teraz, pobranie programu po ukończeniu Fito Gen.</h2>
+          <h2>Start strony teraz, pobranie programu po ukończeniu Fito Gen</h2>
           <p>
             Najbezpieczniejsza ścieżka: uruchomić profesjonalną wizytówkę eGen Labs, zebrać pierwsze kontakty,
             a po ukończeniu Fito Gen Essentials dodać finalny link, program i komplet materiałów użytkownika.

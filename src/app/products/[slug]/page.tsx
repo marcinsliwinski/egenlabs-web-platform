@@ -69,7 +69,7 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Założenie produktu" title="Prosty desktop dla szkółek roślin.">
+          <SectionHeader eyebrow="Założenie produktu" title="Prosty desktop dla szkółek roślin">
             <p>
               Strona produktu jest przygotowana pod publiczną komunikację w języku polskim, ale nie wymusza jeszcze pobrania aplikacji.
             </p>
@@ -123,7 +123,7 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
         ) : null}
 
         <section className="section">
-          <SectionHeader eyebrow="Wiedza" title="Aktualności i FAQ produktu.">
+          <SectionHeader eyebrow="Wiedza" title="Aktualności i FAQ produktu">
             <p>Te treści mogą rosnąć jeszcze przed publikacją programu.</p>
           </SectionHeader>
           <div className="card-grid card-grid--two">

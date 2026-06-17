@@ -1,29 +1,32 @@
-# Kroki do zakończenia MVP po visual launch pass
+# Kroki do zakończenia MVP po wdrożeniu katalogu GEN-FED / CMC-GEN 261
 
 ## Status po bieżącym pakiecie
 
-Publiczna warstwa wizualna została przygotowana pod szybki start strony eGen Labs bez publikowania finalnego linku do Fito Gen Essentials.
+- Web MVP core: około 98–99%.
+- Public site visual launch: około 94–96%.
+- Katalog GEN-FED / CMC-GEN 261: około 90–95% implementacyjnie; wymaga lokalnego QA i publikacji.
+- Dokumentacja publiczna v20: 100% dodana do projektu w zakresie dokumentów 01 i 02.
+- Product Download Launch Fito Gen: około 65–70%; zależny od ukończenia programu desktopowego.
+- Universal Desktop Support API v1 Core: około 45–50% implementacyjnie.
 
-Szacunkowy stan:
-
-- Web MVP: 98–99% względem visual launch candidate.
-- Public site visual launch: 85–90%.
-- Product Download Launch z finalnym Fito Gen: 65–70%, zależny od ukończenia programu desktopowego.
-- Universal Desktop Support API v1 Core: 45–50% implementacyjnie, 60–65% decyzyjnie.
-
-## Najbliższa kolejność prac
-
-### 1. Lokalna walidacja techniczna
-
-Uruchom:
+## 1. Lokalna walidacja techniczna
 
 ```bash
 npm ci
+npm run prisma:generate
 npm run typecheck
 npm run lint
 ```
 
-Jeżeli baza i środowisko są gotowe:
+Prisma Client musi być wygenerowany przed pełnym `typecheck`. Następnie, przy działającej bazie i aplikacji:
+
+```bash
+npm run db:up
+npx prisma migrate deploy
+npm run dev
+```
+
+W drugim terminalu:
 
 ```bash
 npm run smoke:health
@@ -31,88 +34,82 @@ npm run smoke:mvp
 npm run checkpoint:mvp
 ```
 
-### 2. QA public site
+## 2. QA katalogu krótkofalarskiego
 
-Sprawdź ręcznie:
+Sprawdź ręcznie na desktopie i telefonie:
 
-- `/`
-- `/contact`
-- `/newsletter`
-- `/enterprise`
-- `/faq`
-- `/blog`
-- `/products/fito-gen`
-- `/one-pager/fito-gen-one-pager`, jeśli PDF jest skonfigurowany
+- `/products`
+- `/products/gen-fed`
+- `/products/gen-fed/40-10`
+- `/products/gen-fed/80-10`
+- `/products/gen-fed/un-un`
+- `/products/cmc-gen`
+- reprezentatywne karty µQRP, QRP, STD i HD,
+- `/downloads/ham-radio`,
+- oba pliki PDF v20.
 
-Kryteria QA:
+Kontrole merytoryczne:
 
-- wszystkie publiczne komunikaty są po polsku,
-- strona wygląda profesjonalnie na desktopie i mobile,
-- główne CTA prowadzą do Fito Gen, kontaktu i newslettera, bez linku do pobrania programu,
-- strona nie obiecuje pobrania niedokończonego programu,
-- download flow nie jest eksponowany w głównej nawigacji.
+- dokładnie 23 produkty,
+- 15 Kitów, 4 Un-Uny, 4 choke’i,
+- brak `GEN-FED 80-10 M µQRP`,
+- wyłącznie warianty S/M,
+- każdy Kit zawiera Un-Un, promiennik, przeciwwagę, choke i elementy montażowe,
+- parametry mocy zgadzają się z kartą techniczną v20,
+- CTA prowadzi do kontaktu, a nie do nieistniejącego sklepu.
 
-### 3. Treści startowe
+## 3. QA dokumentów i zgodności treści
 
-Uzupełnij albo zatwierdź:
+- opublikowane są tylko instrukcja obsługi i instalacji oraz karta techniczna v20,
+- Oświadczenie producenta i dokumenty wewnętrzne nie znajdują się w `public/`,
+- pusta strona identyfikacyjna instrukcji pozostaje jako miejsce na wklejkę SN,
+- linki PDF działają i nie są chronione rejestracją,
+- strona produktu pokazuje producenta, SKU, podstawowe parametry i ostrzeżenia.
 
-- minimum 3 wpisy blogowe,
-- FAQ startowe,
-- teksty na stronie głównej,
-- opis Fito Gen jako produktu w przygotowaniu,
-- podstawowy PDF informacyjny, jeżeli ma być publiczny.
+## 4. Finalny visual/content pass
 
-### 4. Deploy public visual launch
+Przed publikacją dopracuj:
 
-Po pozytywnej walidacji:
+- zdjęcia lub ilustracje produktów,
+- hierarchię strony głównej między Fito Gen a pionem krótkofalarskim,
+- krótsze opisy marketingowe bez zmiany parametrów technicznych,
+- mobile spacing tabel porównawczych,
+- favicon, Open Graph i finalne metadane SEO,
+- dane kontaktowe i polityki publiczne.
 
-- wdrożenie staging,
-- szybki smoke test staging,
-- wdrożenie produkcyjne,
-- sprawdzenie domeny `egenlabs.eu`,
-- sprawdzenie formularzy kontaktu i newslettera.
+## 5. Commit katalogu
 
-### 5. Kolejny krok po ukończeniu Fito Gen Essentials
+Po zielonych testach:
 
-Dodać:
+```bash
+git status --short
+git add src scripts docs public
+git commit -m "Publish GEN-FED and CMC-GEN 261 catalog"
+```
 
-- finalny link do Fito Gen,
-- finalny program do pobrania,
-- pełny product download launch flow,
-- instrukcje użytkowania,
-- materiały onboardingowe,
-- ewentualnie deklaracje i dokumenty techniczne, jeżeli dotyczą publikowanego produktu.
+Nie commituj:
 
-### 6. Powrót do Universal Desktop Support API v1 Core
+- ZIP-ów źródłowych,
+- dokumentów wewnętrznych,
+- plików DOCX,
+- ewidencji SN,
+- `.env`, sekretów, backupów, dumpów i logów,
+- `node_modules`, `.next` ani `tsconfig.tsbuildinfo`.
 
-Po visual launch albo równolegle w osobnym kroku:
+## 6. Staging i produkcja
 
-- zamrozić kontrakty Update API,
-- zamrozić kontrakty News Feed API,
-- zaprojektować Dictionary Package API,
-- dodać testy kontraktowe,
-- przygotować pakiet integracyjny dla Fito Gen Essentials.
+1. Wdrożenie na staging.
+2. Smoke test z `BASE_URL` stagingu.
+3. Ręczny QA katalogu i PDF-ów.
+4. Wdrożenie produkcyjne.
+5. Weryfikacja domeny, cache i formularzy kontaktowych.
+6. Rejestracja checkpointu release w dokumentacji projektu.
 
-## Sekcja Elektronika / Krótkofalarstwo
+## 7. Kolejny krok po public launch
 
-Pomysł sekcji Elektronika / Krótkofalarstwo został oznaczony jako pytanie otwarte w `docs/living-specification.md`.
+Po uruchomieniu strony:
 
-Rekomendacja: nie wdrażać tej sekcji w tym visual launch pass. Najpierw należy osobno zdecydować, czy ma to być:
-
-- osobna kategoria treści eGen Labs,
-- osobny produkt / linia produktów,
-- subbrand,
-- czy osobny projekt poza eGen Labs Web Platform MVP.
-
-Powód: zbyt szybkie dodanie drugiego kierunku produktowego może rozmyć komunikację startową strony.
-
-
-## Korekta pozycjonowania przed commitem
-
-Przed commitem release candidate należy sprawdzić, że public site nie komunikuje eGen Labs jako software studio. Docelowe pozycjonowanie:
-
-- eGen Labs jako platforma produktowa / product lab ekosystemu eGen,
-- Fito Gen jako pierwszy produkt,
-- Universal Desktop Support API jako zaplecze techniczne produktów desktopowych,
-- Knowledge & Technical Products jako przyszły obszar treści i dokumentacji technicznej,
-- brak głównej narracji usług programistycznych.
+1. Dodać finalne zdjęcia produktowe i ewentualne ceny/tryb dostępności po osobnej decyzji.
+2. Po ukończeniu Fito Gen uruchomić Product Download Launch programu.
+3. Wrócić do Contract Design Freeze Universal Desktop Support API v1 Core.
+4. Zaprojektować i wdrożyć Dictionary Package API oraz testy kontraktowe.

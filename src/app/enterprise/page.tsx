@@ -28,7 +28,7 @@ export default async function EnterprisePage({ searchParams }: { searchParams?: 
       <PageContainer>
         <section className="split-layout">
           <div>
-            <SectionHeader eyebrow="Firmy i zespoły" title="Opisz potrzeby większego użycia produktu albo przyszłej edycji Pro.">
+            <SectionHeader eyebrow="Firmy i zespoły" title="Opisz potrzeby większego użycia produktu albo przyszłej edycji Pro">
               <p>
                 Ten formularz służy do rozmów o szerszych potrzebach: zespołach, procesach, dokumentacji, raportowaniu i potencjalnych edycjach komercyjnych produktów eGen.
               </p>

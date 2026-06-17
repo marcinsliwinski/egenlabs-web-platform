@@ -6,7 +6,30 @@ const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS ?? 10000);
 
 const checks = [
   { path: '/', expectedStatus: 200, label: 'Homepage' },
-  { path: '/products/fito-gen', expectedStatus: 200, label: 'Product landing' },
+  { path: '/products/fito-gen', expectedStatus: 200, label: 'Fito Gen product landing' },
+  { path: '/products', expectedStatus: 200, label: 'Products index' },
+  { path: '/products/gen-fed', expectedStatus: 200, label: 'GEN-FED line' },
+  { path: '/products/gen-fed/40-10', expectedStatus: 200, label: 'GEN-FED 40-10 series' },
+  { path: '/products/gen-fed/40-10/gf4010-s-uqrp-k261', expectedStatus: 200, label: 'GEN-FED 40-10 S µQRP product' },
+  { path: '/products/gen-fed/40-10/gf4010-m-hd-k261', expectedStatus: 200, label: 'GEN-FED 40-10 M HD product' },
+  { path: '/products/gen-fed/80-10', expectedStatus: 200, label: 'GEN-FED 80-10 series' },
+  { path: '/products/gen-fed/80-10/gf8010-s-std-k261', expectedStatus: 200, label: 'GEN-FED 80-10 S STD product' },
+  { path: '/products/gen-fed/80-10/gf8010-m-hd-k261', expectedStatus: 200, label: 'GEN-FED 80-10 M HD product' },
+  { path: '/products/gen-fed/un-un', expectedStatus: 200, label: 'GEN-FED Un-Un catalog' },
+  { path: '/products/gen-fed/un-un/gfu49-std-261', expectedStatus: 200, label: 'GEN-FED Un-Un STD product' },
+  { path: '/products/cmc-gen', expectedStatus: 200, label: 'CMC-GEN catalog' },
+  { path: '/products/cmc-gen/cmcg-std-261', expectedStatus: 200, label: 'CMC-GEN STD product' },
+  { path: '/downloads/ham-radio', expectedStatus: 200, label: 'Ham radio downloads' },
+  {
+    path: '/downloads/ham-radio/gen-fed-cmc-gen-261/v20/instrukcja-obslugi-i-instalacji-gen-fed-cmc-gen-261-pl.pdf',
+    expectedStatus: 200,
+    label: 'GEN-FED public manual PDF'
+  },
+  {
+    path: '/downloads/ham-radio/gen-fed-cmc-gen-261/v20/karta-techniczna-gen-fed-cmc-gen-261-pl.pdf',
+    expectedStatus: 200,
+    label: 'GEN-FED public technical card PDF'
+  },
   { path: '/faq', expectedStatus: 200, label: 'FAQ page' },
   { path: '/blog', expectedStatus: 200, label: 'Blog list' },
   { path: '/newsletter', expectedStatus: 200, label: 'Newsletter form' },

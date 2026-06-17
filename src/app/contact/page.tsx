@@ -28,7 +28,7 @@ export default async function ContactPage({ searchParams }: { searchParams?: Sea
       <PageContainer>
         <section className="split-layout">
           <div>
-            <SectionHeader eyebrow="Kontakt" title="Porozmawiajmy o produkcie, dokumentacji albo współpracy.">
+            <SectionHeader eyebrow="Kontakt" title="Porozmawiajmy o produkcie, dokumentacji albo współpracy">
               <p>
                 Napisz, czego potrzebujesz: informacji o Fito Gen, materiałów branżowych, dokumentacji, współpracy albo przyszłych produktach eGen Labs.
               </p>

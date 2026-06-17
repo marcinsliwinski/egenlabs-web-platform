@@ -26,7 +26,8 @@ Poza zakresem tego kroku pozostają:
 - publikacja programu desktopowego,
 - pełny product launch flow,
 - rozbudowany visual identity system,
-- osobna sekcja Elektronika / Krótkofalarstwo,
+- sklep, koszyk i płatności dla linii GEN-FED,
+- finalne PDF-y instrukcji i deklaracji dla GEN-FED, dopóki nie zostaną przygotowane i zweryfikowane,
 - implementacja nowych endpointów Universal Desktop Support API v1.
 
 ## Zmiany wdrożone w repo
@@ -70,4 +71,19 @@ Po dodatkowym QA treści przyjęto korektę pozycjonowania marki:
 - główny przekaz to platforma produktowa i product lab ekosystemu eGen,
 - strona ma pokazywać produkty własne, praktyczną dokumentację, wiedzę branżową i wsparcie aplikacji eGen,
 - kontakt pozostaje kanałem rozmowy o produktach, dokumentacji i współpracy, a nie klasyczną ofertą usług programistycznych,
-- sekcja Elektronika / Krótkofalarstwo pozostaje przyszłym kierunkiem treściowym wymagającym osobnej decyzji.
+- linie GEN-FED i CMC-GEN zostały zaakceptowane jako osobny pion produktowy public site: 23 strony produktów, strony serii, dwa publiczne PDF-y v20 i kontakt w sprawie dostępności.
+
+
+## GEN-FED public product section
+
+Po decyzji DEC-020 visual launch obejmuje również ograniczoną sekcję publiczną GEN-FED:
+
+- `/products` jako katalog linii produktowych,
+- `/products/gen-fed` jako strona linii produktowej,
+- `/products/gen-fed/40-10` jako strona pierwszej serii,
+- 15 stron Kitów GEN-FED 40-10 i 80-10 zgodnych z BAZA_SKU v20,
+- 4 strony samodzielnych Un-Unów,
+- 4 strony samodzielnych choke’ów CMC-GEN,
+- `/downloads/ham-radio` jako biblioteka planowanych instrukcji, deklaracji i kart produktu.
+
+Zakres GEN-FED nie obejmuje sklepu, koszyka, płatności, stanów magazynowych ani wariantów Complete z choke’em w pierwszym public launch.

@@ -1,0 +1,2 @@
+f3df2a28cef043d5e95ccdbbc767354a8fa6b176d39183f8165d288fab7c3024  public/downloads/ham-radio/gen-fed-cmc-gen-261/v20/instrukcja-obslugi-i-instalacji-gen-fed-cmc-gen-261-pl.pdf
+d518e154f6608d8e1b148c7984ef3038a89673228c09c82e11e1e2cb85838c72  public/downloads/ham-radio/gen-fed-cmc-gen-261/v20/karta-techniczna-gen-fed-cmc-gen-261-pl.pdf

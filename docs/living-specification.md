@@ -18,7 +18,7 @@ Każda nowa propozycja, zmiana lub decyzja powinna być oceniana względem tego 
 - Nazwa projektu: eGen Labs Web Platform
 - Typ produktu: platforma webowa i produktowe zaplecze marki eGen Labs dla komunikacji, obsługi leadów, publikacji treści, dystrybucji oraz wsparcia produktów eGen
 - Krótki opis:
-  Platforma webowa eGen Labs wspiera komunikację produktową, publikację wiedzy i dokumentacji, dystrybucję aplikacji desktopowych, gromadzenie leadów, obsługę newslettera, telemetry intake oraz komunikację pomiędzy aplikacjami desktopowymi a zapleczem webowym. MVP koncentruje się na pierwszym produkcie: Fito Gen Essentials.
+  Platforma webowa eGen Labs wspiera komunikację produktową, publikację wiedzy i dokumentacji, dystrybucję aplikacji desktopowych, gromadzenie leadów, obsługę newslettera, telemetry intake oraz komunikację pomiędzy aplikacjami desktopowymi a zapleczem webowym. MVP koncentruje się na pierwszym produkcie cyfrowym Fito Gen Essentials, a public site po decyzjach DEC-020 i DEC-021 obejmuje również pełny katalog techniczny GEN-FED / CMC-GEN 261: 15 kompletnych Kitów, 4 samodzielne Un-Uny i 4 samodzielne choke’i.
 
 ## 4. Cel biznesowy
 Celem biznesowym projektu jest uruchomienie profesjonalnej, skalowalnej platformy webowej eGen Labs, która:
@@ -26,7 +26,8 @@ Celem biznesowym projektu jest uruchomienie profesjonalnej, skalowalnej platform
 - umożliwia skuteczną dystrybucję pierwszego produktu, Fito Gen Essentials,
 - pozyskuje użytkowników i jakościowy feedback z rynku,
 - buduje bazę kontaktów i zgód marketingowych,
-- przygotowuje fundament pod wersję Pro oraz kolejne produkty eGen Labs.
+- przygotowuje fundament pod wersję Pro oraz kolejne produkty eGen Labs,
+- umożliwia prezentację technicznej linii produktowej GEN-FED bez uruchamiania sklepu, koszyka ani systemu zamówień w MVP.
 
 Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie pojedynczy landing dla jednego programu ani klasyczną narrację usługowego software studio.
 
@@ -37,6 +38,19 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 - Fito Gen Essentials może być komunikowany jako produkt w przygotowaniu, bez eksponowania finalnego linku pobrania i bez obietnicy dostępności programu przed zakończeniem desktopowego MVP.
 - Główne CTA prowadzą do Fito Gen, kontaktu i newslettera, ale nie do pobrania niedokończonego programu.
 - Publiczny przekaz jasno komunikuje eGen Labs jako platformę produktową / product lab, a nie software studio ani software house.
+
+### Kryteria sukcesu GEN-FED / CMC-GEN public product section
+- Public site zawiera linie GEN-FED i CMC-GEN jako osobny pion produktów technicznych, bez rozmywania komunikacji Fito Gen.
+- Strona `/products/gen-fed` prezentuje serie GEN-FED 40-10 i 80-10 oraz samodzielne transformatory 1:49 Un-Un.
+- Strona `/products/cmc-gen` prezentuje samodzielne dławiki CMC-GEN 1:1.
+- Katalog publiczny obejmuje dokładnie 23 SKU z dokumentacji v20: 15 Kitów, 4 Un-Uny i 4 choke’i.
+- Kity używają wyłącznie wariantów długości S/M; wariant S jest skrócony cewką, a wariant M jest półfalowy dla właściwej serii.
+- `GEN-FED 80-10 M µQRP` nie jest planowany i nie może być generowany ani prezentowany jako produkt.
+- Każdy GEN-FED Kit zawiera promiennik, przeciwwagę, Un-Un 1:49, dopasowany CMC-GEN 1:1 Choke oraz elementy montażowe.
+- Każdy produkt ma własną stronę z opisem, parametrami, zawartością, zasadami bezpieczeństwa, identyfikacją producenta i dokumentami publicznymi.
+- Biblioteka `/downloads/ham-radio` publikuje wyłącznie dwa zatwierdzone PDF-y v20: instrukcję obsługi i instalacji oraz kartę techniczną.
+- Oświadczenie producenta, analiza ryzyka, instrukcja konstrukcyjna, kontrola jakości, kwalifikacja prawna i ewidencja SN pozostają poza publicznym katalogiem.
+- Sklep, koszyk, płatności, stany magazynowe i system zamówień pozostają poza zakresem MVP.
 
 ### Kryteria sukcesu MVP launch
 - Serwis działa produkcyjnie pod domeną egenlabs.eu.
@@ -74,6 +88,8 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 Pełny uzgodniony zakres projektu obejmuje:
 - platformę webową eGen Labs projektowaną od początku jako system multi-product,
 - publiczną stronę główną eGen Labs jako platformy produktowej / product lab,
+- publiczną sekcję produktów `/products`, obejmującą Fito Gen oraz linie produktowe GEN-FED i CMC-GEN,
+- publiczny katalog GEN-FED / CMC-GEN 261 obejmujący 23 SKU, strony serii, strony produktów i bibliotekę zatwierdzonych dokumentów v20,
 - prezentację i dystrybucję pierwszego produktu Fito Gen Essentials,
 - mechanizmy rejestracji leadów i obsługi zgód,
 - newsletter i komunikację e-mailową,
@@ -106,6 +122,12 @@ Do pierwszej wersji produkcyjnej wchodzi:
 - FAQ,
 - blog z minimum 3 artykułami startowymi,
 - materiał PDF one-pager o widoczności publicznej albo prywatnej,
+- stronę linii produktowej GEN-FED,
+- strony serii GEN-FED 40-10 i GEN-FED 80-10,
+- strony 15 kompletnych Kitów GEN-FED zgodnych z BAZA_SKU v20,
+- stronę katalogową i strony 4 samodzielnych transformatorów GEN-FED 1:49 Un-Un,
+- stronę katalogową i strony 4 samodzielnych dławików CMC-GEN 1:1 Choke,
+- bibliotekę `/downloads/ham-radio` z aktywnymi dokumentami: instrukcją obsługi i instalacji v20 oraz kartą techniczną v20,
 - formularz kontaktowy,
 - formularz zainteresowania Enterprise,
 - panel administracyjny z ręcznym zarządzaniem treściami,
@@ -120,7 +142,7 @@ Do pierwszej wersji produkcyjnej wchodzi:
 - backup i restore na poziomie MVP,
 - środowiska dev, staging i prod.
 
-Zakres MVP pozostaje zorientowany na uruchomienie i obsługę pierwszego produktu.
+Zakres MVP pozostaje dominująco zorientowany na uruchomienie i obsługę pierwszego produktu cyfrowego, a pion krótkofalarski wchodzi jako publiczny, statyczny katalog informacyjny: 23 produkty GEN-FED / CMC-GEN 261, dwa dokumenty PDF v20 i kontakt w sprawie dostępności, bez handlu elektronicznego.
 
 Po decyzji o szybkim starcie publicznej strony wprowadzono rozróżnienie między:
 - Visual Launch Candidate – profesjonalną, publiczną wizytówką eGen Labs bez finalnego linku do programu,
@@ -141,12 +163,23 @@ Poza MVP pozostają:
 - pełna wielojęzyczność,
 - rozbudowany CMS klasy enterprise,
 - zewnętrzne SSO,
-- 2FA w pierwszej wersji, o ile nie zostanie dodane decyzją późniejszą.
+- 2FA w pierwszej wersji, o ile nie zostanie dodane decyzją późniejszą,
+- sklep internetowy, koszyk, płatności online i system zamówień dla GEN-FED,
+- stany magazynowe i obsługa fulfillmentu GEN-FED,
+- SKU niewystępujące w zatwierdzonej BAZA_SKU v20, w szczególności `GEN-FED 80-10 M µQRP`,
+- publiczna publikacja dokumentów wewnętrznych producenta, w tym analizy ryzyka, instrukcji konstrukcyjnej, karty kontroli jakości, kwalifikacji prawnej i ewidencji SN,
+- automatyczny generator deklaracji zgodności i dokumentacji technicznej GEN-FED / CMC-GEN.
 
 ## 9. Założenia
 - Marka nadrzędna projektu to eGen.
 - Operacyjną submarką produktowo-webową i product lab ekosystemu eGen jest eGen Labs.
 - Pierwszym produktem wspieranym przez platformę jest Fito Gen w edycji Essentials.
+- Pierwszą zaakceptowaną techniczną linią produktową public site poza Fito Gen jest GEN-FED.
+- Publiczny katalog GEN-FED / CMC-GEN jest oparty na dokumentacji v20 i BAZA_SKU zawierającej 23 produkty.
+- Linie GEN-FED Kit obejmują serie 40-10 oraz 80-10 i używają wyłącznie wariantów długości S/M.
+- S oznacza promiennik skrócony cewką, a M oznacza promiennik półfalowy dla właściwej serii.
+- Każdy Kit zawiera Un-Un, promiennik, przeciwwagę, dopasowany CMC-GEN 1:1 Choke i elementy montażowe.
+- Wariant `GEN-FED 80-10 M µQRP` nie jest planowany.
 - Rynek startowy to Polska i język polski.
 - Projekt ma być od początku gotowy architektonicznie pod kolejne produkty.
 - MVP ma być realizowane solo, w modelu low-cost, w horyzoncie 1–2 miesięcy.
@@ -171,7 +204,8 @@ Poza MVP pozostają:
 - Dokumentacja platformowa pozostaje po polsku, a techniczne nazwy endpointów, pól i payloadów pozostają po angielsku.
 
 ## 10. Pytania otwarte
-- Czy sekcja Elektronika / Krótkofalarstwo ma stać się osobnym obszarem treści produktowo-dokumentacyjnych eGen Labs, czy powinna zostać wydzielona do późniejszego projektu / subbrandu?
+- Czy docelowo GEN-FED / CMC-GEN ma otrzymać sklep, koszyk, płatności i obsługę stanów magazynowych, czy pozostać przy kontakcie w sprawie dostępności.
+- Czy w przyszłości publikować dodatkowe dokumenty zewnętrzne, np. podpisane Oświadczenie producenta, mimo że nie jest ono wymagane jako standardowy plik do pobrania.
 - Czy oraz kiedy dodać 2FA do panelu administracyjnego po MVP lub w późniejszej fazie hardeningu.
 - Czy reset hasła ma wejść do pierwszego inkrementu auth shell, czy do kolejnego kroku w ramach MVP panelu administracyjnego.
 - Ostateczny model zgody dla telemetrii powiązanej z leadem i installation_id.
@@ -198,6 +232,16 @@ Poza MVP pozostają:
 - WF-001: System ma udostępniać publiczną stronę główną eGen Labs.
 - WF-002: System ma udostępniać landing page produktu Fito Gen Essentials.
 - WF-002A: System ma umożliwiać publiczny visual launch eGen Labs bez eksponowania finalnego linku do Fito Gen Essentials, dopóki desktopowe MVP programu nie jest ukończone.
+- WF-002B: System ma udostępniać publiczną sekcję produktów `/products` jako katalog linii produktowych eGen Labs.
+- WF-002C: System ma udostępniać publiczną stronę linii produktowej GEN-FED.
+- WF-002D: System ma udostępniać publiczne strony serii GEN-FED 40-10 i GEN-FED 80-10.
+- WF-002E: System ma udostępniać publiczne strony wszystkich 15 Kitów GEN-FED zgodnych z BAZA_SKU v20.
+- WF-002F: System ma udostępniać publiczny katalog i strony 4 samodzielnych transformatorów GEN-FED 1:49 Un-Un.
+- WF-002G: System ma udostępniać publiczny katalog i strony 4 samodzielnych dławików CMC-GEN 1:1 Choke.
+- WF-002H: System ma udostępniać publiczną bibliotekę dokumentów krótkofalarskich `/downloads/ham-radio`, bez wymagania logowania i bez systemu zamówień.
+- WF-002I: Biblioteka ma publikować wyłącznie zatwierdzoną instrukcję obsługi i instalacji v20 oraz kartę techniczną v20.
+- WF-002J: System nie może generować ani prezentować niezatwierdzonych SKU, w szczególności `GEN-FED 80-10 M µQRP`.
+- WF-002K: Każda karta produktu ma prezentować SKU, producenta, podstawowe parametry, zawartość, ostrzeżenia i linki do dokumentów publicznych.
 - WF-003: Użytkownik ma mieć możliwość rejestracji e-mailowej w celu pobrania aplikacji.
 - WF-004: System ma umożliwiać zapis do newslettera bez pobierania aplikacji.
 - WF-005: System ma rejestrować i wersjonować zgody użytkownika.
@@ -291,6 +335,10 @@ Poza MVP pozostają:
 - PDF one-pager może być publiczny albo prywatny.
 - Feature request i software demand request są elementem zakresu MVP.
 - Platforma webowa nie jest w MVP systemem operacyjnej pracy użytkownika końcowego.
+- Publiczny katalog krótkofalarski jest katalogiem informacyjnym opartym na kontrolowanej BAZA_SKU v20, a nie systemem magazynowym ani sprzedażowym.
+- Nazwa, SKU, wariant S/M, linia mocy, parametry i zawartość produktu muszą być zgodne z dokumentacją v20.
+- Dla Kitów moc całego zestawu ogranicza zastosowany Un-Un, nawet jeżeli samodzielny choke tej samej linii ma wyższy limit.
+- Oświadczenie producenta i dokumentacja wewnętrzna nie są publikowane standardowo na stronie; pozostają w dokumentacji technicznej producenta.
 
 ## 16. Przegląd architektury
 Dla MVP przyjęto architekturę modularnego monolitu.
@@ -320,6 +368,8 @@ Granica odpowiedzialności:
 Po checkpointcie MVP architektura platformy obejmuje dodatkowo wspólną warstwę Application Support / Universal Desktop Support API v1 dla aplikacji desktopowych publikowanych przez eGen Labs.
 Warstwa ta dostarcza manifesty aktualizacji, news feed, manifesty i paczki referencyjne, feedback intake oraz telemetry intake, ale nie przejmuje odpowiedzialności za operacyjne dane domenowe aplikacji desktopowych.
 
+Publiczny katalog krótkofalarski pozostaje statycznym modułem treściowym w kodzie aplikacji. Nie wymaga nowych encji bazy danych ani API w MVP; dane katalogowe są rozdzielone na moduły Kitów, Un-Unów, choke’ów i dokumentów, a wszystkie strony korzystają ze wspólnych typów i komponentów.
+
 ## 17. Struktura modułów
 - Auth Module – logowanie administracyjne e-mail + hasło, serwerowe sesje, role Admin/Editor, ochrona tras `/admin`, kontrola dostępu oraz reset hasła jako funkcja planowana w ramach MVP, lecz niekoniecznie w pierwszym inkremencie auth shell.
 - Admin Module – panel administracyjny i operacje zaplecza.
@@ -332,6 +382,7 @@ Warstwa ta dostarcza manifesty aktualizacji, news feed, manifesty i paczki refer
 - Telemetry Module – intake telemetrii, zapis zdarzeń, filtrowanie danych diagnostycznych.
 - Audit Module – log audytowy działań administracyjnych.
 - Public Website Module – publiczne renderowanie treści, landingów i formularzy.
+- Ham Radio Product Catalog Module – statyczny, modułowy katalog 23 produktów GEN-FED / CMC-GEN 261, współdzielone typy, strony serii, strony produktów i kontrolowane referencje do dokumentacji v20.
 - Universal Desktop Support API Module – wspólne kontrakty wsparcia dla wielu aplikacji desktopowych eGen Labs, obejmujące Update API, News Feed API, Dictionary Package API, Feedback API i Telemetry API.
 - Infrastructure Module – konfiguracja środowisk, storage, backup, monitoring, integracje techniczne.
 
@@ -564,6 +615,10 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - polska komunikacja marki eGen Labs,
   - start strony bez finalnego linku do programu Fito Gen,
   - CTA na kontakt i newsletter,
+  - publiczna sekcja produktów obejmująca Fito Gen, GEN-FED i CMC-GEN,
+  - statyczny, modułowy katalog 23 produktów GEN-FED / CMC-GEN 261,
+  - strony serii 40-10 i 80-10, katalog Un-Unów, katalog CMC-GEN i strony wszystkich SKU,
+  - publikacja instrukcji obsługi i instalacji v20 oraz karty technicznej v20,
   - przygotowanie strony pod późniejszy Product Download Launch.
 - Faza 5: Universal Desktop Support API v1
   - capability map,
@@ -577,6 +632,8 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Public Website
 - Public Site Visual Launch
 - Brand & Visual Correction Pass
+- GEN-FED / CMC-GEN Product Catalog 261
+- Ham Radio Public Documentation v20
 - Lead Capture & Consent
 - Email & Newsletter
 - Download Management
@@ -596,6 +653,13 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Fito Gen Essentials może być pokazany jako produkt w przygotowaniu.
 - Download flow pozostaje technicznie dostępny, ale nie jest promowany w głównej nawigacji do czasu ukończenia desktopowego MVP.
 - Publiczne strony formularzy, bloga, FAQ i materiału PDF są spójne wizualnie.
+- Publiczna sekcja `/products` prezentuje Fito Gen, GEN-FED i CMC-GEN jako linie produktowe eGen Labs.
+- Strony GEN-FED / CMC-GEN nie sugerują istnienia sklepu, koszyka ani dostępności sprzedażowej bez potwierdzenia.
+- Katalog zawiera dokładnie 23 zatwierdzone SKU i nie zawiera wariantu `GEN-FED 80-10 M µQRP`.
+- Każdy Kit jest opisany jako zestaw zawierający Un-Un, promiennik, przeciwwagę, CMC-GEN i elementy montażowe.
+- Warianty długości są ograniczone do S/M i opisane zgodnie z dokumentacją v20.
+- Biblioteka dokumentów udostępnia działające linki do dwóch PDF-ów v20: instrukcji obsługi i instalacji oraz karty technicznej.
+- Strony reprezentatywnych produktów, landingów katalogowych oraz obu PDF-ów są objęte smoke testami.
 
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
@@ -645,7 +709,11 @@ Feature jest ukończony, gdy:
 ### Ryzyka publicznego visual launch
 - Ryzyko opublikowania strony zbyt technicznej lub zbyt anglojęzycznej względem polskiego rynku startowego.
 - Ryzyko obietnicy pobrania programu przed ukończeniem desktopowego Fito Gen Essentials.
-- Ryzyko rozmycia pozycjonowania marki przez zbyt wiele kierunków produktowych naraz, w tym przedwczesną sekcję Elektronika / Krótkofalarstwo.
+- Ryzyko rozmycia pozycjonowania marki przez zbyt wiele kierunków produktowych naraz, w tym przez zbyt mocne eksponowanie GEN-FED przed pełnym dopracowaniem Fito Gen.
+- Ryzyko rozjazdu danych między BAZA_SKU v20, kartami produktów i publicznymi PDF-ami.
+- Ryzyko przypadkowego wygenerowania niezatwierdzonego wariantu `GEN-FED 80-10 M µQRP`.
+- Ryzyko publikacji dokumentacji wewnętrznej producenta lub ewidencji SN w katalogu publicznym.
+- Ryzyko sugerowania gotowości sprzedażowej GEN-FED / CMC-GEN, mimo że MVP obejmuje katalog, dokumenty i kontakt w sprawie dostępności.
 - Ryzyko opóźnienia Product Download Launch, jeśli visual pass zacznie rozszerzać zakres zamiast poprawiać prezentację.
 - Ryzyko błędnego pozycjonowania eGen Labs jako software studio lub software house zamiast platformy produktowej / product lab.
 
@@ -675,6 +743,10 @@ Feature jest ukończony, gdy:
 - 2026-04-23 – doprecyzowano baseline auth dla panelu administracyjnego: logowanie e-mail + hasło, serwerowe sesje, role Admin/Editor oraz ochrona tras `/admin`.
 - 2026-04-23 – zamknięto otwarte pytanie dotyczące modelu auth i sesji dla panelu administracyjnego oraz dodano decyzję i ADR dla admin auth shell MVP.
 - 2026-05-15 – zaakceptowano korektę pozycjonowania public site: eGen Labs jako platforma produktowa / product lab ekosystemu eGen, nie software studio ani software house.
+- 2026-05-15 – zaakceptowano dodanie linii produktowej GEN-FED do public site w ograniczonym zakresie: strony produktowe, biblioteka planowanych instrukcji i deklaracji PDF oraz kontakt w sprawie dostępności, bez sklepu, koszyka i systemu zamówień.
+- 2026-06-17 – DEC-021 zastąpiła szczegółowy startowy zakres GEN-FED pełnym katalogiem GEN-FED / CMC-GEN 261 obejmującym 23 SKU, model S/M, dokumentację v20 i dwa publiczne PDF-y.
+- 2026-06-17 – potwierdzono, że pusta strona identyfikacyjna instrukcji pozostaje miejscem na wklejkę z numerem seryjnym, a Oświadczenie producenta pozostaje dokumentem technicznym niepublikowanym standardowo.
+- 2026-06-17 – usunięto z publicznych kart produktów sekcję zawierającą prywatne dane identyfikacyjne producenta; dane pozostają w zatwierdzonej karcie technicznej PDF v20. Ujednolicono nagłówki bez końcowych kropek i zwiększono kontrast tekstu na zielonych polach.
 
 ## 29. Decision Log
 
@@ -848,6 +920,25 @@ Feature jest ukończony, gdy:
 - Kategoria: Product / UX / Brand
 - Podsumowanie: Publiczna strona eGen Labs ma komunikować markę jako platformę produktową i product lab ekosystemu eGen. Główny przekaz nie może sugerować klasycznego software studio, software house ani usług programistycznych na zamówienie. Strona ma eksponować produkty własne, praktyczną dokumentację, wiedzę branżową, Fito Gen jako pierwszy produkt oraz przyszłe kierunki produktowe bez rozmywania startu MVP.
 - Sekcje, których dotyczy: 3, 4, 5, 6, 7, 9, 24, 25, 26, 27
+
+### DEC-020
+- ADR ID: Brak
+- Tytuł: Dodanie linii produktowej GEN-FED do public site
+- Status: Accepted
+- Data: 2026-05-15
+- Kategoria: Product / UX / Content / Compliance
+- Podsumowanie: Zaakceptowano utworzenie linii produktowej GEN-FED jako osobnego pionu produktów technicznych eGen Labs. Pierwotny szczegółowy zakres trzech produktów startowych został następnie zastąpiony przez DEC-021 pełnym katalogiem GEN-FED / CMC-GEN 261. Sklep, koszyk, płatności i system zamówień pozostają poza zakresem.
+- Sekcje, których dotyczy: 3, 4, 5, 6, 7, 8, 9, 10, 12, 16, 17, 24, 25, 26, 27
+
+
+### DEC-021
+- ADR ID: Brak
+- Tytuł: Pełny publiczny katalog GEN-FED / CMC-GEN 261 i dokumentacja v20
+- Status: Accepted
+- Data: 2026-06-17
+- Kategoria: Product / UX / Content / Compliance
+- Podsumowanie: Szczegółowy startowy zakres z DEC-020 zostaje zastąpiony pełnym publicznym katalogiem opartym na BAZA_SKU v20. Katalog obejmuje 15 kompletnych Kitów GEN-FED, 4 samodzielne transformatory 1:49 Un-Un i 4 samodzielne choke’i CMC-GEN. Kity używają wyłącznie wariantów S/M i zawierają Un-Un, promiennik, przeciwwagę, dopasowany choke oraz elementy montażowe. Wariant `GEN-FED 80-10 M µQRP` nie jest planowany. Publicznie udostępniane są wyłącznie instrukcja obsługi i instalacji v20 oraz karta techniczna v20. Oświadczenie producenta i dokumenty wewnętrzne pozostają w dokumentacji technicznej producenta. Pusta strona identyfikacyjna instrukcji pozostaje przeznaczona na wklejkę z numerem seryjnym. Publiczne karty produktów nie prezentują prywatnego imienia, nazwiska, adresu ani telefonu producenta; zatwierdzone dane identyfikacyjne pozostają w karcie technicznej PDF v20.
+- Sekcje, których dotyczy: 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 17, 24, 25, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted

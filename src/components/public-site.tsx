@@ -40,9 +40,10 @@ export function PublicHeader() {
         </Link>
         <nav className="site-nav" aria-label="Główna nawigacja">
           <Link href="/#platforma">Platforma</Link>
-          <Link href="/#produkty">Produkty</Link>
+          <Link href="/products">Produkty</Link>
           <Link href="/blog">Wiedza</Link>
           <Link href="/faq">FAQ</Link>
+          <Link href="/downloads/ham-radio">Dokumenty</Link>
           <Link href="/contact">Kontakt</Link>
         </nav>
       </div>

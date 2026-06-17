@@ -28,7 +28,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams?: 
       <PageContainer>
         <section className="split-layout">
           <div>
-            <SectionHeader eyebrow="Newsletter" title="Otrzymuj informacje o produktach eGen Labs.">
+            <SectionHeader eyebrow="Newsletter" title="Otrzymuj informacje o produktach eGen Labs">
               <p>
                 Zapisz się, aby dostać informacje o starcie Fito Gen Essentials, nowych materiałach oraz kolejnych narzędziach eGen Labs.
               </p>
