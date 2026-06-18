@@ -11,7 +11,7 @@ type DownloadRegistrationPageProps = {
 };
 
 const successMessages: Record<string, string> = {
-  registration_saved: 'Rejestracja została zapisana. System przygotował techniczny link pobrania dla flow MVP.'
+  registration_saved: 'Rejestracja została zapisana. Sprawdź wiadomość email z informacją o dostępie do pobrania.'
 };
 
 const errorMessages: Record<string, string> = {
@@ -36,11 +36,8 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
   return (
     <PublicShell>
       <PageContainer>
-        <SectionHeader eyebrow="Techniczny flow MVP" title="Rejestracja pobrania">
-          <p>
-            Ta strona pozostaje technicznym elementem MVP download flow. Nie jest eksponowana w głównej nawigacji do czasu
-            ukończenia Fito Gen Essentials i przygotowania finalnego linku pobrania.
-          </p>
+        <SectionHeader eyebrow="Fito Gen" title="Rejestracja pobrania">
+          <p>Zarejestruj adres email, aby otrzymać dostęp do właściwego wydania aplikacji i informacji związanych z pobraniem.</p>
         </SectionHeader>
 
         {successKey ? <p role="status" className="alert alert--success">{successMessages[successKey] ?? 'Rejestracja zakończona pomyślnie.'}</p> : null}
@@ -49,9 +46,9 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
         <section className="form-card">
           <h2>Formularz rejestracji</h2>
           {overview.combinations.length === 0 ? (
-            <p>Brak gotowych kombinacji pobrania. Najpierw skonfiguruj aktywny build i politykę pobrania w panelu administracyjnym.</p>
+            <p>Pobieranie nie jest obecnie dostępne. Skontaktuj się z eGen Labs, aby uzyskać informacje o wydaniu.</p>
           ) : !overview.consentDefinitions.downloadRegistration || !overview.consentDefinitions.marketingEmail ? (
-            <p>Brakuje aktywnych definicji zgód. Zastosuj aktualny stan migracji i bootstrapu danych.</p>
+            <p>Formularz jest czasowo niedostępny. Spróbuj ponownie później lub skontaktuj się z eGen Labs.</p>
           ) : (
             <form action={registerDownloadRequestAction} className="form-grid">
               <label className="form-label">
@@ -89,12 +86,9 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
         </section>
 
         <section className="card">
-          <h2>Uwaga wdrożeniowa</h2>
-          <p>
-            Publiczny start wizualny nie wymaga eksponowania tej strony w menu. Link do Fito Gen i sam program zostaną dodane,
-            gdy desktopowe MVP będzie gotowe.
-          </p>
-          <Link className="text-link" href="/">Wróć na stronę główną</Link>
+          <h2>Informacje o pobraniu</h2>
+          <p>Adres email jest wykorzystywany do obsługi rejestracji i przekazania informacji o dostępie. Zgoda marketingowa pozostaje opcjonalna.</p>
+          <Link className="text-link" href="/products/fito-gen">Wróć do Fito Gen</Link>
         </section>
       </PageContainer>
     </PublicShell>

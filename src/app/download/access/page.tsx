@@ -33,11 +33,8 @@ export default async function DownloadAccessPage({ searchParams }: DownloadAcces
   return (
     <PublicShell>
       <PageContainer>
-        <SectionHeader eyebrow="Techniczny flow MVP" title="Dostęp do pobrania">
-          <p>
-            Ta strona waliduje wydany link pobrania. Pozostaje gotowa technicznie, ale nie jest głównym elementem publicznego
-            startu wizualnego do czasu ukończenia programu Fito Gen.
-          </p>
+        <SectionHeader eyebrow="Fito Gen" title="Dostęp do pobrania">
+          <p>Sprawdź status otrzymanego linku i pobierz właściwe wydanie aplikacji, jeśli dostęp jest aktywny.</p>
         </SectionHeader>
 
         <section className="card">
@@ -67,7 +64,7 @@ export default async function DownloadAccessPage({ searchParams }: DownloadAcces
           </section>
         ) : null}
 
-        <Link className="text-link" href="/">Wróć na stronę główną</Link>
+        <Link className="text-link" href="/products/fito-gen">Wróć do Fito Gen</Link>
       </PageContainer>
     </PublicShell>
   );

@@ -8,7 +8,7 @@ import { getPublicProductLandingOverview } from '@/features/content/content-serv
 
 function renderPublishedAt(value: Date | null) {
   if (!value) {
-    return 'W przygotowaniu';
+    return 'Bez daty publikacji';
   }
 
   return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'medium' }).format(value);
@@ -35,96 +35,82 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
   return (
     <PublicShell>
       <PageContainer>
-        <section className="hero">
+        <section className="hero hero--compact hero--fito">
           <div className="hero__content">
-            <span className="eyebrow">Produkt w przygotowaniu</span>
+            <span className="eyebrow">Fito Gen</span>
             <h1>{product.name} {primaryEdition ? primaryEdition.name : ''}</h1>
             <p className="hero__lead">
-              Fito Gen Essentials to desktopowa aplikacja dla polskich szkółek roślin. Produkt pozostaje offline-first,
-              prosty w użyciu i przygotowany do pracy lokalnej bez stałego połączenia z internetem.
+              Desktopowa aplikacja offline-first dla polskich szkółek roślin. Porządkuje pracę lokalną, upraszcza korzystanie z dokumentacji i wspiera dostęp do aktualnych informacji oraz danych referencyjnych.
             </p>
             <div className="hero__actions">
-              <Link className="button" href="/contact">Zapytaj o Fito Gen</Link>
-              <Link className="button button--secondary" href="/newsletter">Zapisz się po aktualizacje</Link>
+              <Link className="button" href="#mozliwosci">Poznaj możliwości</Link>
+              <Link className="button button--secondary" href="/contact">Skontaktuj się</Link>
             </div>
           </div>
-          <aside className="hero__panel">
-            <span className="status-pill">Program zostanie dodany później</span>
-            <h2>Bez przedwczesnej publikacji</h2>
-            <p>
-              Link do programu i finalny flow pobrania zostaną udostępnione dopiero po zakończeniu desktopowego MVP.
-              Obecnie strona buduje wiarygodność marki i przygotowuje komunikację produktową.
-            </p>
-            <div className="metric-grid">
-              <div className="metric">
-                <strong>{product.builds.length}</strong>
-                <span>buildów w konfiguracji</span>
-              </div>
-              <div className="metric">
-                <strong>{product.editions.length}</strong>
-                <span>aktywnych edycji</span>
-              </div>
-            </div>
+          <aside className="hero__panel hero__panel--fito" aria-label="Najważniejsze cechy Fito Gen Essentials">
+            <span className="status-pill">Edycja Essentials</span>
+            <h2>Prosta praca lokalna</h2>
+            <ul className="feature-list feature-list--compact">
+              <li>działanie offline-first bez obowiązkowej chmury,</li>
+              <li>interfejs przygotowany dla użytkownika końcowego,</li>
+              <li>aktualizacje, komunikaty i paczki referencyjne z egenlabs.eu.</li>
+            </ul>
           </aside>
         </section>
 
-        <section className="section">
-          <SectionHeader eyebrow="Założenie produktu" title="Prosty desktop dla szkółek roślin">
-            <p>
-              Strona produktu jest przygotowana pod publiczną komunikację w języku polskim, ale nie wymusza jeszcze pobrania aplikacji.
-            </p>
+        <section className="section" id="mozliwosci">
+          <SectionHeader eyebrow="Możliwości" title="Codzienna praca">
+            <p>Fito Gen Essentials łączy prostotę aplikacji desktopowej z kontrolowanym wsparciem aktualizacyjnym platformy eGen Labs.</p>
           </SectionHeader>
           <div className="card-grid">
             <Card title="Offline-first">
-              <p>Dane operacyjne użytkownika pozostają lokalnie po stronie aplikacji desktopowej.</p>
+              <p>Podstawowa praca odbywa się lokalnie, bez uzależnienia codziennych procesów od stałego połączenia z internetem.</p>
             </Card>
-            <Card title="Praktyczny workflow">
-              <p>Produkt ma wspierać codzienną pracę szkółki bez ciężkiego wdrożenia i bez nadmiarowej złożoności.</p>
+            <Card title="Przejrzysty workflow">
+              <p>Układ aplikacji jest projektowany dla praktycznej pracy szkółki, bez nadmiarowych funkcji i ciężkiego wdrożenia.</p>
             </Card>
-            <Card title="Wsparcie z platformy">
-              <p>egenlabs.eu będzie publikować aktualizacje, news feed i paczki słownikowe, ale nie przejmie domenowych danych desktopu.</p>
+            <Card title="Aktualne wsparcie">
+              <p>egenlabs.eu dostarcza aktualizacje, wiadomości produktowe i wersjonowane paczki danych referencyjnych.</p>
             </Card>
           </div>
         </section>
 
-        <section className="section">
-          <SectionHeader eyebrow="Status" title="Co jest gotowe na stronie, a co czeka na program?">
-            <p>Ten podział chroni markę przed publikacją niedokończonego produktu i pozwala wystartować wizualnie szybciej.</p>
+        <section className="section section--soft">
+          <SectionHeader eyebrow="Architektura produktu" title="Dane pozostają lokalnie">
+            <p>Platforma internetowa wspiera aplikację, ale nie przejmuje operacyjnych danych szkółki ani lokalnych procesów użytkownika.</p>
           </SectionHeader>
           <div className="card-grid card-grid--two">
             <article className="card">
-              <h3>Gotowe do publicznej strony</h3>
+              <h3>Po stronie aplikacji</h3>
               <ul className="feature-list">
-                <li>opis marki eGen Labs,</li>
-                <li>komunikacja produktowa po polsku,</li>
-                <li>kontakt i newsletter,</li>
-                <li>blog, FAQ i materiały informacyjne.</li>
+                <li>lokalne dane operacyjne,</li>
+                <li>ustawienia i dokumentacja użytkownika,</li>
+                <li>praca dostępna również bez internetu.</li>
               </ul>
             </article>
             <article className="card">
-              <h3>Kolejny krok po desktop MVP</h3>
+              <h3>Po stronie egenlabs.eu</h3>
               <ul className="feature-list">
-                <li>finalny link do pobrania Fito Gen,</li>
-                <li>instrukcje użytkowania programu,</li>
-                <li>materiały onboardingowe,</li>
-                <li>pełny product launch flow.</li>
+                <li>informacje o aktualizacjach,</li>
+                <li>news feed i komunikaty produktowe,</li>
+                <li>wersjonowane paczki danych wspierających.</li>
               </ul>
             </article>
           </div>
         </section>
 
         {publicPdf ? (
-          <section className="card">
-            <span className="status-pill">Materiał PDF</span>
+          <section className="card card--accent fito-pdf-card">
+            <span className="status-pill status-pill--light">Materiał produktowy</span>
             <h2>{publicPdf.title}</h2>
-            <p>{publicPdf.description ?? 'Krótki materiał informacyjny dla produktu.'}</p>
-            <Link className="text-link" href={`/one-pager/${publicPdf.slug}`}>Otwórz materiał PDF</Link>
+            <p>{publicPdf.description ?? 'Materiał informacyjny prezentujący założenia i zastosowanie Fito Gen Essentials.'}</p>
+            <Link className="button button--light" href={`/one-pager/${publicPdf.slug}`}>Otwórz materiał</Link>
           </section>
         ) : null}
 
         <section className="section">
-          <SectionHeader eyebrow="Wiedza" title="Aktualności i FAQ produktu">
-            <p>Te treści mogą rosnąć jeszcze przed publikacją programu.</p>
+          <SectionHeader eyebrow="Wsparcie" title="Wiedza i aktualności">
+            <p>Materiały publikowane przez eGen Labs pomagają poznać produkt, kolejne aktualizacje i zasady pracy.</p>
           </SectionHeader>
           <div className="card-grid card-grid--two">
             <article className="card">
@@ -133,7 +119,7 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
                 <p>Nie ma jeszcze opublikowanych wpisów.</p>
               ) : (
                 <div className="article-card">
-                  {overview.siteOverview.blogPosts.map((post) => (
+                  {overview.siteOverview.blogPosts.slice(0, 2).map((post) => (
                     <div key={post.id}>
                       <p className="meta-text">{renderPublishedAt(post.publishedAt)}</p>
                       <h4>{post.title}</h4>
@@ -145,12 +131,12 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
               )}
             </article>
             <article className="card">
-              <h3>FAQ</h3>
+              <h3>Najczęstsze pytania</h3>
               {overview.siteOverview.faqEntries.length === 0 ? (
                 <p>Nie ma jeszcze opublikowanych wpisów FAQ.</p>
               ) : (
                 <ul className="feature-list">
-                  {overview.siteOverview.faqEntries.map((entry) => (
+                  {overview.siteOverview.faqEntries.slice(0, 4).map((entry) => (
                     <li key={entry.id}>{entry.question}</li>
                   ))}
                 </ul>
@@ -158,6 +144,15 @@ export default async function ProductLandingPage({ params }: ProductLandingPageP
               <Link className="text-link" href="/faq">Przejdź do FAQ</Link>
             </article>
           </div>
+        </section>
+
+        <section className="cta-panel">
+          <div>
+            <span className="eyebrow eyebrow--light">Kontakt</span>
+            <h2>Porozmawiajmy o Fito Gen</h2>
+            <p>Napisz w sprawie zastosowania produktu, dokumentacji lub współpracy.</p>
+          </div>
+          <Link className="button button--light" href="/contact">Skontaktuj się</Link>
         </section>
       </PageContainer>
     </PublicShell>

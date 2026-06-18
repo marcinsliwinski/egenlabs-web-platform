@@ -1972,3 +1972,81 @@ body {
     top: calc(100% + 0.35rem);
   }
 }
+
+/* DEC-024: compact public hierarchy and production-ready Fito Gen module */
+.hero h1 {
+  max-width: 17ch;
+  font-size: clamp(2.15rem, 4.4vw, 3.45rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.hero--compact h1 {
+  font-size: clamp(2rem, 3.8vw, 3rem);
+}
+
+.hero__panel h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  line-height: 1.12;
+}
+
+.section-header h2 {
+  max-width: 28ch;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  line-height: 1.08;
+}
+
+.product-showcase h3,
+.line-card h2 {
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+  line-height: 1.12;
+}
+
+.card h2,
+.card h3,
+.editorial-card h3 {
+  font-size: clamp(1.25rem, 1.8vw, 1.55rem);
+  line-height: 1.18;
+}
+
+.engagement-panel h2,
+.cta-panel h2 {
+  font-size: clamp(1.55rem, 2.6vw, 2.05rem);
+  line-height: 1.08;
+}
+
+.hero--fito .hero__lead {
+  max-width: 62ch;
+}
+
+.hero__panel--fito {
+  align-content: start;
+}
+
+.fito-pdf-card {
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
+}
+
+.status-pill--light {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+@media (max-width: 620px) {
+  .hero h1,
+  .hero--compact h1 {
+    font-size: clamp(2rem, 10vw, 2.5rem);
+  }
+
+  .section-header h2 {
+    font-size: clamp(1.6rem, 8vw, 2rem);
+  }
+
+  .product-showcase h3,
+  .line-card h2 {
+    font-size: clamp(1.35rem, 7vw, 1.7rem);
+  }
+}

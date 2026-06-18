@@ -7,7 +7,7 @@ import { getPublicEnabledMarketingPdfs } from '@/features/pdf/pdf-service';
 
 function renderPublishedAt(value: Date | null) {
   if (!value) {
-    return 'W przygotowaniu';
+    return 'Bez daty publikacji';
   }
 
   return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'medium' }).format(value);
@@ -35,9 +35,9 @@ export default async function HomePage({ searchParams }: { searchParams?: Search
         <section className="hero hero--home">
           <div className="hero__content">
             <span className="eyebrow">eGen Labs</span>
-            <h1>Skalowalne aplikacje i specjalistyczne rozwiązania krótkofalarskie</h1>
+            <h1>Praktyczna inżynieria</h1>
             <p className="hero__lead">
-              Projektujemy własne rozwiązania do wyspecjalizowanych zastosowań — od aplikacji desktopowych po systemy antenowe HF. Łączymy funkcjonalność, rzetelną dokumentację i przemyślaną konstrukcję.
+              Tworzymy skalowalne aplikacje i specjalistyczne rozwiązania krótkofalarskie. Łączymy funkcjonalność, rzetelną dokumentację i przemyślaną konstrukcję.
             </p>
             <div className="hero__actions">
               <Link className="button" href="/products">Poznaj rozwiązania</Link>
@@ -71,9 +71,9 @@ export default async function HomePage({ searchParams }: { searchParams?: Search
           <div className="product-showcase-grid">
             <article className="product-showcase product-showcase--fito">
               <div>
-                <span className="status-pill">W przygotowaniu</span>
+                <span className="status-pill">Aplikacja desktopowa</span>
                 <h3>Fito Gen Essentials</h3>
-                <p>Desktopowa aplikacja offline-first dla polskich szkółek roślin i codziennej pracy z dokumentacją.</p>
+                <p>Desktopowa aplikacja offline-first dla polskich szkółek roślin, wspierająca lokalną pracę i dostęp do aktualnych danych referencyjnych.</p>
               </div>
               <ul className="feature-list feature-list--compact">
                 <li>praca lokalna bez obowiązkowej chmury,</li>

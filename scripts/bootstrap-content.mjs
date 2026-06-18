@@ -41,19 +41,19 @@ const faqEntries = [
   {
     slug: 'for-whom-is-fito-gen-essentials',
     question: 'Dla kogo przeznaczony jest Fito Gen Essentials?',
-    answer: 'Pierwsza wersja produktu jest kierowana do szkółek roślin, które chcą uporządkować podstawowy workflow desktopowy bez ciężkich wdrożeń i bez złożonej infrastruktury.',
+    answer: 'Fito Gen Essentials jest przeznaczony dla polskich szkółek roślin, które potrzebują prostej aplikacji desktopowej wspierającej lokalną pracę, dokumentację i korzystanie z aktualnych danych referencyjnych.',
     sortOrder: 10
   },
   {
     slug: 'how-does-download-registration-work',
-    question: 'Jak działa rejestracja przed pobraniem?',
-    answer: 'Użytkownik przechodzi prosty formularz rejestracji, zapisuje wymagane zgody operacyjne i otrzymuje transakcyjny link pobrania zgodny z aktywną polityką wydawania linków.',
+    question: 'Czy Fito Gen wymaga stałego połączenia z internetem?',
+    answer: 'Nie. Aplikacja jest projektowana w modelu offline-first. Podstawowa praca i dane operacyjne pozostają lokalnie, a internet służy do pobierania aktualizacji, komunikatów i wersjonowanych paczek danych wspierających.',
     sortOrder: 20
   },
   {
     slug: 'is-marketing-consent-required',
     question: 'Czy zgoda marketingowa jest obowiązkowa?',
-    answer: 'Nie. Zgoda marketingowa jest oddzielona od obowiązkowej rejestracji pobrania i pozostaje opcjonalna, zgodnie z zaakceptowanym baseline projektu.',
+    answer: 'Nie. Zgoda marketingowa jest oddzielona od obsługi rejestracji i pozostaje opcjonalna.',
     sortOrder: 30
   }
 ];
@@ -61,21 +61,21 @@ const faqEntries = [
 const blogPosts = [
   {
     slug: 'launching-egenlabs-web-platform-foundation',
-    title: 'Profesjonalny start platformy eGen Labs',
-    excerpt: 'Dlaczego strona startuje jako praktyczna wizytówka marki, zanim opublikujemy finalny program Fito Gen.',
-    content: 'Pierwszy publiczny krok eGen Labs powinien budować zaufanie: jasny opis marki, prosty kontakt, polskie treści i brak obietnic funkcji, które nie są jeszcze gotowe.\n\nPlatforma pozostaje przygotowana pod dystrybucję aplikacji desktopowych, ale start wizualny może nastąpić wcześniej niż finalne udostępnienie programu.'
+    title: 'Fito Gen Essentials dla codziennej pracy szkółki',
+    excerpt: 'Aplikacja desktopowa offline-first łączy prostotę obsługi z lokalnym przechowywaniem danych i uporządkowanym wsparciem aktualizacyjnym.',
+    content: 'Fito Gen Essentials jest rozwijany z myślą o praktycznej pracy polskich szkółek roślin. Aplikacja pozostaje lokalnym narzędziem użytkownika i nie wymaga przenoszenia codziennych danych operacyjnych do chmury.\n\nPlatforma egenlabs.eu dostarcza aktualizacje, komunikaty i wersjonowane dane referencyjne, zachowując wyraźny podział odpowiedzialności między aplikacją desktopową a zapleczem internetowym.'
   },
   {
     slug: 'why-fito-gen-starts-with-essentials',
-    title: 'Dlaczego Fito Gen startuje od edycji Essentials',
-    excerpt: 'Pierwsza edycja ma pozostać wąska, praktyczna i łatwa do zweryfikowania z realnymi użytkownikami.',
-    content: 'Fito Gen Essentials celowo zaczyna od ograniczonego zakresu. Taka strategia zmniejsza ryzyko, skraca czas do pierwszej walidacji i pozwala zebrać jakościowy feedback od szkółek roślin.\n\nDopiero po potwierdzeniu wartości produktu warto rozszerzać komunikację sprzedażową, materiały i docelowy flow pobrania.'
+    title: 'Dlaczego Fito Gen pozostaje offline-first',
+    excerpt: 'Lokalna praca zwiększa niezależność użytkownika i ogranicza wpływ dostępności internetu na codzienne procesy.',
+    content: 'Model offline-first pozwala korzystać z podstawowych funkcji aplikacji niezależnie od jakości połączenia internetowego. Dane operacyjne pozostają po stronie użytkownika, a komunikacja z egenlabs.eu dotyczy jedynie funkcji wsparcia produktu.\n\nTakie podejście upraszcza wdrożenie i pozwala zachować kontrolę nad lokalnymi procesami szkółki.'
   },
   {
     slug: 'how-download-policies-shape-the-mvp',
-    title: 'Jak polityki pobrania wspierają MVP',
-    excerpt: 'Mechanizm pobrania jest gotowy technicznie, ale publiczne uruchomienie linku powinno poczekać na finalny program.',
-    content: 'Polityki pobrania są ważną częścią platformy, ponieważ porządkują rejestrację, zgody, wydawanie linków i późniejsze wsparcie użytkownika.\n\nW publicznym starcie wizualnym nie trzeba jednak eksponować pobierania aplikacji, jeśli desktopowe MVP nie jest jeszcze gotowe do publikacji.'
+    title: 'Aktualizacje i dane referencyjne w Fito Gen',
+    excerpt: 'Platforma eGen Labs dostarcza aplikacji aktualizacje, komunikaty oraz wersjonowane paczki danych wspierających.',
+    content: 'Fito Gen może sprawdzać dostępność aktualizacji, pobierać wiadomości produktowe oraz importować wersjonowane paczki danych referencyjnych. Mechanizmy te wspierają produkt, ale nie przejmują lokalnych danych użytkownika.\n\nDzięki temu aplikacja pozostaje niezależna operacyjnie, a jednocześnie może korzystać z aktualnych informacji publikowanych przez eGen Labs.'
   }
 ];
 

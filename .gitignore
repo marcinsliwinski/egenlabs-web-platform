@@ -87,3 +87,7 @@ postgres_data/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local security reports
+gitleaks-report.*
+npm-audit-report.*

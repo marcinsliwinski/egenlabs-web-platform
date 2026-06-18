@@ -1,0 +1,100 @@
+name: Quality gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: egenlabs_web
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d egenlabs_web"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/egenlabs_web?schema=public
+      AUTH_SECRET: ci-only-auth-secret-with-at-least-32-characters
+      APP_URL: http://127.0.0.1:3000
+      APP_NAME: eGen Labs Web Platform
+      EMAIL_TRANSPORT_MODE: LOG_ONLY
+      BASE_URL: http://127.0.0.1:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+
+      - name: Bootstrap test content
+        run: |
+          npm run catalog:bootstrap
+          npm run content:bootstrap
+          npm run desktop:bootstrap
+          npm run pdf:bootstrap
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Start application
+        run: |
+          npm run start > /tmp/egenlabs-next.log 2>&1 &
+          echo $! > /tmp/egenlabs-next.pid
+
+      - name: Wait for health endpoint
+        run: |
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:3000/api/v1/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/egenlabs-next.log
+          exit 1
+
+      - name: Run health smoke test
+        run: npm run smoke:health
+
+      - name: Run MVP smoke tests
+        run: npm run smoke:mvp
+
+      - name: Print application log on failure
+        if: failure()
+        run: cat /tmp/egenlabs-next.log || true

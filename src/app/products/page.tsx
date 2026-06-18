@@ -33,12 +33,12 @@ export default function ProductsPage() {
           <div className="line-card-grid">
             <article className="line-card line-card--fito">
               <div className="line-card__top">
-                <span className="status-pill">W przygotowaniu</span>
+                <span className="status-pill">Aplikacja desktopowa</span>
                 <span className="line-card__code">Desktop</span>
               </div>
               <div>
                 <h2>Fito Gen</h2>
-                <p>Desktopowa aplikacja offline-first dla polskich szkółek roślin, dokumentacji i codziennej pracy lokalnej.</p>
+                <p>Desktopowa aplikacja offline-first dla polskich szkółek roślin, wspierająca lokalną pracę i dostęp do aktualnych danych referencyjnych.</p>
               </div>
               <Link className="button button--secondary" href="/products/fito-gen">Poznaj Fito Gen</Link>
             </article>

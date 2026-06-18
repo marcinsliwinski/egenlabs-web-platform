@@ -714,3 +714,21 @@ npm run checkpoint:mvp
 ```
 
 Then review the manual checkpoint steps in `docs/mvp-release-checkpoint.md`.
+
+## Automated quality gate
+
+GitHub Actions runs `.github/workflows/quality.yml` for pushes and pull requests targeting `main`.
+
+The workflow validates:
+
+- dependency installation,
+- Prisma Client generation,
+- database migrations,
+- test content bootstrap,
+- TypeScript,
+- ESLint,
+- production build,
+- health smoke test,
+- MVP smoke test.
+
+Security issues should be reported privately according to `SECURITY.md`. Never include credentials, tokens, private keys, database dumps or personal data in GitHub issues.

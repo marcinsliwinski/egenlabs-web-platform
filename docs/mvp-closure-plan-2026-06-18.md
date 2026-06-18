@@ -120,3 +120,21 @@ Po wdrożeniu:
 - sklep, koszyk i płatności,
 - panel uploadu i media manager,
 - pełne zdjęcia wszystkich modeli, jeśli nie będą gotowe na dzień startu.
+
+## Update — 2026-06-18
+
+Completed:
+
+- DEC-024 compact typography and production-ready Fito Gen public module,
+- DEC-025 GitHub Actions quality gate,
+- repository `SECURITY.md`.
+
+Remaining before MVP closure:
+
+1. run the new CI workflow on GitHub and resolve any environment-specific failures,
+2. complete the final desktop/mobile visual review,
+3. add the minimum accepted product imagery,
+4. review `npm audit` findings without using forced upgrades,
+5. configure staging secrets and external integrations,
+6. perform staging smoke, form, email, backup and restore tests,
+7. deploy production and record the final release checkpoint.

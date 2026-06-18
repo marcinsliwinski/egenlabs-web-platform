@@ -5,7 +5,7 @@ import { getPublicBlogPosts } from '@/features/content/content-service';
 
 function renderPublishedAt(value: Date | null) {
   if (!value) {
-    return 'W przygotowaniu';
+    return 'Bez daty publikacji';
   }
 
   return new Intl.DateTimeFormat('pl-PL', {

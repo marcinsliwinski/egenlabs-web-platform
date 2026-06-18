@@ -35,8 +35,8 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 ### Kryteria sukcesu Visual Launch Candidate
 - Publiczna strona eGen Labs może zostać uruchomiona jako profesjonalna wizytówka marki przed publikacją finalnego programu Fito Gen Essentials.
 - Strona główna, kontakt, newsletter, FAQ, blog i podstawowe materiały informacyjne są prezentowane po polsku i w spójnej estetyce eGen Labs.
-- Fito Gen Essentials może być komunikowany jako produkt w przygotowaniu, bez eksponowania finalnego linku pobrania i bez obietnicy dostępności programu przed zakończeniem desktopowego MVP.
-- Główne CTA prowadzą do Fito Gen, kontaktu i newslettera, ale nie do pobrania niedokończonego programu.
+- Fito Gen Essentials jest prezentowany jako kompletny moduł produktowy z profesjonalnym opisem możliwości i granic odpowiedzialności. Bezpośredni link pobrania pozostaje nieeksponowany do czasu zatwierdzenia finalnego buildu desktopowego.
+- Główne CTA prowadzą do możliwości Fito Gen, kontaktu i newslettera; pobranie zostanie aktywowane po zatwierdzeniu finalnego buildu desktopowego.
 - Publiczny przekaz jasno komunikuje eGen Labs jako platformę produktową / product lab, a nie software studio ani software house.
 
 ### Kryteria sukcesu GEN-FED / CMC-GEN public product section
@@ -144,9 +144,7 @@ Do pierwszej wersji produkcyjnej wchodzi:
 
 Zakres MVP pozostaje dominująco zorientowany na uruchomienie i obsługę pierwszego produktu cyfrowego, a pion krótkofalarski wchodzi jako publiczny, statyczny katalog informacyjny: 23 produkty GEN-FED / CMC-GEN 261, dwa dokumenty PDF v20 i kontakt w sprawie dostępności, bez handlu elektronicznego.
 
-Po decyzji o szybkim starcie publicznej strony wprowadzono rozróżnienie między:
-- Visual Launch Candidate – profesjonalną, publiczną wizytówką eGen Labs bez finalnego linku do programu,
-- Product Download Launch – późniejszym krokiem uruchamianym po ukończeniu desktopowego Fito Gen Essentials.
+Publiczny moduł Fito Gen jest prezentowany jako docelowa, profesjonalna strona produktu. Aktywacja bezpośredniego pobierania pozostaje osobnym krokiem release i nastąpi po zatwierdzeniu finalnego buildu desktopowego.
 
 Po zielonym checkpointcie MVP kolejną fazą platformy pozostaje Universal Desktop Support API v1 jako wspólna warstwa wsparcia dla wielu aplikacji desktopowych publikowanych przez eGen Labs, ale bieżący priorytet operacyjny przesunięto na visual launch pass, aby jak najszybciej wystartować z profesjonalną stroną publiczną.
 
@@ -656,7 +654,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 ### Kryteria akceptacyjne Visual Launch Candidate
 - Strona główna wygląda profesjonalnie i jest spójna z kierunkiem eGen Labs jako platformy produktowej / product lab.
 - Publiczna komunikacja jest po polsku.
-- Główne CTA prowadzą do Fito Gen, kontaktu i newslettera, ale nie do pobrania niedokończonego programu.
+- Główne CTA prowadzą do możliwości Fito Gen, kontaktu i newslettera; pobranie zostanie aktywowane po zatwierdzeniu finalnego buildu desktopowego.
 - Publiczny przekaz jasno komunikuje eGen Labs jako platformę produktową / product lab, a nie software studio ani software house.
 - Fito Gen Essentials może być pokazany jako produkt w przygotowaniu.
 - Download flow pozostaje technicznie dostępny, ale nie jest promowany w głównej nawigacji do czasu ukończenia desktopowego MVP.
@@ -772,6 +770,9 @@ Feature jest ukończony, gdy:
 - 2026-06-17 – zaakceptowano dyskretną stronę informacji prawnych i wykonanie pełnego visual refinement pass bez rozszerzania funkcji MVP; usunięto wewnętrzny język projektowy z publicznej strony, poprawiono hierarchię, responsywność katalogu i czytelność CTA.
 
 - 2026-06-18 – zaakceptowano i wdrożono DEC-023: finalny public content, mobile UX i image-ready catalog pass. Zmieniono widoczną etykietę „Produkty” na „Rozwiązania”, dodano pełne menu mobilne, osadzono newsletter, poprawiono typografię i kontrast, dodano opis jakości GEN-FED / CMC-GEN oraz opcjonalny model zdjęć serii i produktów.
+
+- 2026-06-18 – zaakceptowano i wdrożono DEC-024: zmniejszono skalę publicznych nagłówków, skrócono główny komunikat do „Praktyczna inżynieria” oraz przebudowano Fito Gen Essentials jako docelowy moduł produktowy bez wewnętrznego języka o stanie prac.
+- 2026-06-18 – zaakceptowano i wdrożono DEC-025: dodano GitHub Actions quality gate dla instalacji, Prisma, migracji, bootstrapu, typecheck, lint, build i smoke testów oraz publiczną politykę SECURITY.md.
 
 ## 29. Decision Log
 
@@ -983,6 +984,24 @@ Feature jest ukończony, gdy:
 - Kategoria: Product / UX / Brand / Content
 - Podsumowanie: Public site używa widocznej etykiety „Rozwiązania” przy zachowaniu technicznej trasy `/products`, otrzymuje pełne menu mobilne, ograniczoną skalę typografii, profesjonalne i krótsze treści, zintegrowany układ kontaktu i newslettera, poprawiony kontrast CTA oraz opcjonalny model zdjęć dla serii i modeli. Podpis marki brzmi „Rozwiązania inżynieryjne do praktycznych zastosowań”. Ogólny opis GEN-FED / CMC-GEN wskazuje komponenty stosowane w rodzinie produktów, w tym rdzenie Amidon produkowane przez Fair-Rite, przewody HUBER+SUHNER, złącza Amphenol i izolacje FEP, PTFE oraz kaptonowe, bez automatycznego przypisywania wszystkich komponentów każdemu SKU.
 - Sekcje, których dotyczy: 3, 5, 6, 7, 12, 13, 15, 17, 24, 25, 26, 27, 28
+
+### DEC-024
+- ADR ID: Brak
+- Tytuł: Kompaktowa hierarchia typografii i docelowy moduł Fito Gen
+- Status: Accepted
+- Data: 2026-06-18
+- Kategoria: Product / UX / Brand / Content
+- Podsumowanie: Publiczne nagłówki otrzymują mniejszą, bardziej profesjonalną skalę. Główny komunikat strony brzmi „Praktyczna inżynieria”. Fito Gen Essentials jest prezentowany jako kompletny moduł produktowy z opisem możliwości, modelu offline-first i granic danych, bez komunikatów o niedokończonym produkcie, buildach i wewnętrznych etapach prac. Bezpośredni link pobrania pozostaje odrębnym krokiem release po zatwierdzeniu finalnego buildu desktopowego.
+- Sekcje, których dotyczy: 3, 5, 6, 7, 12, 13, 24, 25, 26, 27, 28
+
+### DEC-025
+- ADR ID: Brak
+- Tytuł: Automatyczny quality gate CI i polityka zgłaszania podatności
+- Status: Accepted
+- Data: 2026-06-18
+- Kategoria: Infrastructure / Security / Quality
+- Podsumowanie: Repozytorium otrzymuje workflow GitHub Actions uruchamiany dla push i pull request do `main`. Quality gate wykonuje instalację zależności, generowanie Prisma Client, migracje, bootstrap danych testowych, typecheck, lint, build, uruchomienie aplikacji i smoke testy. Dodano `SECURITY.md` określający prywatne zgłaszanie podatności i zakaz publikowania sekretów oraz danych wrażliwych.
+- Sekcje, których dotyczy: 13, 14, 21, 22, 23, 24, 25, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
