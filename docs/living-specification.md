@@ -18,7 +18,7 @@ Każda nowa propozycja, zmiana lub decyzja powinna być oceniana względem tego 
 - Nazwa projektu: eGen Labs Web Platform
 - Typ produktu: platforma webowa i produktowe zaplecze marki eGen Labs dla komunikacji, obsługi leadów, publikacji treści, dystrybucji oraz wsparcia produktów eGen
 - Krótki opis:
-  Platforma webowa eGen Labs wspiera komunikację produktową, publikację wiedzy i dokumentacji, dystrybucję aplikacji desktopowych, gromadzenie leadów, obsługę newslettera, telemetry intake oraz komunikację pomiędzy aplikacjami desktopowymi a zapleczem webowym. MVP koncentruje się na pierwszym produkcie cyfrowym Fito Gen Essentials, a public site po decyzjach DEC-020 i DEC-021 obejmuje również pełny katalog techniczny GEN-FED / CMC-GEN 261: 15 kompletnych Kitów, 4 samodzielne Un-Uny i 4 samodzielne choke’i.
+  Platforma webowa eGen Labs wspiera prezentację skalowalnych aplikacji i specjalistycznych rozwiązań inżynieryjnych, publikację wiedzy i dokumentacji, dystrybucję aplikacji desktopowych, gromadzenie leadów, obsługę newslettera, telemetry intake oraz komunikację pomiędzy aplikacjami desktopowymi a zapleczem webowym. MVP koncentruje się na pierwszym produkcie cyfrowym Fito Gen Essentials, a public site po decyzjach DEC-020 i DEC-021 obejmuje również pełny katalog techniczny GEN-FED / CMC-GEN 261: 15 kompletnych Kitów, 4 samodzielne Un-Uny i 4 samodzielne choke’i.
 
 ## 4. Cel biznesowy
 Celem biznesowym projektu jest uruchomienie profesjonalnej, skalowalnej platformy webowej eGen Labs, która:
@@ -47,7 +47,7 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 - Kity używają wyłącznie wariantów długości S/M; wariant S jest skrócony cewką, a wariant M jest półfalowy dla właściwej serii.
 - `GEN-FED 80-10 M µQRP` nie jest planowany i nie może być generowany ani prezentowany jako produkt.
 - Każdy GEN-FED Kit zawiera promiennik, przeciwwagę, Un-Un 1:49, dopasowany CMC-GEN 1:1 Choke oraz elementy montażowe.
-- Każdy produkt ma własną stronę z opisem, parametrami, zawartością, zasadami bezpieczeństwa, identyfikacją producenta i dokumentami publicznymi.
+- Każdy produkt ma własną stronę z opisem, parametrami, zawartością, zasadami bezpieczeństwa i dokumentami publicznymi. Dane identyfikacyjne producenta mogą pozostawać w zatwierdzonych dokumentach PDF v20.
 - Biblioteka `/downloads/ham-radio` publikuje wyłącznie dwa zatwierdzone PDF-y v20: instrukcję obsługi i instalacji oraz kartę techniczną.
 - Oświadczenie producenta, analiza ryzyka, instrukcja konstrukcyjna, kontrola jakości, kwalifikacja prawna i ewidencja SN pozostają poza publicznym katalogiem.
 - Sklep, koszyk, płatności, stany magazynowe i system zamówień pozostają poza zakresem MVP.
@@ -88,7 +88,7 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 Pełny uzgodniony zakres projektu obejmuje:
 - platformę webową eGen Labs projektowaną od początku jako system multi-product,
 - publiczną stronę główną eGen Labs jako platformy produktowej / product lab,
-- publiczną sekcję produktów `/products`, obejmującą Fito Gen oraz linie produktowe GEN-FED i CMC-GEN,
+- publiczną sekcję rozwiązań dostępną technicznie pod `/products`, obejmującą Fito Gen oraz linie GEN-FED i CMC-GEN,
 - publiczny katalog GEN-FED / CMC-GEN 261 obejmujący 23 SKU, strony serii, strony produktów i bibliotekę zatwierdzonych dokumentów v20,
 - prezentację i dystrybucję pierwszego produktu Fito Gen Essentials,
 - mechanizmy rejestracji leadów i obsługi zgód,
@@ -241,7 +241,11 @@ Poza MVP pozostają:
 - WF-002H: System ma udostępniać publiczną bibliotekę dokumentów krótkofalarskich `/downloads/ham-radio`, bez wymagania logowania i bez systemu zamówień.
 - WF-002I: Biblioteka ma publikować wyłącznie zatwierdzoną instrukcję obsługi i instalacji v20 oraz kartę techniczną v20.
 - WF-002J: System nie może generować ani prezentować niezatwierdzonych SKU, w szczególności `GEN-FED 80-10 M µQRP`.
-- WF-002K: Każda karta produktu ma prezentować SKU, producenta, podstawowe parametry, zawartość, ostrzeżenia i linki do dokumentów publicznych.
+- WF-002K: Każda karta produktu ma prezentować SKU, podstawowe parametry, zawartość, ostrzeżenia i linki do dokumentów publicznych, bez eksponowania prywatnego imienia, nazwiska, adresu ani telefonu producenta.
+- WF-002L: System ma udostępniać dyskretną stronę `/legal` z informacją o charakterze katalogu, dokumentacji i sposobie kontaktu, bez powielania prywatnych danych producenta z dokumentów PDF.
+- WF-002M: Publiczna nawigacja ma używać etykiety „Rozwiązania” dla technicznej trasy `/products` i zapewniać pełne, dostępne menu mobilne bez poziomego ukrywania pozycji.
+- WF-002N: Formularz newslettera ma być dostępny bezpośrednio na stronie głównej i stronie kontaktowej przy użyciu jednego współdzielonego komponentu.
+- WF-002O: Katalog ma umożliwiać opcjonalne przypisanie zdjęcia głównego i galerii do serii oraz poszczególnych modeli bez wymogu wdrożenia panelu uploadu w MVP.
 - WF-003: Użytkownik ma mieć możliwość rejestracji e-mailowej w celu pobrania aplikacji.
 - WF-004: System ma umożliwiać zapis do newslettera bez pobierania aplikacji.
 - WF-005: System ma rejestrować i wersjonować zgody użytkownika.
@@ -295,6 +299,8 @@ Poza MVP pozostają:
 - WNF-013: Backup i restore mają być częścią MVP, a nie zadaniem odłożonym po starcie.
 - WNF-014: System ma być wdrażalny w środowiskach dev, staging i prod.
 - WNF-015: Projekt ma minimalizować dług techniczny i unikać nadmiarowej złożoności architektonicznej.
+- WNF-016: Nawigacja, formularze, tabele, przyciski i treści akcentowe muszą zachować użyteczność, czytelność i dostępność na urządzeniach mobilnych.
+- WNF-017: Publiczne treści mają być merytoryczne, profesjonalne i spójne z pozycjonowaniem eGen Labs jako marki własnych rozwiązań inżynieryjnych.
 
 ## 14. Standardy jakości kodu i dobre praktyki programistyczne
 - Stosować Clean Code i dobre praktyki właściwe dla użytego stacku.
@@ -534,6 +540,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Publiczne endpointy read-only Universal Desktop Support API v1 nie mogą ujawniać prywatnych ścieżek storage ani danych wrażliwych.
 - Endpointy intake Universal Desktop Support API v1 muszą uwzględniać walidację wejścia, ograniczanie nadużyć i bezpieczne logowanie błędów.
 - Paczki referencyjne publikowane przez platformę powinny posiadać metadane integralności, w szczególności checksumy.
+- Publiczna warstwa UI ma stosować zasadę minimalizacji danych: prywatne dane producenta nie są powielane na kartach produktowych ani w stopce, ale mogą pozostać w zatwierdzonych dokumentach produktu udostępnianych do pobrania.
 
 ## 22. Założenia infrastrukturalne i wdrożeniowe
 - Środowiska: dev, staging, prod.
@@ -632,6 +639,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Public Website
 - Public Site Visual Launch
 - Brand & Visual Correction Pass
+- Final Public Content, Mobile UX & Image-ready Catalog Pass
 - GEN-FED / CMC-GEN Product Catalog 261
 - Ham Radio Public Documentation v20
 - Lead Capture & Consent
@@ -660,6 +668,15 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Warianty długości są ograniczone do S/M i opisane zgodnie z dokumentacją v20.
 - Biblioteka dokumentów udostępnia działające linki do dwóch PDF-ów v20: instrukcji obsługi i instalacji oraz karty technicznej.
 - Strony reprezentatywnych produktów, landingów katalogowych oraz obu PDF-ów są objęte smoke testami.
+- Publiczna strona `/legal` działa, jest dostępna ze stopki i nie publikuje prywatnych danych producenta.
+- Nagłówki sekcji nie mają końcowych kropek, tekst na zielonych polach zachowuje czytelny kontrast, a tabele produktowe są użyteczne na urządzeniach mobilnych.
+- Publiczna strona nie eksponuje wewnętrznych sformułowań projektowych typu „launch candidate”, „następny krok” ani „strona jako wizytówka marki”.
+- Mobilna nawigacja pokazuje wszystkie pozycje w kontrolowanym panelu i jest obsługiwana klawiaturą.
+- Widoczna nazwa głównej sekcji to „Rozwiązania”, przy zachowaniu stabilnego URL `/products`.
+- Formularz newslettera jest dostępny bezpośrednio na stronie głównej i kontaktowej.
+- Typografia nagłówków nie dominuje nad treścią na urządzeniach mobilnych.
+- Katalog obsługuje opcjonalne zdjęcia serii i modeli zgodnie z udokumentowanym standardem plików.
+- Ogólna komunikacja GEN-FED / CMC-GEN może wskazywać komponenty stosowane w rodzinie rozwiązań, a karty konkretnych SKU pozostają zgodne z ich rzeczywistą konfiguracją.
 
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
@@ -716,6 +733,11 @@ Feature jest ukończony, gdy:
 - Ryzyko sugerowania gotowości sprzedażowej GEN-FED / CMC-GEN, mimo że MVP obejmuje katalog, dokumenty i kontakt w sprawie dostępności.
 - Ryzyko opóźnienia Product Download Launch, jeśli visual pass zacznie rozszerzać zakres zamiast poprawiać prezentację.
 - Ryzyko błędnego pozycjonowania eGen Labs jako software studio lub software house zamiast platformy produktowej / product lab.
+- Ryzyko pozostawienia na stronie publicznej wewnętrznego języka projektowego, który obniża wiarygodność marki dla klienta końcowego.
+- Ryzyko niskiego kontrastu tekstu na polach akcentowych i utrudnionej obsługi tabel katalogowych na urządzeniach mobilnych.
+- Ryzyko ukrywania pozycji nawigacji na wąskich ekranach bez czytelnego mechanizmu menu.
+- Ryzyko rozjazdu między ogólnymi deklaracjami marketingowymi o komponentach rodziny produktów a faktyczną konfiguracją pojedynczego SKU.
+- Ryzyko publikacji nieoptymalnych zdjęć o niewłaściwym formacie, rozdzielczości lub opisie alternatywnym.
 
 ### Ryzyka biznesowe
 - Niski współczynnik konwersji download po formularzu.
@@ -746,7 +768,10 @@ Feature jest ukończony, gdy:
 - 2026-05-15 – zaakceptowano dodanie linii produktowej GEN-FED do public site w ograniczonym zakresie: strony produktowe, biblioteka planowanych instrukcji i deklaracji PDF oraz kontakt w sprawie dostępności, bez sklepu, koszyka i systemu zamówień.
 - 2026-06-17 – DEC-021 zastąpiła szczegółowy startowy zakres GEN-FED pełnym katalogiem GEN-FED / CMC-GEN 261 obejmującym 23 SKU, model S/M, dokumentację v20 i dwa publiczne PDF-y.
 - 2026-06-17 – potwierdzono, że pusta strona identyfikacyjna instrukcji pozostaje miejscem na wklejkę z numerem seryjnym, a Oświadczenie producenta pozostaje dokumentem technicznym niepublikowanym standardowo.
-- 2026-06-17 – usunięto z publicznych kart produktów sekcję zawierającą prywatne dane identyfikacyjne producenta; dane pozostają w zatwierdzonej karcie technicznej PDF v20. Ujednolicono nagłówki bez końcowych kropek i zwiększono kontrast tekstu na zielonych polach.
+- 2026-06-17 – usunięto z publicznych kart produktów sekcję zawierającą prywatne dane identyfikacyjne producenta. Zaakceptowano pozostawienie danych identyfikacyjnych w zatwierdzonych dokumentach PDF v20. Ujednolicono nagłówki bez końcowych kropek i zwiększono kontrast tekstu na zielonych polach.
+- 2026-06-17 – zaakceptowano dyskretną stronę informacji prawnych i wykonanie pełnego visual refinement pass bez rozszerzania funkcji MVP; usunięto wewnętrzny język projektowy z publicznej strony, poprawiono hierarchię, responsywność katalogu i czytelność CTA.
+
+- 2026-06-18 – zaakceptowano i wdrożono DEC-023: finalny public content, mobile UX i image-ready catalog pass. Zmieniono widoczną etykietę „Produkty” na „Rozwiązania”, dodano pełne menu mobilne, osadzono newsletter, poprawiono typografię i kontrast, dodano opis jakości GEN-FED / CMC-GEN oraz opcjonalny model zdjęć serii i produktów.
 
 ## 29. Decision Log
 
@@ -937,8 +962,27 @@ Feature jest ukończony, gdy:
 - Status: Accepted
 - Data: 2026-06-17
 - Kategoria: Product / UX / Content / Compliance
-- Podsumowanie: Szczegółowy startowy zakres z DEC-020 zostaje zastąpiony pełnym publicznym katalogiem opartym na BAZA_SKU v20. Katalog obejmuje 15 kompletnych Kitów GEN-FED, 4 samodzielne transformatory 1:49 Un-Un i 4 samodzielne choke’i CMC-GEN. Kity używają wyłącznie wariantów S/M i zawierają Un-Un, promiennik, przeciwwagę, dopasowany choke oraz elementy montażowe. Wariant `GEN-FED 80-10 M µQRP` nie jest planowany. Publicznie udostępniane są wyłącznie instrukcja obsługi i instalacji v20 oraz karta techniczna v20. Oświadczenie producenta i dokumenty wewnętrzne pozostają w dokumentacji technicznej producenta. Pusta strona identyfikacyjna instrukcji pozostaje przeznaczona na wklejkę z numerem seryjnym. Publiczne karty produktów nie prezentują prywatnego imienia, nazwiska, adresu ani telefonu producenta; zatwierdzone dane identyfikacyjne pozostają w karcie technicznej PDF v20.
+- Podsumowanie: Szczegółowy startowy zakres z DEC-020 zostaje zastąpiony pełnym publicznym katalogiem opartym na BAZA_SKU v20. Katalog obejmuje 15 kompletnych Kitów GEN-FED, 4 samodzielne transformatory 1:49 Un-Un i 4 samodzielne choke’i CMC-GEN. Kity używają wyłącznie wariantów S/M i zawierają Un-Un, promiennik, przeciwwagę, dopasowany choke oraz elementy montażowe. Wariant `GEN-FED 80-10 M µQRP` nie jest planowany. Publicznie udostępniane są instrukcja obsługi i instalacji v20 oraz karta techniczna v20. Oświadczenie producenta i dokumenty wewnętrzne pozostają w dokumentacji technicznej producenta. Pusta strona identyfikacyjna instrukcji pozostaje przeznaczona na wklejkę z numerem seryjnym. Publiczne karty produktów nie prezentują prywatnego imienia, nazwiska, adresu ani telefonu producenta; zatwierdzone dane identyfikacyjne mogą pozostawać w publicznych dokumentach PDF v20.
 - Sekcje, których dotyczy: 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 17, 24, 25, 26, 27, 28
+
+### DEC-022
+- ADR ID: Brak
+- Tytuł: Dyskretna sekcja prawna i pełny visual refinement public site
+- Status: Accepted
+- Data: 2026-06-17
+- Kategoria: Product / UX / Brand / Privacy
+- Podsumowanie: Public site otrzymuje dyskretną stronę `/legal` dostępną ze stopki, bez powielania prywatnych danych producenta na kartach produktowych. Dane identyfikacyjne mogą pozostać w zatwierdzonych dokumentach PDF v20. Visual refinement obejmuje usunięcie wewnętrznego języka projektowego z treści publicznych, poprawę hierarchii wizualnej, kontrastu zielonych pól, responsywności tabel, nawigacji, kart produktowych i CTA bez dodawania nowych funkcji domenowych.
+- Sekcje, których dotyczy: 6, 7, 12, 13, 21, 24, 25, 26, 27, 28
+
+
+### DEC-023
+- ADR ID: Brak
+- Tytuł: Finalny public content, mobile UX i image-ready catalog pass
+- Status: Accepted
+- Data: 2026-06-18
+- Kategoria: Product / UX / Brand / Content
+- Podsumowanie: Public site używa widocznej etykiety „Rozwiązania” przy zachowaniu technicznej trasy `/products`, otrzymuje pełne menu mobilne, ograniczoną skalę typografii, profesjonalne i krótsze treści, zintegrowany układ kontaktu i newslettera, poprawiony kontrast CTA oraz opcjonalny model zdjęć dla serii i modeli. Podpis marki brzmi „Rozwiązania inżynieryjne do praktycznych zastosowań”. Ogólny opis GEN-FED / CMC-GEN wskazuje komponenty stosowane w rodzinie produktów, w tym rdzenie Amidon produkowane przez Fair-Rite, przewody HUBER+SUHNER, złącza Amphenol i izolacje FEP, PTFE oraz kaptonowe, bez automatycznego przypisywania wszystkich komponentów każdemu SKU.
+- Sekcje, których dotyczy: 3, 5, 6, 7, 12, 13, 15, 17, 24, 25, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1315,7 +1359,7 @@ Nie wybrano opcji C, ponieważ byłaby zbyt szeroka, zbyt kosztowna i wykraczał
 
 
 ## 38. ADR-009: Contract Design Freeze dla Universal Desktop Support API v1 Core
-Status: Accepted  
+Status: Accepted
 Data: 2026-05-13
 
 ### Kontekst
@@ -1354,7 +1398,7 @@ Wybrano opcję B, ponieważ Fito Gen Essentials jest rozwijany poza repozytorium
 - Brak.
 
 ## 39. ADR-010: Public Site Visual Launch Candidate przed publikacją programu Fito Gen
-Status: Accepted  
+Status: Accepted
 Data: 2026-05-15
 
 ### Kontekst

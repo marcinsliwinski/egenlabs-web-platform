@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { ProductMediaFrame } from './product-media';
 import type { HamRadioProduct } from './product-types';
 import { getProductShortDescription } from './product-catalog';
 
@@ -11,6 +12,7 @@ type HamRadioProductCardProps = {
 export function HamRadioProductCard({ product, href }: HamRadioProductCardProps) {
   return (
     <article className="card product-card">
+      {product.media?.cover ? <ProductMediaFrame compact label={product.name} media={product.media} /> : null}
       <div className="product-card__badges">
         {product.radiatorVariant ? <span className="status-pill">{product.radiatorVariant}</span> : null}
         <span className="status-pill status-pill--neutral">{product.powerLine}</span>
@@ -30,7 +32,7 @@ export function HamRadioProductCard({ product, href }: HamRadioProductCardProps)
           <dd>{product.ratedPower}</dd>
         </div>
       </dl>
-      <Link className="text-link" href={href}>Zobacz produkt</Link>
+      <Link className="text-link text-link--arrow" href={href}>Zobacz model <span aria-hidden="true">→</span></Link>
     </article>
   );
 }

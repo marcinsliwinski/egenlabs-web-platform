@@ -1,47 +1,79 @@
 import Link from 'next/link';
 
-import { Card, PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
+import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
+
+export const metadata = {
+  title: 'Rozwiązania | eGen Labs',
+  description: 'Fito Gen, GEN-FED i CMC-GEN — skalowalne aplikacje i specjalistyczne rozwiązania krótkofalarskie eGen Labs.'
+};
 
 export default function ProductsPage() {
   return (
     <PublicShell>
       <PageContainer>
-        <section className="hero">
+        <section className="hero hero--compact">
           <div className="hero__content">
-            <span className="eyebrow">Produkty eGen</span>
-            <h1>Praktyczne linie produktowe eGen Labs</h1>
+            <span className="eyebrow">Rozwiązania</span>
+            <h1>Rozwiązania eGen Labs</h1>
             <p className="hero__lead">
-              eGen Labs rozwija własne aplikacje, dokumentację i produkty techniczne dla konkretnych zastosowań branżowych oraz użytkowych.
+              Tworzymy aplikacje wspierające pracę operacyjną oraz specjalistyczne systemy krótkofalarskie z uporządkowaną dokumentacją techniczną.
             </p>
-            <div className="hero__actions">
-              <Link className="button" href="/products/fito-gen">Fito Gen</Link>
-              <Link className="button button--secondary" href="/products/gen-fed">GEN-FED</Link>
-            </div>
           </div>
           <aside className="hero__panel">
-            <span className="status-pill">Katalog publiczny</span>
-            <h2>Prezentacja i dokumentacja</h2>
-            <p>Strona pokazuje produkty, parametry i dokumenty do pobrania. Sklep, koszyk i płatności pozostają poza obecnym zakresem.</p>
+            <span className="status-pill">3 linie</span>
+            <h2>Wybierz linię</h2>
+            <p>Porównaj dostępne warianty, sprawdź ich zastosowanie i przejdź do dokumentacji technicznej.</p>
           </aside>
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Linie" title="Aktualne kierunki produktowe">
-            <p>Każda linia ma własny landing, spójny katalog i czytelną ścieżkę do dokumentacji.</p>
+          <SectionHeader eyebrow="Oferta" title="Wybierz obszar">
+            <p>Każda linia ma jasno określone zastosowanie, strukturę wariantów i dokumentację.</p>
           </SectionHeader>
-          <div className="card-grid">
-            <Card title="Fito Gen">
-              <p>Desktopowa aplikacja offline-first dla polskich szkółek roślin, rozwijana jako pierwszy produkt cyfrowy eGen Labs.</p>
-              <Link className="text-link" href="/products/fito-gen">Przejdź do Fito Gen</Link>
-            </Card>
-            <Card title="GEN-FED">
-              <p>Kompletne Kity antenowe 40-10 i 80-10 oraz samodzielne transformatory 1:49 Un-Un.</p>
-              <Link className="text-link" href="/products/gen-fed">Przejdź do GEN-FED</Link>
-            </Card>
-            <Card title="CMC-GEN">
-              <p>Samodzielne dławiki prądów wspólnych 1:1 dla instalacji HF w liniach µQRP, QRP, STD i HD.</p>
-              <Link className="text-link" href="/products/cmc-gen">Przejdź do CMC-GEN</Link>
-            </Card>
+          <div className="line-card-grid">
+            <article className="line-card line-card--fito">
+              <div className="line-card__top">
+                <span className="status-pill">W przygotowaniu</span>
+                <span className="line-card__code">Desktop</span>
+              </div>
+              <div>
+                <h2>Fito Gen</h2>
+                <p>Desktopowa aplikacja offline-first dla polskich szkółek roślin, dokumentacji i codziennej pracy lokalnej.</p>
+              </div>
+              <Link className="button button--secondary" href="/products/fito-gen">Poznaj Fito Gen</Link>
+            </article>
+            <article className="line-card line-card--gen-fed">
+              <div className="line-card__top">
+                <span className="status-pill status-pill--neutral">19 modeli</span>
+                <span className="line-card__code">HF</span>
+              </div>
+              <div>
+                <h2>GEN-FED</h2>
+                <p>Kompletne systemy antenowe 40–10 i 80–10 oraz samodzielne transformatory dopasowujące 1:49 Un-Un.</p>
+              </div>
+              <Link className="button button--secondary" href="/products/gen-fed">Poznaj GEN-FED</Link>
+            </article>
+            <article className="line-card line-card--cmc">
+              <div className="line-card__top">
+                <span className="status-pill status-pill--neutral">4 modele</span>
+                <span className="line-card__code">CMC</span>
+              </div>
+              <div>
+                <h2>CMC-GEN</h2>
+                <p>Dławiki prądów wspólnych 1:1 dla instalacji HF w liniach µQRP, QRP, STD i HD.</p>
+              </div>
+              <Link className="button button--secondary" href="/products/cmc-gen">Poznaj CMC-GEN</Link>
+            </article>
+          </div>
+        </section>
+
+        <section className="section section--soft">
+          <SectionHeader eyebrow="Dokumentacja" title="Dane techniczne i instrukcje">
+            <p>Aktualna biblioteka zawiera instrukcję obsługi i instalacji oraz kartę techniczną GEN-FED / CMC-GEN 261 v20.</p>
+          </SectionHeader>
+          <div className="inline-actions">
+            <Link className="button" href="/downloads/ham-radio">Otwórz dokumentację</Link>
+            <Link className="button button--secondary" href="/contact">Porozmawiajmy o współpracy</Link>
           </div>
         </section>
       </PageContainer>

@@ -4,8 +4,8 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'eGen Labs — praktyczne produkty, dokumentacja i narzędzia branżowe',
-  description: 'eGen Labs rozwija praktyczne produkty cyfrowe, dokumentację i narzędzia branżowe w ekosystemie eGen.'
+  title: 'eGen Labs — rozwiązania inżynieryjne do praktycznych zastosowań',
+  description: 'eGen Labs rozwija skalowalne aplikacje oraz specjalistyczne rozwiązania krótkofalarskie z rzetelną dokumentacją.'
 };
 
 type RootLayoutProps = {

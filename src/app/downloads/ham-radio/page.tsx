@@ -4,8 +4,8 @@ import { Card, PageContainer, PublicShell, SectionHeader } from '@/components/pu
 import { hamRadioPublicDocuments } from '@/features/ham-radio';
 
 export const metadata = {
-  title: 'Dokumenty GEN-FED / CMC-GEN | eGen Labs',
-  description: 'Publiczna dokumentacja GEN-FED / CMC-GEN 261 v20: instrukcja obsługi i instalacji oraz karta techniczna.'
+  title: 'Dokumentacja GEN-FED / CMC-GEN | eGen Labs',
+  description: 'Instrukcja obsługi i instalacji oraz karta techniczna GEN-FED / CMC-GEN 261 v20.'
 };
 
 export default function HamRadioDownloadsPage() {
@@ -14,9 +14,9 @@ export default function HamRadioDownloadsPage() {
       <PageContainer>
         <section className="hero">
           <div className="hero__content">
-            <span className="eyebrow">Biblioteka dokumentów</span>
+            <span className="eyebrow">Dokumentacja</span>
             <h1>GEN-FED / CMC-GEN 261</h1>
-            <p className="hero__lead">Zweryfikowane dokumenty publiczne v20 dla pełnego katalogu Kitów, Un-Unów i choke’ów serii 261.</p>
+            <p className="hero__lead">Instrukcja obsługi i instalacji oraz karta techniczna dla aktualnego katalogu serii 261.</p>
             <div className="hero__actions">
               <Link className="button" href="/products/gen-fed">Zobacz GEN-FED</Link>
               <Link className="button button--secondary" href="/products/cmc-gen">Zobacz CMC-GEN</Link>
@@ -24,14 +24,14 @@ export default function HamRadioDownloadsPage() {
           </div>
           <aside className="hero__panel">
             <span className="status-pill">v20</span>
-            <h2>Zakres publikacji</h2>
-            <p>Publicznie udostępniane są instrukcja obsługi i instalacji oraz karta techniczna. Dokumentacja wewnętrzna i oświadczenie producenta pozostają w archiwum technicznym.</p>
+            <h2>Aktualna wersja</h2>
+            <p>Dokumenty obejmują parametry techniczne, zasady montażu, użytkowania i bezpieczeństwa dla całej serii 261.</p>
           </aside>
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Pobieranie" title="Dokumenty publiczne v20">
-            <p>Dokumenty są wspólne dla katalogu GEN-FED / CMC-GEN 261 i zawierają identyfikację wszystkich 23 produktów.</p>
+          <SectionHeader eyebrow="Pobieranie" title="Dokumenty do pobrania">
+            <p>Pliki są wspólne dla wszystkich 23 modeli GEN-FED i CMC-GEN w katalogu 261.</p>
           </SectionHeader>
           <div className="document-list">
             {hamRadioPublicDocuments.map((document) => (
@@ -48,12 +48,12 @@ export default function HamRadioDownloadsPage() {
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Zakres katalogu" title="Dokumentacja obejmuje trzy grupy produktów">
-            <p>Każda karta produktu na stronie prowadzi do tego samego, kontrolowanego kompletu dokumentacji v20.</p>
+          <SectionHeader eyebrow="Zakres" title="Trzy grupy rozwiązań">
+            <p>Dokumentacja v20 obejmuje kompletne Kity GEN-FED, transformatory 1:49 Un-Un oraz dławiki CMC-GEN.</p>
           </SectionHeader>
           <div className="card-grid">
             <Card title="GEN-FED Kit">
-              <p>15 kompletnych zestawów antenowych: serie 40-10 i 80-10, warianty S/M oraz linie µQRP, QRP, STD i HD.</p>
+              <p>15 kompletnych systemów antenowych: serie 40-10 i 80-10, warianty S/M oraz linie µQRP, QRP, STD i HD.</p>
             </Card>
             <Card title="GEN-FED 1:49 Un-Un">
               <p>4 samodzielne transformatory dopasowujące w liniach µQRP, QRP, STD i HD.</p>
@@ -61,13 +61,6 @@ export default function HamRadioDownloadsPage() {
             <Card title="CMC-GEN 1:1 Choke">
               <p>4 samodzielne dławiki prądów wspólnych w liniach µQRP, QRP, STD i HD.</p>
             </Card>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="card card--accent">
-            <h2>Identyfikacja egzemplarza</h2>
-            <p>Pusta strona identyfikacyjna w instrukcji jest przeznaczona na wklejkę z modelem/SKU, numerem seryjnym, partią i wersją dokumentacji produktu.</p>
           </div>
         </section>
       </PageContainer>

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { DesktopNavigation, MobileNavigation } from './mobile-navigation';
+
 type PublicShellProps = {
   children: ReactNode;
 };
@@ -32,20 +34,14 @@ export function PublicHeader() {
     <header className="site-header">
       <div className="site-header__inner">
         <Link className="brand-mark" href="/" aria-label="eGen Labs — strona główna">
-          <span className="brand-mark__symbol">eG</span>
+          <span className="brand-mark__symbol" aria-hidden="true">eG</span>
           <span className="brand-mark__text">
             <span className="brand-mark__name">eGen Labs</span>
-            <span className="brand-mark__caption">produkty eGen</span>
+            <span className="brand-mark__caption">Rozwiązania inżynieryjne do praktycznych zastosowań</span>
           </span>
         </Link>
-        <nav className="site-nav" aria-label="Główna nawigacja">
-          <Link href="/#platforma">Platforma</Link>
-          <Link href="/products">Produkty</Link>
-          <Link href="/blog">Wiedza</Link>
-          <Link href="/faq">FAQ</Link>
-          <Link href="/downloads/ham-radio">Dokumenty</Link>
-          <Link href="/contact">Kontakt</Link>
-        </nav>
+        <DesktopNavigation />
+        <MobileNavigation />
       </div>
     </header>
   );
@@ -55,17 +51,34 @@ export function PublicFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer__inner">
-        <div className="brand-mark">
-          <span className="brand-mark__symbol">eG</span>
-          <span className="brand-mark__text">
-            <span className="brand-mark__name">eGen Labs</span>
-            <span className="brand-mark__caption">egenlabs.eu</span>
-          </span>
+        <div className="site-footer__about">
+          <div className="brand-mark">
+            <span className="brand-mark__symbol" aria-hidden="true">eG</span>
+            <span className="brand-mark__text">
+              <span className="brand-mark__name">eGen Labs</span>
+              <span className="brand-mark__caption">egenlabs.eu</span>
+            </span>
+          </div>
+          <p>Skalowalne aplikacje oraz specjalistyczne rozwiązania krótkofalarskie z rzetelną dokumentacją.</p>
         </div>
-        <p>
-          Platforma produktowa eGen: praktyczne narzędzia, dokumentacja, wiedza branżowa i wsparcie aplikacji desktopowych —
-          bez przenoszenia operacyjnych danych użytkowników do chmury.
-        </p>
+        <nav className="site-footer__links" aria-label="Rozwiązania">
+          <strong>Rozwiązania</strong>
+          <Link href="/products/fito-gen">Fito Gen</Link>
+          <Link href="/products/gen-fed">GEN-FED</Link>
+          <Link href="/products/cmc-gen">CMC-GEN</Link>
+        </nav>
+        <nav className="site-footer__links" aria-label="Informacje">
+          <strong>Informacje</strong>
+          <Link href="/downloads/ham-radio">Dokumentacja</Link>
+          <Link href="/blog">Wiedza</Link>
+          <Link href="/faq">FAQ</Link>
+          <Link href="/contact">Kontakt</Link>
+          <Link href="/legal">Informacje prawne</Link>
+        </nav>
+      </div>
+      <div className="site-footer__bottom">
+        <span>© {new Date().getFullYear()} eGen Labs</span>
+        <span>Rozwiązania projektowane i rozwijane w Polsce</span>
       </div>
     </footer>
   );

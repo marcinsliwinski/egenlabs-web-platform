@@ -20,5 +20,10 @@ export type {
   HamRadioPowerLine,
   HamRadioProduct,
   HamRadioProductLine,
-  HamRadioProductType
+  HamRadioProductType,
+  ProductImage,
+  ProductMedia
 } from './product-types';
+
+export { ProductMediaFrame } from './product-media';
+export { hamRadioSeriesMedia } from './media-catalog';

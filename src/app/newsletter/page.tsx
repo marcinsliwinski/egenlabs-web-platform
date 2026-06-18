@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
+import { NewsletterSignupForm } from '@/components/newsletter-signup-form';
 import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
-import { createNewsletterSignupAction } from '@/features/forms/forms-actions';
 
 const successMessages: Record<string, string> = {
-  newsletter_saved: 'Dziękujemy. Zapis do newslettera został zapisany.'
+  newsletter_saved: 'Dziękujemy. Zapis do newslettera został przyjęty.'
 };
 
 const errorMessages: Record<string, string> = {
@@ -20,42 +20,27 @@ function getSearchParamValue(value: string | string[] | undefined) {
 
 export default async function NewsletterPage({ searchParams }: { searchParams?: SearchParams }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const successKey = getSearchParamValue(resolvedSearchParams?.success);
-  const errorKey = getSearchParamValue(resolvedSearchParams?.error);
+  const successKey = getSearchParamValue(resolvedSearchParams?.newsletterSuccess);
+  const errorKey = getSearchParamValue(resolvedSearchParams?.newsletterError);
 
   return (
     <PublicShell>
       <PageContainer>
-        <section className="split-layout">
+        <section className="split-layout split-layout--balanced">
           <div>
-            <SectionHeader eyebrow="Newsletter" title="Otrzymuj informacje o produktach eGen Labs">
-              <p>
-                Zapisz się, aby dostać informacje o starcie Fito Gen Essentials, nowych materiałach oraz kolejnych narzędziach eGen Labs.
-              </p>
+            <SectionHeader eyebrow="Newsletter" title="Aktualności eGen Labs">
+              <p>Otrzymuj informacje o premierach, nowych materiałach, dokumentacji i rozwoju rozwiązań eGen Labs.</p>
             </SectionHeader>
             <div className="cta-row">
-              <Link className="text-link" href="/">Wróć na stronę główną</Link>
+              <Link className="text-link" href="/products">Zobacz rozwiązania</Link>
               <Link className="text-link" href="/contact">Kontakt</Link>
             </div>
           </div>
 
-          <section className="form-card">
-            {successKey ? <p role="status" className="alert alert--success">{successMessages[successKey] ?? 'Zapis został zapisany.'}</p> : null}
+          <section className="form-card" id="newsletter">
+            {successKey ? <p role="status" className="alert alert--success">{successMessages[successKey] ?? 'Zapis został przyjęty.'}</p> : null}
             {errorKey ? <p role="alert" className="alert alert--error">{errorMessages[errorKey] ?? 'Nie udało się zapisać zgłoszenia.'}</p> : null}
-
-            <form action={createNewsletterSignupAction} className="form-grid">
-              <label className="form-label">
-                <span>Email</span>
-                <input type="email" name="email" required maxLength={320} placeholder="name@example.com" />
-              </label>
-
-              <label className="checkbox-label">
-                <input type="checkbox" name="marketingConsent" required />
-                <span>Wyrażam zgodę na otrzymywanie komunikacji marketingowej i newslettera eGen Labs.</span>
-              </label>
-
-              <button type="submit">Zapisz mnie</button>
-            </form>
+            <NewsletterSignupForm returnPath="/newsletter" />
           </section>
         </section>
       </PageContainer>

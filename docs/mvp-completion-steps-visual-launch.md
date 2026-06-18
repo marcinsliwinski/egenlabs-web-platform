@@ -113,3 +113,15 @@ Po uruchomieniu strony:
 2. Po ukończeniu Fito Gen uruchomić Product Download Launch programu.
 3. Wrócić do Contract Design Freeze Universal Desktop Support API v1 Core.
 4. Zaprojektować i wdrożyć Dictionary Package API oraz testy kontraktowe.
+
+
+## Visual refinement pass — 2026-06-17
+
+Wykonano klientocentryczną korektę public site:
+- usunięto wewnętrzny język projektowy z treści publicznych,
+- przebudowano stronę główną i indeks produktów,
+- poprawiono kontrast, hierarchię, responsywność tabel i kart,
+- dodano dyskretną stronę `/legal`,
+- zachowano katalog 23 SKU i dwa publiczne PDF-y v20 bez zmian funkcjonalnych.
+
+Po wdrożeniu należy zebrać pozostałe uwagi wizualne właściciela projektu w jednej liście, sklasyfikować je jako P0/P1/P2 i wykonać ostatni correction pass przed stagingiem.

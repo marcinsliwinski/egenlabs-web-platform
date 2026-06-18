@@ -3,11 +3,8 @@ import Link from 'next/link';
 import { Card, PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 
 import { hamRadioPublicDocuments } from './product-documents';
-import {
-  getProductCategoryHref,
-  getProductCategoryLabel,
-  getProductShortDescription
-} from './product-catalog';
+import { ProductMediaFrame } from './product-media';
+import { getProductCategoryHref, getProductCategoryLabel, getProductShortDescription } from './product-catalog';
 import type { HamRadioProduct } from './product-types';
 
 type HamRadioProductPageProps = {
@@ -38,15 +35,15 @@ function productContents(product: HamRadioProduct) {
       `promiennik ${product.radiatorLength}${product.radiatorVariant === 'S' ? ' z cewką skracającą' : ''}`,
       `przeciwwaga ${product.counterpoiseLength}`,
       `CMC-GEN 1:1 Choke linii ${product.powerLine}`,
-      'elementy montażowe właściwe dla modelu'
+      'nierdzewny osprzęt i elementy montażowe właściwe dla modelu'
     ];
   }
 
   if (product.productType === 'un-un') {
-    return ['transformator GEN-FED 1:49 Un-Un', 'obudowa i złącza właściwe dla linii mocy', 'identyfikacja modelu, partii i numeru seryjnego'];
+    return ['transformator GEN-FED 1:49 Un-Un', 'obudowa i złącza właściwe dla linii mocy', 'oznaczenie modelu, partii i numeru seryjnego'];
   }
 
-  return ['dławik prądów wspólnych CMC-GEN 1:1', 'obudowa i złącza właściwe dla linii mocy', 'identyfikacja modelu, partii i numeru seryjnego'];
+  return ['dławik prądów wspólnych CMC-GEN 1:1', 'obudowa i złącza właściwe dla linii mocy', 'oznaczenie modelu, partii i numeru seryjnego'];
 }
 
 export function HamRadioProductPage({ product }: HamRadioProductPageProps) {
@@ -57,7 +54,7 @@ export function HamRadioProductPage({ product }: HamRadioProductPageProps) {
     <PublicShell>
       <PageContainer>
         <nav className="breadcrumbs" aria-label="Okruszki">
-          <Link href="/products">Produkty</Link>
+          <Link href="/products">Rozwiązania</Link>
           <span aria-hidden="true">/</span>
           <Link href={categoryHref}>{categoryLabel}</Link>
           <span aria-hidden="true">/</span>
@@ -89,39 +86,40 @@ export function HamRadioProductPage({ product }: HamRadioProductPageProps) {
           </aside>
         </section>
 
+        {product.media?.cover ? (
+          <section className="section product-media-section">
+            <ProductMediaFrame label={product.name} media={product.media} />
+          </section>
+        ) : null}
+
         <section className="section">
-          <SectionHeader eyebrow="Specyfikacja" title="Dane techniczne produktu">
-            <p>Parametry pochodzą z zatwierdzonej dokumentacji GEN-FED / CMC-GEN 261 v20.</p>
+          <SectionHeader eyebrow="Specyfikacja" title="Dane techniczne">
+            <p>Parametry odpowiadają zatwierdzonej dokumentacji GEN-FED / CMC-GEN 261 v20.</p>
           </SectionHeader>
           <dl className="spec-grid">
             {compactSpecs(product).map(([label, value]) => (
-              <div className="spec-item" key={label}>
-                <dt>{label}</dt>
-                <dd>{value}</dd>
-              </div>
+              <div className="spec-item" key={label}><dt>{label}</dt><dd>{value}</dd></div>
             ))}
           </dl>
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Zawartość" title={product.productType === 'kit' ? 'Kompletny zestaw' : 'Produkt samodzielny'}>
-            <p>{product.productType === 'kit' ? 'Kit jest kompletnym zestawem antenowym zgodnym z dokumentacją serii 261.' : 'Promiennik, przeciwwaga i pozostałe elementy instalacji nie wchodzą w skład produktu samodzielnego.'}</p>
+          <SectionHeader eyebrow="Zawartość" title={product.productType === 'kit' ? 'Zawartość zestawu' : 'Zakres produktu'}>
+            <p>{product.productType === 'kit' ? 'Kit jest kompletnym, dopasowanym systemem antenowym zgodnym z dokumentacją serii 261.' : 'Promiennik, przeciwwaga i pozostałe elementy instalacji nie wchodzą w skład produktu samodzielnego.'}</p>
           </SectionHeader>
           <div className="card-grid card-grid--two">
-            <Card title="W zestawie">
-              <ul className="feature-list">
-                {productContents(product).map((item) => <li key={item}>{item}</li>)}
-              </ul>
+            <Card title="Elementy">
+              <ul className="feature-list">{productContents(product).map((item) => <li key={item}>{item}</li>)}</ul>
             </Card>
-            <Card title="Ważna informacja">
-              <p>{product.notes ?? 'Produkt należy dobrać do linii mocy oraz rzeczywistej konfiguracji instalacji antenowej.'}</p>
+            <Card title="Dobór wariantu">
+              <p>{product.notes ?? 'Model należy dobrać do linii mocy, rodzaju emisji oraz rzeczywistej konfiguracji instalacji antenowej.'}</p>
             </Card>
           </div>
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Dokumentacja" title="Dokumenty publiczne v20">
-            <p>Instrukcja i karta techniczna są wspólne dla katalogu GEN-FED / CMC-GEN 261. Oświadczenie producenta i dokumenty wewnętrzne pozostają w dokumentacji technicznej producenta.</p>
+          <SectionHeader eyebrow="Dokumentacja" title="Dokumenty produktu">
+            <p>Szczegóły parametrów, montażu i bezpiecznego użytkowania znajdują się w aktualnej dokumentacji v20.</p>
           </SectionHeader>
           <div className="document-list">
             {hamRadioPublicDocuments.map((document) => (
@@ -138,19 +136,18 @@ export function HamRadioProductPage({ product }: HamRadioProductPageProps) {
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Bezpieczeństwo" title="Podstawowe zasady użytkowania">
-            <p>Pełne wymagania, procedura montażu i ostrzeżenia znajdują się w instrukcji obsługi i instalacji v20.</p>
+          <SectionHeader eyebrow="Bezpieczeństwo" title="Zasady bezpiecznego użytkowania">
+            <p>Pełne wymagania montażowe i ostrzeżenia znajdują się w instrukcji obsługi i instalacji v20.</p>
           </SectionHeader>
           <div className="card card--accent">
             <ul className="feature-list">
               <li>Nie instaluj anteny w pobliżu linii energetycznych ani w warunkach burzowych.</li>
-              <li>Nie przekraczaj mocy znamionowej produktu i kontroluj SWR przed rozpoczęciem pracy.</li>
+              <li>Nie przekraczaj mocy znamionowej i kontroluj SWR przed rozpoczęciem pracy.</li>
               <li>Zapewnij stabilne mocowanie oraz bezpieczne odległości od ludzi, zwierząt i elementów przewodzących.</li>
               {product.productType === 'kit' ? <li>CMC-GEN montuj możliwie blisko Un-Una, zgodnie z instrukcją v20.</li> : null}
             </ul>
           </div>
         </section>
-
       </PageContainer>
     </PublicShell>
   );

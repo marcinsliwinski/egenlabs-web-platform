@@ -3,6 +3,18 @@ export type HamRadioProductLine = 'GEN-FED' | 'CMC-GEN';
 export type HamRadioPowerLine = 'µQRP' | 'QRP' | 'STD' | 'HD';
 export type HamRadioAvailability = 'contact';
 
+export type ProductImage = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
+export type ProductMedia = {
+  cover?: ProductImage;
+  gallery?: ProductImage[];
+};
+
 export type HamRadioProduct = {
   sku: string;
   slug: string;
@@ -22,6 +34,7 @@ export type HamRadioProduct = {
   ratedPower: string;
   notes: string | null;
   availability: HamRadioAvailability;
+  media?: ProductMedia;
 };
 
 export type HamRadioDocument = {

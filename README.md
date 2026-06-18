@@ -1,6 +1,6 @@
 # eGen Labs Web Platform
 
-Official web platform for **eGen Labs**.
+Product platform and public web presence for **eGen Labs**.
 
 This repository contains the MVP foundation for:
 - the public website and product landing pages,
@@ -9,23 +9,25 @@ This repository contains the MVP foundation for:
 - application download management,
 - an admin panel and content management,
 - desktop support APIs for updates, news feed, telemetry, and feedback,
-- a scalable multi-product foundation for future eGen Labs software.
+- a scalable multi-product foundation for future eGen Labs products and desktop applications,
+- the public GEN-FED / CMC-GEN 261 catalog and technical-document library.
 
 ## Project context
 
 - Parent brand: **eGen**
-- Software/web subbrand: **eGen Labs**
+- Product and web brand: **eGen Labs**
 - Current project: **eGen Labs Web Platform**
 - First supported product: **Fito Gen**
 - Initial edition: **Essentials**
 - Initial market: **Poland / Polish language**
-- MVP strategy: **multi-product foundation**, while launch conversion focuses on **Fito Gen Essentials**
+- MVP strategy: **multi-product foundation** with Fito Gen Essentials and the public GEN-FED / CMC-GEN catalog
 
 ## Core goals
 
 The platform should:
 - build trust in the eGen Labs brand,
 - support the launch and distribution of Fito Gen Essentials,
+- present the GEN-FED / CMC-GEN 261 technical product catalog and public documentation,
 - collect leads, consents, and market feedback,
 - support product communication via email, blog, FAQ, PDF, and desktop news feed,
 - expose backend capabilities for desktop updates and telemetry,
@@ -36,7 +38,12 @@ The platform should:
 
 The first production version includes:
 - public homepage for eGen Labs,
-- product landing page for Fito Gen Essentials,
+- solution landing page for Fito Gen Essentials,
+- public solutions index for Fito Gen, GEN-FED, and CMC-GEN (technical route: `/products`),
+- 23 public GEN-FED / CMC-GEN product pages,
+- public ham-radio documentation library,
+- image-ready catalog with optional series and model media,
+- discreet legal-information page,
 - mandatory email registration before download,
 - optional marketing consent handled separately,
 - welcome email and download email,
@@ -54,6 +61,17 @@ The first production version includes:
 - telemetry intake endpoint,
 - feature request and software demand request endpoints,
 - audit logging, CSV exports, backup, restore, and basic observability.
+
+
+## Public product images
+
+The MVP uses static, optimized assets rather than an admin upload workflow. Image requirements, directory conventions, and recommended resolutions are documented in:
+
+```text
+docs/product-image-guidelines.md
+```
+
+Series images are registered in `src/features/ham-radio/media-catalog.ts`. Product images use the optional `media` field in the TypeScript catalog.
 
 ## Proposed stack
 

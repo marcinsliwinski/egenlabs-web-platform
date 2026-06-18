@@ -14,7 +14,8 @@ const ENTERPRISE_PATH = '/enterprise';
 
 const newsletterSignupSchema = z.object({
   email: z.string().trim().email().max(320),
-  marketingConsent: z.literal(true)
+  marketingConsent: z.literal(true),
+  returnPath: z.enum(['/', '/contact', '/newsletter']).default('/newsletter')
 });
 
 const contactInquirySchema = z.object({
@@ -38,6 +39,11 @@ const enterpriseInterestSchema = z.object({
 
 function redirectWithStatus(path: string, status: string, kind: 'success' | 'error'): never {
   redirect(`${path}?${kind}=${status}`);
+}
+
+function redirectNewsletterWithStatus(path: string, status: string, kind: 'success' | 'error'): never {
+  const parameter = kind === 'success' ? 'newsletterSuccess' : 'newsletterError';
+  redirect(`${path}?${parameter}=${status}#newsletter`);
 }
 
 function extractClientIp(forwardedForHeader: string | null): string | undefined {
@@ -79,17 +85,18 @@ async function getMarketingConsentDefinition() {
 export async function createNewsletterSignupAction(formData: FormData) {
   const parsedInput = newsletterSignupSchema.safeParse({
     email: formData.get('email'),
-    marketingConsent: formData.get('marketingConsent') === 'on'
+    marketingConsent: formData.get('marketingConsent') === 'on',
+    returnPath: formData.get('returnPath') || NEWSLETTER_PATH
   });
 
   if (!parsedInput.success) {
-    redirectWithStatus(NEWSLETTER_PATH, 'invalid_newsletter_input', 'error');
+    redirectNewsletterWithStatus(NEWSLETTER_PATH, 'invalid_newsletter_input', 'error');
   }
 
   const marketingDefinition = await getMarketingConsentDefinition();
 
   if (!marketingDefinition) {
-    redirectWithStatus(NEWSLETTER_PATH, 'marketing_consent_missing', 'error');
+    redirectNewsletterWithStatus(parsedInput.data.returnPath, 'marketing_consent_missing', 'error');
   }
 
   const headerStore = await headers();
@@ -136,7 +143,7 @@ export async function createNewsletterSignupAction(formData: FormData) {
   });
 
   revalidatePublicFormPaths();
-  redirectWithStatus(NEWSLETTER_PATH, 'newsletter_saved', 'success');
+  redirectNewsletterWithStatus(parsedInput.data.returnPath, 'newsletter_saved', 'success');
 }
 
 export async function createContactInquiryAction(formData: FormData) {

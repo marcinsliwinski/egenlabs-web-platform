@@ -34,6 +34,7 @@ const checks = [
   { path: '/blog', expectedStatus: 200, label: 'Blog list' },
   { path: '/newsletter', expectedStatus: 200, label: 'Newsletter form' },
   { path: '/contact', expectedStatus: 200, label: 'Contact form' },
+  { path: '/legal', expectedStatus: 200, label: 'Legal information page' },
   { path: '/enterprise', expectedStatus: 200, label: 'Enterprise form' },
   { path: '/download/register', expectedStatus: 200, label: 'Download registration' },
   { path: '/one-pager/fito-gen-one-pager', expectedStatus: 200, label: 'PDF detail page' },

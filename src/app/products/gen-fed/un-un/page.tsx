@@ -15,7 +15,7 @@ export default function GenFedUnunPage() {
       <PageContainer>
         <section className="hero">
           <div className="hero__content">
-            <span className="eyebrow">Produkty samodzielne 261</span>
+            <span className="eyebrow">Transformatory dopasowujące</span>
             <h1>GEN-FED 1:49 Un-Un</h1>
             <p className="hero__lead">Samodzielne transformatory dopasowujące dla systemów End-Fed HF, dostępne w czterech liniach mocy.</p>
             <div className="hero__actions">
@@ -25,13 +25,13 @@ export default function GenFedUnunPage() {
           </div>
           <aside className="hero__panel">
             <span className="status-pill">1:49</span>
-            <h2>Bez wariantów S/M</h2>
-            <p>Un-Un dobiera się według linii mocy. Promiennik, przeciwwaga i choke nie wchodzą w skład produktu samodzielnego.</p>
+            <h2>Dobór według linii mocy</h2>
+            <p>Promiennik, przeciwwaga i dławik nie wchodzą w skład produktu samodzielnego. Konfigurację dobiera się do planowanej mocy i emisji.</p>
           </aside>
         </section>
         <section className="section">
           <SectionHeader eyebrow="Katalog" title="Cztery warianty Un-Un">
-            <p>µQRP, QRP, STD i HD wykorzystują różne rdzenie, przewody, kondensatory oraz limity mocy.</p>
+            <p>µQRP, QRP, STD i HD wykorzystują różne rdzenie, przewody, kondensatory oraz limity mocy dla DIGI, CW i SSB.</p>
           </SectionHeader>
           <div className="card-grid card-grid--two">
             {genFedUnuns.map((product) => (

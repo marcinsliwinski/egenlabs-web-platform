@@ -2,7 +2,9 @@ import Link from 'next/link';
 
 import { Card, PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 
+import { hamRadioSeriesMedia } from './media-catalog';
 import { HamRadioProductCard } from './product-card';
+import { ProductMediaFrame } from './product-media';
 import { getGenFedKitsBySeries, powerLineOrder } from './product-catalog';
 import type { HamRadioPowerLine } from './product-types';
 
@@ -30,6 +32,7 @@ const seriesCopy = {
 export function GenFedSeriesView({ series }: GenFedSeriesViewProps) {
   const products = getGenFedKitsBySeries(series);
   const copy = seriesCopy[series];
+  const seriesMedia = hamRadioSeriesMedia[`gen-fed-${series}`];
   const byVariant = (variant: 'S' | 'M', powerLine: HamRadioPowerLine) =>
     products.find((product) => product.radiatorVariant === variant && product.powerLine === powerLine) ?? null;
 
@@ -57,11 +60,18 @@ export function GenFedSeriesView({ series }: GenFedSeriesViewProps) {
           </aside>
         </section>
 
+        {seriesMedia?.cover ? (
+          <section className="section product-media-section">
+            <ProductMediaFrame label={copy.title} media={seriesMedia} />
+          </section>
+        ) : null}
+
         <section className="section">
           <SectionHeader eyebrow="Porównanie" title={`Wybierz wariant ${copy.title}`}>
             <p>Najpierw wybierz długość promiennika, a następnie linię mocy. Każdy Kit zawiera Un-Un, promiennik, przeciwwagę, dopasowany CMC-GEN i elementy montażowe.</p>
           </SectionHeader>
-          <div className="comparison-table-wrap">
+          <p className="table-hint">Przesuń tabelę poziomo, aby zobaczyć wszystkie linie mocy.</p>
+          <div className="comparison-table-wrap" tabIndex={0} aria-label={`Tabela porównawcza ${copy.title}`}>
             <table className="comparison-table">
               <thead>
                 <tr>
@@ -86,7 +96,7 @@ export function GenFedSeriesView({ series }: GenFedSeriesViewProps) {
                               <span>{product.ratedPower}</span>
                             </Link>
                           ) : (
-                            <span className="comparison-empty">Nieplanowany</span>
+                            <span className="comparison-empty" aria-label="Brak wariantu">—</span>
                           )}
                         </td>
                       );
@@ -99,8 +109,8 @@ export function GenFedSeriesView({ series }: GenFedSeriesViewProps) {
         </section>
 
         <section className="section">
-          <SectionHeader eyebrow="Katalog" title={`${products.length} produktów w serii ${series}`}>
-            <p>Produkty są prezentowane informacyjnie. Sklep, koszyk i płatności pozostają poza obecnym zakresem strony.</p>
+          <SectionHeader eyebrow="Modele" title={`${products.length} wariantów w serii ${series}`}>
+            <p>Otwórz kartę modelu, aby sprawdzić parametry, zawartość Kitu i dokumentację techniczną.</p>
           </SectionHeader>
           <div className="card-grid">
             {products.map((product) => (
