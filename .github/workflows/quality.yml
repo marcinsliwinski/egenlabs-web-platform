@@ -72,6 +72,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Validate storage path confinement
+        run: npm run smoke:storage-paths
+
       - name: Build
         env:
           NODE_ENV: production

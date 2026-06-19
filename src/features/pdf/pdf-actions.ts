@@ -1,7 +1,6 @@
 'use server';
 
 import { stat } from 'node:fs/promises';
-import { isAbsolute, resolve } from 'node:path';
 
 import { PdfVisibility } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -11,6 +10,7 @@ import { z } from 'zod';
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
+import { isValidStoragePath, resolveExistingStorageFile } from '@/lib/storage-path';
 
 const ADMIN_PDF_PATH = '/admin/pdfs';
 
@@ -21,7 +21,12 @@ const marketingPdfSchema = z.object({
   description: z.string().trim().max(500).optional().or(z.literal('')),
   visibility: z.nativeEnum(PdfVisibility),
   fileName: z.string().trim().min(5).max(255),
-  storagePath: z.string().trim().min(5).max(500),
+  storagePath: z
+    .string()
+    .trim()
+    .min(5)
+    .max(500)
+    .refine(isValidStoragePath, 'storagePath must point inside storage/'),
   mimeType: z.string().trim().min(1).max(120).default('application/pdf'),
   isEnabled: z.boolean().default(false)
 });
@@ -30,13 +35,15 @@ function getRedirectWithStatus(status: string, kind: 'success' | 'error'): never
   redirect(`${ADMIN_PDF_PATH}?${kind}=${status}`);
 }
 
-function resolveStoragePath(storagePath: string) {
-  return isAbsolute(storagePath) ? storagePath : resolve(process.cwd(), storagePath);
-}
-
 async function resolveFileSizeBytes(storagePath: string) {
+  const absolutePath = await resolveExistingStorageFile(storagePath);
+
+  if (!absolutePath) {
+    return null;
+  }
+
   try {
-    const result = await stat(resolveStoragePath(storagePath));
+    const result = await stat(absolutePath);
     return result.isFile() ? Number(result.size) : null;
   } catch {
     return null;

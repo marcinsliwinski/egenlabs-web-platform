@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { logAdminAuditEvent } from '@/features/audit/audit-service';
 import { db } from '@/lib/db';
+import { isValidStoragePath } from '@/lib/storage-path';
 
 const CATALOG_PATH = '/admin/catalog';
 
@@ -20,7 +21,14 @@ const createBuildSchema = z
     minSupportedVersion: z.string().trim().optional(),
     notes: z.string().trim().optional(),
     fileName: z.string().trim().optional(),
-    storagePath: z.string().trim().optional(),
+    storagePath: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (value) => !value || isValidStoragePath(value),
+        'storagePath must point inside storage/'
+      ),
     fileSizeBytes: z.union([z.literal(''), z.coerce.number().int().positive()]).optional(),
     checksumSha256: z.string().trim().optional(),
     mimeType: z.string().trim().optional(),

@@ -1,10 +1,10 @@
 import { access, readFile } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
-import { isAbsolute, resolve } from 'node:path';
 
 import { DownloadLinkStatus, DownloadPolicyMode } from '@prisma/client';
 
 import { db } from '@/lib/db';
+import { resolveExistingStorageFile, resolveStoragePath } from '@/lib/storage-path';
 import { emailEnv } from '@/features/email/email-env';
 import {
   buildDownloadDeliveryUrl,
@@ -372,7 +372,27 @@ export async function inspectIssuedDownloadLinkAccess(input: DownloadLinkLookupI
 }
 
 async function resolveLocalAssetBuffer(storagePath: string) {
-  const absolutePath = isAbsolute(storagePath) ? storagePath : resolve(process.cwd(), storagePath);
+  const configuredPath = resolveStoragePath(storagePath);
+
+  if (!configuredPath) {
+    return {
+      exists: false as const,
+      buffer: null,
+      absolutePath: null,
+      reason: 'invalid_storage_path' as const
+    };
+  }
+
+  const absolutePath = await resolveExistingStorageFile(storagePath);
+
+  if (!absolutePath) {
+    return {
+      exists: false as const,
+      buffer: null,
+      absolutePath: configuredPath,
+      reason: 'file_missing_or_outside_storage' as const
+    };
+  }
 
   try {
     await access(absolutePath, fsConstants.R_OK);
@@ -381,13 +401,15 @@ async function resolveLocalAssetBuffer(storagePath: string) {
     return {
       exists: true as const,
       buffer,
-      absolutePath
+      absolutePath,
+      reason: null
     };
   } catch {
     return {
       exists: false as const,
       buffer: null,
-      absolutePath
+      absolutePath,
+      reason: 'file_not_readable' as const
     };
   }
 }

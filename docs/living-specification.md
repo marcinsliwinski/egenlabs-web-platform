@@ -299,6 +299,8 @@ Poza MVP pozostają:
 - WNF-015: Projekt ma minimalizować dług techniczny i unikać nadmiarowej złożoności architektonicznej.
 - WNF-016: Nawigacja, formularze, tabele, przyciski i treści akcentowe muszą zachować użyteczność, czytelność i dostępność na urządzeniach mobilnych.
 - WNF-017: Publiczne treści mają być merytoryczne, profesjonalne i spójne z pozycjonowaniem eGen Labs jako marki własnych rozwiązań inżynieryjnych.
+- WNF-018: Lokalne assety buildów i dokumentów mogą być odczytywane wyłącznie ze zweryfikowanych ścieżek wewnątrz katalogu `storage/`; ścieżki absolutne, traversal i wyjście przez dowiązania symboliczne są odrzucane.
+- WNF-019: Każdy push i pull request do `main` musi przechodzić automatyczny quality gate obejmujący zależności, Prisma, migracje, bootstrap, typecheck, lint, kontrolę storage, build i smoke testy.
 
 ## 14. Standardy jakości kodu i dobre praktyki programistyczne
 - Stosować Clean Code i dobre praktyki właściwe dla użytego stacku.
@@ -539,6 +541,9 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Endpointy intake Universal Desktop Support API v1 muszą uwzględniać walidację wejścia, ograniczanie nadużyć i bezpieczne logowanie błędów.
 - Paczki referencyjne publikowane przez platformę powinny posiadać metadane integralności, w szczególności checksumy.
 - Publiczna warstwa UI ma stosować zasadę minimalizacji danych: prywatne dane producenta nie są powielane na kartach produktowych ani w stopce, ale mogą pozostać w zatwierdzonych dokumentach produktu udostępnianych do pobrania.
+- Pełna historia Git jest skanowana narzędziem Gitleaks przed release; zaakceptowany baseline z 2026-06-19 obejmuje 31 commitów i 0 wykrytych sekretów.
+- Zależności produkcyjne nie mogą posiadać niezaakceptowanych podatności critical ani high. Podatności moderate wymagają analizy ekspozycji i wpisu do rejestru ryzyka.
+- Wartości `storagePath` muszą wskazywać relatywne pliki wewnątrz `storage/builds/...` albo `storage/media/...`; ścieżki absolutne i wychodzące poza storage są zabronione.
 
 ## 22. Założenia infrastrukturalne i wdrożeniowe
 - Środowiska: dev, staging, prod.
@@ -557,6 +562,8 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Pliki środowiskowe, sekrety, prywatne buildy, backupy, dumpy baz, lokalne storage i dane eksportowane z systemu muszą pozostawać poza repozytorium i być objęte `.gitignore`.
 - Platforma musi wspierać publikację wersjonowanych manifestów i paczek dla Universal Desktop Support API v1.
 - Wdrożenie Universal Desktop Support API v1 wymaga stabilnych URL-i dla manifestów i paczek oraz kontrolowanego procesu publikacji nowych wersji.
+- GitHub Actions quality gate jest obowiązkową bramką dla `main` i musi pozostać zielony przed stagingiem oraz produkcją.
+- Runtime storage jest montowany poza repozytorium; aplikacja otrzymuje wyłącznie minimalne wymagane uprawnienia do katalogów buildów i mediów.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -581,6 +588,8 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Telemetria identyfikowalna powinna mieć krótszy cykl życia niż dane stricte biznesowe.
 - Backup snapshots powinny mieć kontrolowaną rotację.
 - Universal Desktop Support API v1 wymaga smoke testów kontraktów, kontroli zgodności payloadów oraz procedur publikacji i aktualizacji manifestów i paczek.
+- Przed release wykonywane są: pełny Gitleaks historii, `npm audit`, kontrola czystości Git oraz weryfikacja, że raporty bezpieczeństwa robocze nie są commitowane.
+- Wynik kontroli bezpieczeństwa i zaakceptowane ryzyka zależności są zapisywane w dokumentacji release.
 
 ## 24. Fazy dostarczenia
 - Faza 1: Foundation
@@ -625,6 +634,13 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - strony serii 40-10 i 80-10, katalog Un-Unów, katalog CMC-GEN i strony wszystkich SKU,
   - publikacja instrukcji obsługi i instalacji v20 oraz karty technicznej v20,
   - przygotowanie strony pod późniejszy Product Download Launch.
+- Faza 4B: Security Closure & Staging Readiness
+  - zielony GitHub Actions quality gate,
+  - pełny skan historii Git i przegląd zależności,
+  - udokumentowanie zaakceptowanych ryzyk upstream,
+  - ograniczenie ścieżek lokalnego storage,
+  - checklista stagingowa, backup i restore drill,
+  - przygotowanie formalnego release checkpoint.
 - Faza 5: Universal Desktop Support API v1
   - capability map,
   - dokumentacja kontraktów,
@@ -648,6 +664,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Telemetry & Feedback
 - Universal Desktop Support API v1
 - Security & Compliance
+- Security Closure & Staging Readiness
 - Deployment & Operations
 
 ## 26. Kryteria akceptacyjne
@@ -656,7 +673,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Publiczna komunikacja jest po polsku.
 - Główne CTA prowadzą do możliwości Fito Gen, kontaktu i newslettera; pobranie zostanie aktywowane po zatwierdzeniu finalnego buildu desktopowego.
 - Publiczny przekaz jasno komunikuje eGen Labs jako platformę produktową / product lab, a nie software studio ani software house.
-- Fito Gen Essentials może być pokazany jako produkt w przygotowaniu.
+- Fito Gen Essentials jest prezentowany jako kompletny moduł produktowy bez komunikatów o niedokończeniu; bezpośrednie pobranie pozostaje nieeksponowane do zatwierdzenia finalnego buildu desktopowego.
 - Download flow pozostaje technicznie dostępny, ale nie jest promowany w głównej nawigacji do czasu ukończenia desktopowego MVP.
 - Publiczne strony formularzy, bloga, FAQ i materiału PDF są spójne wizualnie.
 - Publiczna sekcja `/products` prezentuje Fito Gen, GEN-FED i CMC-GEN jako linie produktowe eGen Labs.
@@ -675,6 +692,10 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Typografia nagłówków nie dominuje nad treścią na urządzeniach mobilnych.
 - Katalog obsługuje opcjonalne zdjęcia serii i modeli zgodnie z udokumentowanym standardem plików.
 - Ogólna komunikacja GEN-FED / CMC-GEN może wskazywać komponenty stosowane w rodzinie rozwiązań, a karty konkretnych SKU pozostają zgodne z ich rzeczywistą konfiguracją.
+- GitHub Actions quality gate przechodzi dla bieżącego `main`.
+- Pełny skan Gitleaks historii Git nie wykrywa sekretów, a `npm audit` nie zgłasza niezaakceptowanych podatności critical ani high.
+- Odczyt lokalnych assetów jest ograniczony do `storage/` i objęty automatycznym testem ścieżek poprawnych oraz niedozwolonych.
+- Istnieją aktualne raport bezpieczeństwa, plan zamknięcia i checklista stagingowa.
 
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
@@ -736,6 +757,8 @@ Feature jest ukończony, gdy:
 - Ryzyko ukrywania pozycji nawigacji na wąskich ekranach bez czytelnego mechanizmu menu.
 - Ryzyko rozjazdu między ogólnymi deklaracjami marketingowymi o komponentach rodziny produktów a faktyczną konfiguracją pojedynczego SKU.
 - Ryzyko publikacji nieoptymalnych zdjęć o niewłaściwym formacie, rozdzielczości lub opisie alternatywnym.
+- RISK-SEC-001: Next.js 16.2.9 dostarcza zależność PostCSS raportowaną jako moderate; aktualny zakres nie przyjmuje niezaufanego CSS, ryzyko jest tymczasowo zaakceptowane i monitorowane przy aktualizacjach frameworka.
+- Ryzyko nieprawidłowej konfiguracji runtime storage lub dowiązań symbolicznych; ograniczone przez walidację ścieżek, realpath i smoke test.
 
 ### Ryzyka biznesowe
 - Niski współczynnik konwersji download po formularzu.
@@ -773,6 +796,7 @@ Feature jest ukończony, gdy:
 
 - 2026-06-18 – zaakceptowano i wdrożono DEC-024: zmniejszono skalę publicznych nagłówków, skrócono główny komunikat do „Praktyczna inżynieria” oraz przebudowano Fito Gen Essentials jako docelowy moduł produktowy bez wewnętrznego języka o stanie prac.
 - 2026-06-18 – zaakceptowano i wdrożono DEC-025: dodano GitHub Actions quality gate dla instalacji, Prisma, migracji, bootstrapu, typecheck, lint, build i smoke testów oraz publiczną politykę SECURITY.md.
+- 2026-06-19 – zaakceptowano i wdrożono DEC-026: zamknięto kontrolę bezpieczeństwa, zapisano wynik Gitleaks i audytu zależności, zaakceptowano RISK-SEC-001, ograniczono ścieżki assetów do `storage/`, dodano test regresji storage oraz checklistę stagingową.
 
 ## 29. Decision Log
 
@@ -932,7 +956,7 @@ Feature jest ukończony, gdy:
 ### DEC-018
 - ADR ID: ADR-010
 - Tytuł: Public Site Visual Launch Candidate przed publikacją programu Fito Gen
-- Status: Accepted
+- Status: Accepted; status publicznej prezentacji Fito Gen częściowo zastąpiony przez DEC-024
 - Data: 2026-05-15
 - Kategoria: Product / UX / Brand / Delivery
 - Podsumowanie: Priorytet bieżącego kroku zostaje przesunięty na profesjonalny visual launch publicznej strony eGen Labs. Link do Fito Gen Essentials i sam program zostaną dodane w kolejnym kroku po ukończeniu desktopowego MVP. Strona ma startować jako spójna, polska i wiarygodna wizytówka marki z CTA na kontakt i newsletter.
@@ -1002,6 +1026,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Infrastructure / Security / Quality
 - Podsumowanie: Repozytorium otrzymuje workflow GitHub Actions uruchamiany dla push i pull request do `main`. Quality gate wykonuje instalację zależności, generowanie Prisma Client, migracje, bootstrap danych testowych, typecheck, lint, build, uruchomienie aplikacji i smoke testy. Dodano `SECURITY.md` określający prywatne zgłaszanie podatności i zakaz publikowania sekretów oraz danych wrażliwych.
 - Sekcje, których dotyczy: 13, 14, 21, 22, 23, 24, 25, 26, 27, 28
+
+### DEC-026
+- ADR ID: Brak
+- Tytuł: Security closure and staging readiness baseline
+- Status: Accepted
+- Data: 2026-06-19
+- Kategoria: Security / Infrastructure / Operations / Quality
+- Podsumowanie: Zamknięto kontrolę bezpieczeństwa Web MVP na podstawie pełnego skanu historii Git, audytu zależności i zielonego quality gate. Udokumentowano tymczasowo zaakceptowane ryzyko PostCSS, ograniczono lokalne ścieżki buildów i PDF do katalogu `storage/`, dodano kontrolę realpath i smoke test ścieżek oraz przygotowano checklistę stagingową i zaktualizowany release checkpoint.
+- Sekcje, których dotyczy: 13, 14, 17, 21, 22, 23, 24, 25, 26, 27, 28, 39
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1417,7 +1450,7 @@ Wybrano opcję B, ponieważ Fito Gen Essentials jest rozwijany poza repozytorium
 - Brak.
 
 ## 39. ADR-010: Public Site Visual Launch Candidate przed publikacją programu Fito Gen
-Status: Accepted
+Status: Accepted; częściowo zastąpiony przez DEC-024 w zakresie sposobu prezentacji Fito Gen
 Data: 2026-05-15
 
 ### Kontekst
@@ -1437,7 +1470,7 @@ Wybrano opcję B, ponieważ umożliwia szybki start wizerunkowy, budowanie zaufa
 ### Konsekwencje
 - Główne CTA public site prowadzą do kontaktu i newslettera.
 - Download flow pozostaje technicznie dostępny, ale nie jest eksponowany w głównej nawigacji.
-- Strona produktu Fito Gen komunikuje status produktu w przygotowaniu.
+- Historycznie strona produktu Fito Gen komunikowała status produktu w przygotowaniu; od DEC-024 prezentuje kompletny moduł produktowy bez eksponowania finalnego linku pobrania.
 - Visual pass nie dodaje nowych funkcji domenowych i nie zmienia granic danych desktopu.
 - Sekcja Elektronika / Krótkofalarstwo wymaga osobnej decyzji, aby nie rozmyć publicznego startu eGen Labs.
 
@@ -1456,4 +1489,5 @@ Wybrano opcję B, ponieważ umożliwia szybki start wizerunkowy, budowanie zaufa
 - 4, 5, 6, 7, 9, 10, 12, 24, 25, 26, 27
 
 ### Zastępuje / Zastąpiony przez
-- Brak.
+- DEC-024 zastępuje część dotyczącą komunikowania Fito Gen jako produktu w przygotowaniu.
+- Pozostaje obowiązująca decyzja o nieeksponowaniu finalnego linku pobrania do czasu zatwierdzenia buildu desktopowego.

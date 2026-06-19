@@ -1,18 +1,20 @@
 import { access, readFile } from 'node:fs/promises';
-import { isAbsolute, resolve } from 'node:path';
 
 import { PdfVisibility } from '@prisma/client';
 
 import { getCurrentAdmin, requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { db } from '@/lib/db';
-
-function resolveStoragePath(storagePath: string) {
-  return isAbsolute(storagePath) ? storagePath : resolve(process.cwd(), storagePath);
-}
+import { resolveExistingStorageFile } from '@/lib/storage-path';
 
 async function fileExists(storagePath: string) {
+  const absolutePath = await resolveExistingStorageFile(storagePath);
+
+  if (!absolutePath) {
+    return false;
+  }
+
   try {
-    await access(resolveStoragePath(storagePath));
+    await access(absolutePath);
     return true;
   } catch {
     return false;
@@ -105,7 +107,13 @@ export async function resolveMarketingPdfDownloadBySlug(slug: string) {
   }
 
   try {
-    const body = await readFile(resolveStoragePath(pdf.storagePath));
+    const absolutePath = await resolveExistingStorageFile(pdf.storagePath);
+
+    if (!absolutePath) {
+      throw new Error('Configured PDF path is invalid or unavailable.');
+    }
+
+    const body = await readFile(absolutePath);
 
     return {
       success: true as const,

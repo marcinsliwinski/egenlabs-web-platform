@@ -1,116 +1,163 @@
 # MVP Release Checkpoint
 
-This document is a practical release-readiness checklist for the current MVP baseline.
-It is intentionally operational and does not replace `docs/living-specification.md`.
+Dokument operacyjny dla bieżącego baseline Web MVP. Nie zastępuje `docs/living-specification.md`.
 
-## Current checkpoint summary
+## Aktualny baseline
 
-The repository already includes the accepted MVP foundations for:
-- public site and product landing pages,
-- admin auth and protected admin area,
-- download registration, consent handling, issuance and delivery shells,
-- transactional email foundation with Brevo and `LOG_ONLY` fallback,
-- FAQ, blog, PDF one-pager and public forms,
-- desktop-facing API for update, news, telemetry and feedback,
-- audit logging, CSV export, and backup/restore shell.
+Baseline po DEC-026 obejmuje:
 
-## Release checkpoint commands
+- public site i moduł Fito Gen Essentials,
+- katalog GEN-FED / CMC-GEN 261 z 23 SKU,
+- publiczne dokumenty v20,
+- admin auth i chroniony panel,
+- leady, zgody, formularze, e-mail i download flow,
+- update/news/telemetry/feedback API,
+- audit, CSV, backup i restore,
+- GitHub Actions quality gate,
+- zamknięty przegląd bezpieczeństwa z udokumentowanym RISK-SEC-001,
+- lokalne ścieżki assetów ograniczone do `storage/`.
 
-Run these commands before a final MVP checkpoint review:
+## Lokalny checkpoint
 
-```bash
-npx prisma generate
-npx prisma migrate deploy
-rm -rf .next
-npm run typecheck
-npm run lint
-npm run smoke:health
-npm run smoke:mvp
-```
-
-> `npm run smoke:mvp` assumes the application is already running locally under `http://localhost:3000`.
-
-## Recommended local launch sequence
+Uruchom PostgreSQL, migracje i dane startowe:
 
 ```bash
-cp .env.example .env
-docker compose up -d
-npx prisma generate
+npm run db:up
+npm run prisma:generate
 npx prisma migrate deploy
 npm run catalog:bootstrap
 npm run content:bootstrap
 npm run desktop:bootstrap
 npm run pdf:bootstrap
+```
+
+Walidacja statyczna i build:
+
+```bash
 rm -rf .next
+npm run typecheck
+npm run lint
+npm run smoke:storage-paths
+npm run build
+```
+
+> Build wymaga działającej bazy, ponieważ wybrane strony publiczne pobierają treści podczas prerenderowania.
+
+Uruchom aplikację:
+
+```bash
 npm run dev
 ```
 
-## Manual admin checkpoint
+W drugim terminalu:
 
-Validate these flows manually after login:
+```bash
+npm run smoke:health
+npm run smoke:mvp
+npm run checkpoint:mvp
+```
 
-### Admin authentication
-- login through `/admin/login`
-- access `/admin`
-- logout and confirm route protection still works
+## Kontrola bezpieczeństwa przed release
 
-### Catalog and downloads
-- create a build metadata record
-- activate exactly one build for `product + edition + channel`
-- review `/admin/downloads`
-- confirm policy changes are reflected in delivery flow
+### Gitleaks
 
-### Leads, forms, and emails
-- submit `/download/register`
-- confirm lead and consent records in `/admin/leads`
-- review issuance and email logs in `/admin/emails`
-- test manual resend for an existing email log entry
-- submit `/newsletter`, `/contact`, `/enterprise`
-- review `/admin/forms`
+```bash
+docker run --rm \
+  -v "$PWD:/repo" \
+  ghcr.io/gitleaks/gitleaks:latest \
+  git \
+  --redact \
+  --report-format json \
+  --report-path /repo/gitleaks-report.json \
+  --log-opts="--all" \
+  /repo
 
-### Content and PDF
-- review `/admin/content`
-- create or update one FAQ entry
-- create or update one blog post
-- review `/admin/pdfs`
-- confirm `/one-pager/fito-gen-one-pager` and `/api/v1/pdf/download?slug=fito-gen-one-pager`
+rm -f gitleaks-report.json
+```
 
-### Desktop-facing API
-- review `/admin/desktop`
-- review `/admin/desktop/intake`
-- call desktop endpoints:
-  - `/api/v1/desktop/update`
-  - `/api/v1/desktop/news`
-  - `/api/v1/desktop/telemetry`
-  - `/api/v1/desktop/feature-requests`
-  - `/api/v1/desktop/software-demand`
+### Zależności
+
+```bash
+npm audit
+```
+
+Kryterium Web MVP:
+
+- 0 critical,
+- 0 high,
+- moderate wyłącznie po świadomej analizie i zapisie ryzyka,
+- bez używania `npm audit fix --force` bez zatwierdzonego planu migracji.
+
+## Ręczny checkpoint admina
+
+### Uwierzytelnianie
+
+- logowanie przez `/admin/login`,
+- dostęp do `/admin`,
+- logout i ponowna ochrona trasy,
+- kontrola uprawnień Admin/Editor.
+
+### Katalog i pobrania
+
+- utworzenie metadanych buildu,
+- aktywacja jednego buildu dla kombinacji product/edition/channel,
+- ścieżka assetu wyłącznie `storage/builds/...`,
+- test istniejącego pliku i bezpiecznego fallbacku,
+- przegląd `/admin/downloads`.
+
+### Leady, formularze i e-maile
+
+- `/download/register`,
+- lead i consent w `/admin/leads`,
+- issuance i e-mail logs w `/admin/emails`,
+- `/newsletter`, `/contact`, `/enterprise`,
+- przegląd `/admin/forms`.
+
+### Content i PDF
+
+- `/admin/content`,
+- FAQ i blog,
+- `/admin/pdfs`,
+- ścieżka PDF wyłącznie `storage/media/...`,
+- `/one-pager/fito-gen-one-pager`,
+- `/api/v1/pdf/download?slug=fito-gen-one-pager`.
+
+### Desktop API
+
+- `/admin/desktop`,
+- `/admin/desktop/intake`,
+- update, news, telemetry, feature requests i software demand.
 
 ### Operations
-- review `/admin/operations`
-- download at least one CSV export
-- execute:
-  - `npm run ops:backup:db`
-  - `npm run ops:backup:storage`
-- confirm backup artifacts are written outside Git
 
-## Release-readiness criteria for the checkpoint
+- `/admin/operations`,
+- eksport CSV,
+- backup DB i storage,
+- próbne odtworzenie poza repozytorium.
 
-Treat the MVP checkpoint as ready when all of the following are true:
-- `typecheck`, `lint`, `smoke:health`, and `smoke:mvp` are green,
-- Prisma migrations apply cleanly on a fresh local database,
-- the public registration and download flow works end-to-end,
-- Brevo or `LOG_ONLY` mode is intentionally configured and understood,
-- admin routes are protected and usable,
-- backup and restore procedures are documented and tested manually,
-- no secrets, backups, dumps, or user exports are present in Git.
+## Release readiness
 
-## Known remaining gaps before a production-style 1.0 checkpoint
+MVP jest gotowy do produkcji, gdy:
 
-The current repository is close to the accepted MVP baseline, but these items remain partial or intentionally minimal:
-- build upload is still metadata/storage-path oriented rather than a full upload manager,
-- consent definition management exists at data level but not yet as a dedicated admin UX for editing consent content versions,
-- telemetry review exists, but advanced filtering is still minimal,
-- admin multi-user support exists at data/auth level, but there is no dedicated admin-user management screen,
-- staging and production environments are part of the baseline, but deployment automation remains intentionally light.
+- lokalny checkpoint i GitHub Actions są zielone,
+- staging jest zaakceptowany według `docs/staging-readiness-checklist.md`,
+- migracje przechodzą na świeżej bazie,
+- formularze i e-maile działają end-to-end,
+- role i prywatne zasoby są chronione,
+- backup oraz restore zostały przetestowane,
+- Git nie zawiera sekretów, backupów, dumpów ani eksportów,
+- brak otwartych P0/P1,
+- znane ryzyka są zapisane.
 
-These are not blockers for the repository checkpoint itself, but they are the most relevant items to review before calling the MVP fully closed.
+## Stan formalny przed produkcją
+
+Do uzupełnienia przy wdrożeniu:
+
+- Commit release:
+- Data staging acceptance:
+- Data produkcyjnego wdrożenia:
+- Wynik produkcyjnego smoke testu:
+- Wynik backupu:
+- Wynik restore drill:
+- Zaakceptowane P2:
+- Tag release:

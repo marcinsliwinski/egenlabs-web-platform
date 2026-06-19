@@ -14,6 +14,7 @@
     "db:logs": "docker compose logs -f postgres",
     "prisma:generate": "prisma generate",
     "smoke:health": "node scripts/smoke-health.mjs",
+    "smoke:storage-paths": "node scripts/smoke-storage-paths.mjs",
     "admin:create": "node scripts/create-admin-user.mjs",
     "catalog:bootstrap": "node scripts/bootstrap-product-catalog.mjs",
     "content:bootstrap": "node scripts/bootstrap-content.mjs",
@@ -25,7 +26,7 @@
     "ops:restore:db": "bash scripts/restore-postgres.sh",
     "ops:restore:storage": "bash scripts/restore-storage.sh",
     "smoke:mvp": "node scripts/smoke-mvp.mjs",
-    "checkpoint:mvp": "npm run typecheck && npm run lint && npm run smoke:health && npm run smoke:mvp"
+    "checkpoint:mvp": "npm run typecheck && npm run lint && npm run smoke:storage-paths && npm run smoke:health && npm run smoke:mvp"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

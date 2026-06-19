@@ -1,140 +1,124 @@
 # Plan zamknięcia eGen Labs Web MVP
 
-Data: 2026-06-18
+Utworzono: 2026-06-18  
+Zaktualizowano: 2026-06-19 po DEC-026
 
-## Stan wejściowy
+## Stan baseline po DEC-026
 
-- core Web MVP jest funkcjonalny,
-- katalog GEN-FED / CMC-GEN obejmuje 23 zatwierdzone SKU,
-- dokumentacja publiczna v20 jest dostępna,
-- public site ma ukończony finalny content i mobile UX pass,
-- katalog jest przygotowany do zdjęć bez panelu uploadu,
-- Fito Gen Essentials pozostaje osobnym produktem desktopowym w przygotowaniu,
-- sklep, koszyk i płatności pozostają poza MVP.
+Zakończone:
 
-## Etap 1 — lokalna akceptacja DEC-023
+- funkcjonalny core Web MVP,
+- publiczna strona i finalny content/mobile pass,
+- docelowy publiczny moduł Fito Gen Essentials,
+- katalog GEN-FED / CMC-GEN 261 obejmujący 23 SKU,
+- publiczna instrukcja i karta techniczna v20,
+- kontakt, newsletter, formularze i download flow,
+- panel administracyjny i API desktopowe,
+- GitHub Actions quality gate,
+- `SECURITY.md`, pełny Gitleaks i przegląd `npm audit`,
+- aktualizacja Next.js do `16.2.9`,
+- udokumentowanie RISK-SEC-001 dla PostCSS,
+- ograniczenie ścieżek lokalnego storage,
+- finalny przegląd wizualny bez otwartych uwag P0/P1.
+
+Nie jest blockerem Web MVP:
+
+- dodawanie zdjęć wszystkich modeli,
+- finalny binarny build Fito Gen i aktywacja jego bezpośredniego publicznego pobrania,
+- sklep, koszyk, płatności i zamówienia,
+- panel uploadu i media manager,
+- pełny Dictionary Package API.
+
+## Etap 1 — lokalna walidacja DEC-026
 
 1. Wgrać pakiet do repozytorium.
-2. Uruchomić Prisma Client, typecheck i lint.
-3. Uruchomić bazę oraz aplikację.
-4. Wykonać pełny checkpoint MVP.
-5. Sprawdzić ręcznie:
-   - menu mobilne,
-   - stronę główną,
-   - `/products`,
-   - GEN-FED 40-10 i 80-10,
-   - CMC-GEN i Un-Un,
-   - kontakt i newsletter,
-   - dokumentację,
-   - `/legal`.
+2. Uruchomić:
 
-## Etap 2 — końcowe QA wizualne i treściowe
+```bash
+npm run prisma:generate
+npm run typecheck
+npm run lint
+npm run smoke:storage-paths
+```
 
-1. Zebrać uwagi wyłącznie jako poprawki P0/P1/P2.
-2. Nie dodawać nowych funkcji.
-3. Zweryfikować:
-   - wszystkie breakpointy mobilne,
-   - kontrast i focus states,
-   - długości nagłówków,
-   - brak wewnętrznego języka projektowego,
-   - spójność terminologii „Rozwiązania”, GEN-FED, CMC-GEN, Un-Un, Kit, S/M i linii mocy.
-4. Zamknąć jeden finalny correction commit.
+3. Przy działającej bazie wykonać:
 
-## Etap 3 — media produktowe
+```bash
+npm run build
+npm run dev
+```
 
-Katalog jest technicznie gotowy do zdjęć. Przed produkcją rekomendowane minimum:
+4. W drugim terminalu:
 
-- 1 zdjęcie linii GEN-FED,
-- 1 zdjęcie serii 40-10,
-- 1 zdjęcie serii 80-10,
-- 1 zdjęcie linii CMC-GEN,
-- 1 zdjęcie lub wizualizacja Fito Gen.
+```bash
+npm run checkpoint:mvp
+```
 
-Zdjęcia każdego z 23 modeli można uzupełniać etapowo bez zmiany architektury. Wszystkie pliki muszą spełniać `docs/product-image-guidelines.md`.
+5. Wypchnąć commit i potwierdzić zielony GitHub Actions quality gate.
 
-## Etap 4 — bezpieczeństwo i zależności
+## Etap 2 — konfiguracja stagingu
 
-1. Uruchomić skan historii Git narzędziem Gitleaks.
-2. Zweryfikować `npm audit` bez automatycznego `--force`.
-3. Potwierdzić brak sekretów i niepożądanych plików w `git status`.
-4. Dodać `SECURITY.md`.
-5. Włączyć GitHub secret scanning, push protection i Dependabot.
+1. Przygotować VPS lub odrębne środowisko kontenerowe.
+2. Skonfigurować domenę stagingową i HTTPS.
+3. Utworzyć PostgreSQL staging bez publicznego portu.
+4. Zamontować trwały storage poza repozytorium.
+5. Skonfigurować sekrety i zmienne środowiskowe poza Git.
+6. Uruchomić migracje oraz bootstrap danych.
+7. Utworzyć silne konto administratora.
+8. Wykorzystać `docs/staging-readiness-checklist.md` jako bramkę akceptacyjną.
 
-## Etap 5 — CI
+## Etap 3 — integracje i testy stagingowe
 
-Dodać GitHub Actions dla:
+Zweryfikować:
 
-- `npm ci`,
-- `npm run prisma:generate`,
-- `npm run typecheck`,
-- `npm run lint`,
-- PostgreSQL service,
-- migracji,
-- uruchomienia aplikacji,
-- `smoke:health`,
-- `smoke:mvp`.
+- Brevo i wysyłkę wiadomości testowych,
+- Turnstile i ochronę formularzy,
+- rejestrację pobrania, zgody oraz linki,
+- istniejący asset i fallback brakującego assetu,
+- publiczne PDF-y,
+- panel administratora i role,
+- desktop update/news/telemetry/feedback,
+- log audytowy,
+- backup bazy i storage,
+- pełny restore oraz smoke test po odtworzeniu.
 
-## Etap 6 — staging
+Staging jest zaakceptowany, gdy nie ma otwartych P0/P1, a wszystkie kryteria checklisty są spełnione lub jawnie zaakceptowane.
 
-1. Skonfigurować zmienne środowiskowe poza repozytorium.
-2. Wdrożyć staging.
-3. Uruchomić migracje.
-4. Utworzyć silne konto administratora.
-5. Skonfigurować Brevo, Cloudflare i Turnstile.
-6. Wykonać smoke testy i ręczne QA.
-7. Przetestować backup i restore.
-
-## Etap 7 — produkcja
+## Etap 4 — produkcja
 
 Warunki wejścia:
 
-- brak otwartych P0 i P1,
-- zielony CI i checkpoint,
+- zielony CI dla commita release,
 - zaakceptowany staging,
+- 0 podatności critical/high,
+- Gitleaks bez znalezisk,
 - działające formularze i e-maile,
-- działające PDF-y,
-- skonfigurowany backup,
-- potwierdzona domena i HTTPS.
+- działające backup i restore,
+- poprawna domena, HTTPS i Cloudflare,
+- potwierdzone sekrety produkcyjne poza repozytorium.
 
 Po wdrożeniu:
 
-- produkcyjny smoke test,
-- kontrola logów,
-- kontrola formularzy,
-- kontrola tras katalogowych,
-- tag release po osobnej akceptacji nazwy.
+1. uruchomić health i smoke testy produkcyjne,
+2. sprawdzić logi aplikacji i e-maili,
+3. zweryfikować katalog, PDF-y i formularze,
+4. wykonać pierwszy backup produkcyjny,
+5. zapisać commit, datę i wyniki w `docs/mvp-release-checkpoint.md`.
 
-## Etap 8 — formalne zamknięcie MVP
+## Etap 5 — formalne zamknięcie MVP
 
-- uzupełnić `docs/mvp-release-checkpoint.md`,
-- zapisać datę produkcyjnego release,
+- uzupełnić release checkpoint,
 - dodać końcowy wpis do Decision Log,
-- zamknąć visual launch backlog,
-- przenieść dalsze prace do post-MVP / v1.
+- utworzyć tag release po osobnej akceptacji nazwy,
+- zamknąć backlog Web MVP,
+- przenieść pozostałe zadania do post-MVP / v1.
 
-## Poza zamknięciem Web MVP
+## Pierwszy backlog po MVP
 
-- finalny program Fito Gen Essentials i jego link pobrania,
-- integracja klienta Fito Gen z Universal Desktop Support API v1,
+- integracja finalnego klienta Fito Gen z Universal Desktop Support API v1,
 - Dictionary Package API,
-- sklep, koszyk i płatności,
-- panel uploadu i media manager,
-- pełne zdjęcia wszystkich modeli, jeśli nie będą gotowe na dzień startu.
-
-## Update — 2026-06-18
-
-Completed:
-
-- DEC-024 compact typography and production-ready Fito Gen public module,
-- DEC-025 GitHub Actions quality gate,
-- repository `SECURITY.md`.
-
-Remaining before MVP closure:
-
-1. run the new CI workflow on GitHub and resolve any environment-specific failures,
-2. complete the final desktop/mobile visual review,
-3. add the minimum accepted product imagery,
-4. review `npm audit` findings without using forced upgrades,
-5. configure staging secrets and external integrations,
-6. perform staging smoke, form, email, backup and restore tests,
-7. deploy production and record the final release checkpoint.
+- aktywacja finalnego builda i linku Fito Gen,
+- media produktowe kolejnych SKU,
+- opcjonalny media manager,
+- dalszy hardening auth i obserwowalności,
+- decyzja dotycząca funkcji sprzedażowych.
