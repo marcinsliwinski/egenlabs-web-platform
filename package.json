@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
-    "next": "16.2.4",
+    "next": "16.2.9",
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "zod": "4.3.6"
@@ -39,7 +39,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.9",
     "prisma": "^6.19.3",
     "typescript": "6.0.3"
   }
