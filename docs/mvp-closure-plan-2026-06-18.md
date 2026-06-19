@@ -1,6 +1,6 @@
 # Plan zamknięcia eGen Labs Web MVP
 
-Utworzono: 2026-06-18  
+Utworzono: 2026-06-18
 Zaktualizowano: 2026-06-19 po DEC-026
 
 ## Stan baseline po DEC-026
