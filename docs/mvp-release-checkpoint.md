@@ -17,6 +17,19 @@ Baseline po DEC-026 obejmuje:
 - zamknięty przegląd bezpieczeństwa z udokumentowanym RISK-SEC-001,
 - lokalne ścieżki assetów ograniczone do `storage/`.
 
+
+## Zaakceptowany model wdrożenia
+
+- staging: osobny OVHcloud VPS-1, Ubuntu Server 24.04 LTS, Docker Compose,
+- production: drugi osobny OVHcloud VPS-1, kupowany dopiero po staging GO,
+- oba środowiska wyłącznie dla `egenlabs.eu`, z odrębnymi bazami, storage i sekretami,
+- PostgreSQL bez publicznej ekspozycji,
+- zaszyfrowane backupy aplikacyjne w prywatnym Cloudflare R2.
+
+Otwarte P1 przed akceptacją stagingu:
+
+- `STG-GAP-001` — brak implementacji Cloudflare Turnstile w formularzach i brak serwerowej walidacji Siteverify.
+
 ## Lokalny checkpoint
 
 Uruchom PostgreSQL, migracje i dane startowe:

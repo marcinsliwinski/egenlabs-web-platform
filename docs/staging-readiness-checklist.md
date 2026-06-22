@@ -14,13 +14,16 @@ Dokument operacyjny. Nie zastępuje `docs/living-specification.md`.
 
 ## 2. Infrastruktura
 
-- [ ] Utworzono odrębne środowisko staging.
+- [ ] Utworzono odrębny stagingowy OVHcloud VPS-1 z Ubuntu Server 24.04 LTS, przeznaczony wyłącznie dla `egenlabs.eu`.
+- [ ] Na stagingowym VPS nie działają workloady produkcyjne.
 - [ ] Skonfigurowano HTTPS i docelową subdomenę stagingową.
 - [ ] Cloudflare kieruje ruch wyłącznie do właściwego originu.
-- [ ] PostgreSQL nie jest publicznie dostępny z Internetu.
+- [ ] PostgreSQL działa wyłącznie w prywatnej sieci Docker i nie jest publicznie dostępny z Internetu.
 - [ ] Storage jest zamontowany poza repozytorium i ma katalogi `builds` oraz `media`.
 - [ ] Proces aplikacji ma minimalne wymagane uprawnienia do storage.
 - [ ] Skonfigurowano kontrolowany restart aplikacji.
+- [ ] Skonfigurowano limity i rotację logów kontenerów.
+- [ ] Produkcyjny VPS nie został zakupiony przed formalną decyzją staging GO.
 
 ## 3. Zmienne środowiskowe i sekrety
 
@@ -28,7 +31,7 @@ Dokument operacyjny. Nie zastępuje `docs/living-specification.md`.
 - [ ] `AUTH_SECRET` jest losowy, unikalny i nieużywany lokalnie ani produkcyjnie.
 - [ ] `APP_URL` i `BASE_URL` używają stagingowego HTTPS.
 - [ ] Dane Brevo są przechowywane poza repozytorium.
-- [ ] Dane Turnstile są przechowywane poza repozytorium.
+- [ ] Stagingowe dane Turnstile są przechowywane poza repozytorium i nie są współdzielone z produkcją.
 - [ ] Żaden sekret nie występuje w logach wdrożenia ani w plikach śledzonych przez Git.
 - [ ] `.env` ma restrykcyjne uprawnienia systemowe.
 
@@ -64,12 +67,17 @@ Dokument operacyjny. Nie zastępuje `docs/living-specification.md`.
 
 ## 7. Formularze i e-mail
 
+- [ ] `STG-GAP-001` został usunięty: Turnstile jest zaimplementowany w UI i walidowany przez Siteverify po stronie serwera.
 - [ ] Newsletter zapisuje dane i właściwą wersję zgody.
 - [ ] Kontakt zapisuje zgłoszenie.
 - [ ] Enterprise interest zapisuje zgłoszenie.
 - [ ] Rejestracja pobrania zapisuje lead i zgody.
 - [ ] Brevo wysyła wiadomości do kontrolowanych adresów testowych.
 - [ ] Tryb `LOG_ONLY` nie jest przypadkowo aktywny, jeśli staging ma testować rzeczywistą wysyłkę.
+- [ ] Widget Turnstile działa na wszystkich chronionych formularzach.
+- [ ] Backend weryfikuje token Turnstile przez Siteverify przed zapisem danych lub wysłaniem e-maila.
+- [ ] Brakujący, błędny, wygasły i ponownie użyty token jest bezpiecznie odrzucany.
+- [ ] Awaria lub timeout Siteverify nie powoduje obejścia ochrony formularza.
 - [ ] Logi nie ujawniają sekretów ani pełnych danych ponad niezbędny zakres.
 
 ## 8. Download i storage
@@ -101,7 +109,10 @@ Dokument operacyjny. Nie zastępuje `docs/living-specification.md`.
 
 - [ ] Wykonano backup bazy stagingowej.
 - [ ] Wykonano backup storage stagingowego.
-- [ ] Backup znajduje się poza repozytorium.
+- [ ] Backup znajduje się poza repozytorium i poza stagingowym VPS.
+- [ ] Backup jest zaszyfrowany przed wysłaniem do prywatnego Cloudflare R2.
+- [ ] Zweryfikowano sumy kontrolne backupu po wysłaniu.
+- [ ] Skonfigurowano retencję oraz kontrolę wykorzystania limitu R2.
 - [ ] Wykonano próbne odtworzenie bazy.
 - [ ] Wykonano próbne odtworzenie storage.
 - [ ] Po restore health i smoke testy są zielone.

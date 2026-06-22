@@ -360,7 +360,12 @@ Architektura wysokiego poziomu:
 - REST API wersjonowane od `/api/v1`.
 - Brevo do e-maili transakcyjnych i newslettera.
 - Cloudflare jako warstwa DNS/proxy/CDN.
-- VPS jako środowisko uruchomieniowe i storage dla plików.
+- Staging i produkcja działają na dwóch odrębnych VPS w OVHcloud, aby rozdzielić system operacyjny, Docker daemon, bazę, storage i sekrety.
+- Każde środowisko korzysta z OVHcloud VPS-1: 4 vCore, 8 GB RAM i 75 GB storage, z Ubuntu Server 24.04 LTS oraz Docker Compose.
+- Serwery są przeznaczone wyłącznie dla projektu `egenlabs.eu`; zasoby nie są rezerwowane dla innych projektów.
+- Produkcyjny VPS jest zamawiany dopiero po formalnej decyzji staging GO.
+- Trwały storage aplikacji znajduje się na właściwym VPS poza checkoutem repozytorium.
+- Zaszyfrowane backupy bazy i storage są kopiowane poza VPS do prywatnego Cloudflare R2; automatyczna kopia VPS dostawcy jest warstwą dodatkową, a nie zamiennikiem backupu aplikacyjnego.
 - Desktop klient jako zewnętrzny konsument API dla update, news, telemetry i feedback.
 - Panel administracyjny w MVP jest chroniony przez serwerowy model sesji oparty o logowanie e-mail i hasło.
 - Pierwszy inkrement auth obejmuje minimalny admin auth shell: logowanie, utrzymanie sesji, wygasanie sesji, ochronę tras `/admin` oraz kontrolę dostępu opartą o role Admin i Editor.
@@ -531,7 +536,8 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Walidacja wejścia i ochrona przed typowymi atakami webowymi, w tym XSS i CSRF, tam gdzie dotyczy.
 - Sesje mają posiadać timeout i kontrolę wygasania.
 - Log audytowy dla operacji krytycznych i zmian administracyjnych.
-- Ochrona formularzy publicznych przez Turnstile.
+- Ochrona formularzy publicznych przez Cloudflare Turnstile. Token jest obowiązkowo weryfikowany po stronie serwera przez Siteverify przed zapisem danych, utworzeniem leada lub wysłaniem e-maila.
+- Staging i produkcja używają odrębnych site key i secret key Turnstile; sekret nie może być dostępny po stronie klienta ani występować w logach.
 - Ograniczanie dostępu do prywatnych zasobów i prywatnych PDF-ów.
 - Kontrola uprawnień do treści, buildów i konfiguracji panelu.
 - Telemetria traktowana jako dane diagnostyczne, wymagające świadomego modelu dostępu i retencji.
@@ -548,10 +554,14 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 ## 22. Założenia infrastrukturalne i wdrożeniowe
 - Środowiska: dev, staging, prod.
 - Wdrożenie kontenerowe z użyciem Docker i Docker Compose.
-- Hosting na VPS.
-- Cloudflare przed warstwą aplikacyjną.
+- Hosting na dwóch odrębnych VPS w OVHcloud: osobnym dla stagingu i osobnym dla produkcji.
+- Docelowy sizing obu środowisk: OVHcloud VPS-1, 4 vCore, 8 GB RAM i 75 GB storage, Ubuntu Server 24.04 LTS.
+- Produkcyjny VPS jest kupowany i konfigurowany dopiero po zaakceptowaniu stagingu i decyzji GO.
+- Cloudflare Free przed warstwą aplikacyjną, z DNS proxy i TLS w trybie `Full (strict)`.
+- Reverse proxy jest jedyną usługą aplikacyjną wystawioną publicznie; PostgreSQL nie publikuje portu do Internetu.
 - PostgreSQL jako baza danych web platformy.
-- Storage plików na VPS na start.
+- Storage plików na właściwym VPS na start, montowany poza repozytorium i odseparowany pomiędzy stagingiem i produkcją.
+- Prywatny Cloudflare R2 jest zewnętrznym celem dla zaszyfrowanych backupów bazy i storage; przekroczenie darmowego limitu wymaga przeglądu kosztów i retencji.
 - Repozytorium kodu na GitHub.
 - Version control: Git.
 - CI/CD w wersji lekkiej, dostosowanej do pracy solo.
@@ -587,6 +597,10 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Retencja wymaga późniejszego potwierdzenia prawnego i operacyjnego.
 - Telemetria identyfikowalna powinna mieć krótszy cykl życia niż dane stricte biznesowe.
 - Backup snapshots powinny mieć kontrolowaną rotację.
+- Backup aplikacyjny obejmuje dump PostgreSQL, archiwum storage i sumy kontrolne, jest szyfrowany przed wysłaniem do prywatnego Cloudflare R2 i przechowywany oddzielnie dla stagingu oraz produkcji.
+- Automatyczna kopia całego VPS oferowana przez dostawcę jest dodatkową warstwą awaryjną i nie zastępuje testowalnego backupu aplikacyjnego.
+- Monitoring infrastruktury obejmuje co najmniej dostępność health endpointu, stan kontenerów, wykorzystanie dysku, RAM i CPU oraz wynik zadania backupowego.
+- Zwiększenie planu VPS następuje na podstawie pomiarów, w szczególności trwałego użycia RAM powyżej 70–75%, stałego swapu, dysku powyżej 70% albo pogorszenia czasu odpowiedzi pod rzeczywistym obciążeniem.
 - Universal Desktop Support API v1 wymaga smoke testów kontraktów, kontroli zgodności payloadów oraz procedur publikacji i aktualizacji manifestów i paczek.
 - Przed release wykonywane są: pełny Gitleaks historii, `npm audit`, kontrola czystości Git oraz weryfikacja, że raporty bezpieczeństwa robocze nie są commitowane.
 - Wynik kontroli bezpieczeństwa i zaakceptowane ryzyka zależności są zapisywane w dokumentacji release.
@@ -641,6 +655,13 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - ograniczenie ścieżek lokalnego storage,
   - checklista stagingowa, backup i restore drill,
   - przygotowanie formalnego release checkpoint.
+- Faza 4C: Staging, Production & Web MVP Closure
+  - wdrożenie stagingu na odrębnym OVHcloud VPS-1,
+  - usunięcie STG-GAP-001 przez pełną integrację Cloudflare Turnstile z walidacją Siteverify po stronie serwera,
+  - testy integracji, QA, backup i restore drill,
+  - formalna decyzja staging GO / NO-GO,
+  - zakup i wdrożenie odrębnego produkcyjnego OVHcloud VPS-1 dopiero po staging GO,
+  - produkcyjny smoke test, pierwszy backup i formalne zamknięcie Web MVP.
 - Faza 5: Universal Desktop Support API v1
   - capability map,
   - dokumentacja kontraktów,
@@ -711,7 +732,9 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Telemetry intake działa i zapisuje dane.
 - Feature request i software demand request działają.
 - Backup i restore są opisane i sprawdzone.
-- Środowiska staging i prod są uruchomione.
+- Środowiska staging i prod są uruchomione na odrębnych VPS, używają odrębnych baz, storage i sekretów, a PostgreSQL nie jest publicznie dostępny.
+- Wszystkie publiczne formularze wymagające ochrony Turnstile weryfikują token po stronie serwera przed zapisem danych i wysyłką e-maila.
+- Backup bazy i storage jest kopiowany w postaci zaszyfrowanej poza VPS, a restore drill kończy się zielonym health i smoke testem.
 
 ### Kryteria akceptacyjne fazy Universal Desktop Support API v1
 - Istnieje zatwierdzona capability map Universal Desktop Support API v1.
@@ -777,6 +800,10 @@ Feature jest ukończony, gdy:
 - Brak regularnego testu odtwarzania backupu.
 - Ryzyko wycieku prywatnych assetów lub linków pobrania przy złej konfiguracji.
 - Ryzyko scope creepu po stronie web platformy, jeśli Universal Desktop Support API v1 zacznie przejmować rolę backendu operacyjnego dla aplikacji desktopowych.
+- Ryzyko braku komercyjnego SLA w planie Cloudflare Free; dla obecnej skali zaakceptowane, monitorowane po uruchomieniu produkcji.
+- Ryzyko utraty dostępności pojedynczego środowiska przy awarii jego VPS; ograniczone przez rozdzielenie stagingu i produkcji, backup poza VPS i procedurę odtworzeniową.
+- Ryzyko przekroczenia darmowego limitu Cloudflare R2 lub błędnej retencji backupów; ograniczone przez monitoring rozmiaru, rotację i alert progowy.
+- Ryzyko obsługi dwóch hostów przy pracy solo; ograniczone przez identyczny stack Docker Compose, checklisty i automatyzację powtarzalnych czynności.
 
 ## 28. Dziennik zmian
 - 2026-04-10 – utworzono początkową wersję dokumentu po zakończeniu etapów inicjacji projektu.
@@ -797,6 +824,7 @@ Feature jest ukończony, gdy:
 - 2026-06-18 – zaakceptowano i wdrożono DEC-024: zmniejszono skalę publicznych nagłówków, skrócono główny komunikat do „Praktyczna inżynieria” oraz przebudowano Fito Gen Essentials jako docelowy moduł produktowy bez wewnętrznego języka o stanie prac.
 - 2026-06-18 – zaakceptowano i wdrożono DEC-025: dodano GitHub Actions quality gate dla instalacji, Prisma, migracji, bootstrapu, typecheck, lint, build i smoke testów oraz publiczną politykę SECURITY.md.
 - 2026-06-19 – zaakceptowano i wdrożono DEC-026: zamknięto kontrolę bezpieczeństwa, zapisano wynik Gitleaks i audytu zależności, zaakceptowano RISK-SEC-001, ograniczono ścieżki assetów do `storage/`, dodano test regresji storage oraz checklistę stagingową.
+- 2026-06-19 – zaakceptowano DEC-027 i ADR-011: staging i produkcja zostaną wdrożone na odrębnych OVHcloud VPS-1 z Ubuntu Server 24.04 LTS i Docker Compose, wyłącznie dla `egenlabs.eu`; produkcyjny VPS zostanie zakupiony dopiero po staging GO, a zaszyfrowane backupy aplikacyjne będą kopiowane do prywatnego Cloudflare R2.
 
 ## 29. Decision Log
 
@@ -1035,6 +1063,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Security / Infrastructure / Operations / Quality
 - Podsumowanie: Zamknięto kontrolę bezpieczeństwa Web MVP na podstawie pełnego skanu historii Git, audytu zależności i zielonego quality gate. Udokumentowano tymczasowo zaakceptowane ryzyko PostCSS, ograniczono lokalne ścieżki buildów i PDF do katalogu `storage/`, dodano kontrolę realpath i smoke test ścieżek oraz przygotowano checklistę stagingową i zaktualizowany release checkpoint.
 - Sekcje, których dotyczy: 13, 14, 17, 21, 22, 23, 24, 25, 26, 27, 28, 39
+
+### DEC-027
+- ADR ID: ADR-011
+- Tytuł: Odrębne VPS dla stagingu i produkcji Web MVP
+- Status: Accepted
+- Data: 2026-06-19
+- Kategoria: Infrastructure / Security / Operations / Deployment
+- Podsumowanie: Staging i produkcja `egenlabs.eu` działają na odrębnych OVHcloud VPS-1 z Ubuntu Server 24.04 LTS i Docker Compose. Oba serwery są przeznaczone wyłącznie dla tego projektu. Produkcyjny VPS jest kupowany dopiero po formalnej decyzji staging GO. Bazy, storage, sieci i sekrety są rozdzielone, PostgreSQL nie jest wystawiony publicznie, a zaszyfrowane backupy aplikacyjne są kopiowane do prywatnego Cloudflare R2.
+- Sekcje, których dotyczy: 16, 21, 22, 23, 24, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1491,3 +1528,62 @@ Wybrano opcję B, ponieważ umożliwia szybki start wizerunkowy, budowanie zaufa
 ### Zastępuje / Zastąpiony przez
 - DEC-024 zastępuje część dotyczącą komunikowania Fito Gen jako produktu w przygotowaniu.
 - Pozostaje obowiązująca decyzja o nieeksponowaniu finalnego linku pobrania do czasu zatwierdzenia buildu desktopowego.
+
+## 40. ADR-011: Odrębne środowiska staging i produkcyjne na VPS
+Status: Accepted
+Data: 2026-06-19
+
+### Kontekst
+Web MVP wymaga kontrolowanego przejścia przez staging, restore drill i produkcję. Projekt jest utrzymywany solo, ma niewielką początkową skalę i nie uzasadnia Kubernetes, zarządzanej orkiestracji ani rezerwowania zasobów dla innych projektów. Współdzielenie jednego hosta przez staging i produkcję zwiększałoby blast radius, ryzyko błędu restore oraz konkurencję o zasoby.
+
+### Decyzja
+- Staging działa na osobnym OVHcloud VPS-1: 4 vCore, 8 GB RAM, 75 GB storage, Ubuntu Server 24.04 LTS.
+- Produkcja działa na drugim, odrębnym OVHcloud VPS-1 o tej samej konfiguracji.
+- Oba hosty są przeznaczone wyłącznie dla `egenlabs.eu`.
+- Produkcyjny VPS jest kupowany dopiero po formalnym zaakceptowaniu stagingu i decyzji GO.
+- Oba środowiska korzystają z tego samego utrzymywalnego wzorca Docker Compose, ale mają odrębne bazy, sieci, storage i sekrety.
+- PostgreSQL nie publikuje portu do Internetu. Publicznie dostępny jest wyłącznie reverse proxy.
+- Cloudflare obsługuje DNS/proxy/TLS, a Turnstile używa osobnych kluczy stagingowych i produkcyjnych.
+- Backup aplikacyjny jest szyfrowany i kopiowany do prywatnego Cloudflare R2. Automatyczna kopia VPS pozostaje wyłącznie dodatkową warstwą ochronną.
+- Skalowanie VPS następuje po pomiarach, bez zakupu zapasu dla hipotetycznych przyszłych projektów.
+
+### Rozważane opcje
+- Dwa odrębne VPS dla stagingu i produkcji.
+- Jeden większy VPS z dwoma projektami Docker Compose.
+- Platforma zarządzana lub Kubernetes.
+
+### Uzasadnienie
+Wybrana opcja zapewnia pełniejszą separację środowisk, bezpieczniejszy restore drill i mniejszy blast radius, a przy sizingu ograniczonym do jednego projektu utrzymuje niski koszt. Identyczne konfiguracje serwerów upraszczają promocję commita ze stagingu na produkcję. Zakup produkcji dopiero po staging GO zapobiega ponoszeniu kosztu przed osiągnięciem gotowości release.
+
+### Konsekwencje
+- Pozytywne: separacja hostów, baz i sekretów; bezpieczniejsze testy; prostszy rollback; brak kosztu niewykorzystanego zapasu.
+- Pozytywne: możliwość niezależnego zatrzymania, przebudowy i odtworzenia stagingu.
+- Negatywne: dwa systemy operacyjne, firewalle i zestawy aktualizacji do utrzymania.
+- Negatywne: każdy VPS pozostaje pojedynczym punktem awarii dla swojego środowiska.
+
+### Ryzyka
+- Niewystarczający sizing po wzroście ruchu lub storage.
+- Błąd konfiguracji powodujący różnicę między stagingiem i produkcją.
+- Brak komercyjnego SLA dla bezpłatnych usług Cloudflare.
+- Błędna retencja lub przekroczenie limitu R2.
+
+### Dalsze działania
+- Kupić wyłącznie stagingowy OVHcloud VPS-1.
+- Wykonać read-only inspection i hardening Ubuntu Server 24.04 LTS.
+- Przygotować kontrolowany stack Docker Compose, reverse proxy, trwały storage i prywatną sieć PostgreSQL.
+- Usunąć STG-GAP-001 przez implementację Turnstile z serwerową walidacją Siteverify.
+- Przeprowadzić pełną checklistę stagingową i restore drill.
+- Kupić produkcyjny VPS dopiero po jawnej decyzji staging GO.
+
+### Powiązane sekcje
+- 16. Przegląd architektury
+- 21. Bezpieczeństwo i kontrola dostępu
+- 22. Założenia infrastrukturalne i wdrożeniowe
+- 23. Aspekty operacyjne
+- 24. Fazy dostarczenia
+- 26. Kryteria akceptacyjne
+- 27. Ryzyka
+
+### Zastępuje / Zastąpiony przez
+- Brak
+
