@@ -1,15 +1,15 @@
 # Plan zamknięcia eGen Labs Web MVP
 
 Utworzono: 2026-06-18
-Zaktualizowano: 2026-06-19 po DEC-027
+Zaktualizowano: 2026-06-23 po doprecyzowaniu DEC-027
 
 
 ## Zaakceptowany baseline wdrożeniowy po DEC-027
 
-- staging: odrębny OVHcloud VPS-1, 4 vCore, 8 GB RAM, 75 GB storage, Ubuntu Server 24.04 LTS,
-- produkcja: drugi odrębny OVHcloud VPS-1 o tej samej konfiguracji, kupowany dopiero po staging GO,
+- staging: odrębny OVHcloud VPS-2, 4 vCore, 8 GB RAM, 75 GB storage, Ubuntu Server 24.04 LTS,
+- produkcja: drugi odrębny OVHcloud VPS-2 o tej samej konfiguracji, kupowany dopiero po staging GO,
 - oba serwery przeznaczone wyłącznie dla `egenlabs.eu`,
-- Docker Compose, reverse proxy i PostgreSQL bez publicznego portu,
+- Docker Compose, Caddy jako jedyny publiczny reverse proxy na portach 80/443 i PostgreSQL bez publicznego portu,
 - odrębne bazy, storage, sieci i sekrety,
 - Cloudflare Free z TLS `Full (strict)`, osobnymi widgetami Turnstile oraz prywatnym R2 dla zaszyfrowanych backupów,
 - STG-GAP-001, czyli brak rzeczywistej implementacji Turnstile w kodzie, pozostaje P1 blokującym formalną akceptację stagingu.
@@ -69,8 +69,8 @@ npm run checkpoint:mvp
 
 ## Etap 2 — konfiguracja stagingu
 
-1. Kupić wyłącznie stagingowy OVHcloud VPS-1 i zainstalować Ubuntu Server 24.04 LTS bez panelu hostingowego.
-2. Skonfigurować domenę stagingową i HTTPS.
+1. Kupić wyłącznie stagingowy OVHcloud VPS-2 i zainstalować Ubuntu Server 24.04 LTS bez panelu hostingowego.
+2. Skonfigurować domenę stagingową, Caddy i HTTPS.
 3. Utworzyć PostgreSQL staging bez publicznego portu.
 4. Zamontować trwały storage poza repozytorium i przygotować prywatny Cloudflare R2 jako zewnętrzny cel zaszyfrowanych backupów.
 5. Skonfigurować sekrety i zmienne środowiskowe poza Git.
@@ -100,7 +100,7 @@ Staging jest zaakceptowany, gdy nie ma otwartych P0/P1, a wszystkie kryteria che
 Warunki wejścia:
 
 - zielony CI dla commita release,
-- zaakceptowany staging oraz osobno zaakceptowany zakup produkcyjnego OVHcloud VPS-1,
+- zaakceptowany staging oraz osobno zaakceptowany zakup produkcyjnego OVHcloud VPS-2,
 - 0 podatności critical/high,
 - Gitleaks bez znalezisk,
 - działające formularze i e-maile,

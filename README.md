@@ -132,6 +132,7 @@ Relevant documents:
 - `docs/mvp-closure-plan-2026-06-18.md`
 - `docs/staging-readiness-checklist.md`
 - `docs/operations-backup-restore.md`
+- `docs/staging-deployment-runbook.md`
 - `docs/product-image-guidelines.md`
 
 ## Repository policy

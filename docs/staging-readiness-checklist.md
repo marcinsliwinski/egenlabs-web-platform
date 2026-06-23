@@ -14,7 +14,9 @@ Dokument operacyjny. Nie zastępuje `docs/living-specification.md`.
 
 ## 2. Infrastruktura
 
-- [ ] Utworzono odrębny stagingowy OVHcloud VPS-1 z Ubuntu Server 24.04 LTS, przeznaczony wyłącznie dla `egenlabs.eu`.
+- [ ] Utworzono odrębny stagingowy OVHcloud VPS-2 z Ubuntu Server 24.04 LTS, przeznaczony wyłącznie dla `egenlabs.eu`.
+- [ ] Caddy działa jako jedyny publiczny reverse proxy na portach 80/443.
+- [ ] Next.js i PostgreSQL nie publikują portów do Internetu.
 - [ ] Na stagingowym VPS nie działają workloady produkcyjne.
 - [ ] Skonfigurowano HTTPS i docelową subdomenę stagingową.
 - [ ] Cloudflare kieruje ruch wyłącznie do właściwego originu.

@@ -1,4 +1,5 @@
-const response = await fetch('http://localhost:3000/api/v1/health');
+const baseUrl = (process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+const response = await fetch(`${baseUrl}/api/v1/health`);
 const data = await response.json();
 
 if (!response.ok) {
@@ -12,4 +13,3 @@ if (data.status !== 'ok' || data.database !== 'up') {
 }
 
 console.log('Health smoke test passed:', data);
-

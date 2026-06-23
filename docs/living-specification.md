@@ -360,8 +360,9 @@ Architektura wysokiego poziomu:
 - REST API wersjonowane od `/api/v1`.
 - Brevo do e-maili transakcyjnych i newslettera.
 - Cloudflare jako warstwa DNS/proxy/CDN.
+- Caddy jako kontener reverse proxy na każdym VPS, obsługujący publiczne porty 80/443 i przekazujący ruch do Next.js w prywatnej sieci Docker Compose.
 - Staging i produkcja działają na dwóch odrębnych VPS w OVHcloud, aby rozdzielić system operacyjny, Docker daemon, bazę, storage i sekrety.
-- Każde środowisko korzysta z OVHcloud VPS-1: 4 vCore, 8 GB RAM i 75 GB storage, z Ubuntu Server 24.04 LTS oraz Docker Compose.
+- Każde środowisko korzysta z OVHcloud VPS-2: 4 vCore, 8 GB RAM i 75 GB storage, z Ubuntu Server 24.04 LTS oraz Docker Compose.
 - Serwery są przeznaczone wyłącznie dla projektu `egenlabs.eu`; zasoby nie są rezerwowane dla innych projektów.
 - Produkcyjny VPS jest zamawiany dopiero po formalnej decyzji staging GO.
 - Trwały storage aplikacji znajduje się na właściwym VPS poza checkoutem repozytorium.
@@ -555,10 +556,10 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Środowiska: dev, staging, prod.
 - Wdrożenie kontenerowe z użyciem Docker i Docker Compose.
 - Hosting na dwóch odrębnych VPS w OVHcloud: osobnym dla stagingu i osobnym dla produkcji.
-- Docelowy sizing obu środowisk: OVHcloud VPS-1, 4 vCore, 8 GB RAM i 75 GB storage, Ubuntu Server 24.04 LTS.
+- Docelowy sizing obu środowisk: OVHcloud VPS-2, 4 vCore, 8 GB RAM i 75 GB storage, Ubuntu Server 24.04 LTS.
 - Produkcyjny VPS jest kupowany i konfigurowany dopiero po zaakceptowaniu stagingu i decyzji GO.
 - Cloudflare Free przed warstwą aplikacyjną, z DNS proxy i TLS w trybie `Full (strict)`.
-- Reverse proxy jest jedyną usługą aplikacyjną wystawioną publicznie; PostgreSQL nie publikuje portu do Internetu.
+- Caddy jest jedyną usługą aplikacyjną wystawioną publicznie na portach 80/443; Next.js działa wyłącznie w sieci Compose, a PostgreSQL nie publikuje portu do Internetu.
 - PostgreSQL jako baza danych web platformy.
 - Storage plików na właściwym VPS na start, montowany poza repozytorium i odseparowany pomiędzy stagingiem i produkcją.
 - Prywatny Cloudflare R2 jest zewnętrznym celem dla zaszyfrowanych backupów bazy i storage; przekroczenie darmowego limitu wymaga przeglądu kosztów i retencji.
@@ -656,11 +657,11 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - checklista stagingowa, backup i restore drill,
   - przygotowanie formalnego release checkpoint.
 - Faza 4C: Staging, Production & Web MVP Closure
-  - wdrożenie stagingu na odrębnym OVHcloud VPS-1,
+  - wdrożenie stagingu na odrębnym OVHcloud VPS-2,
   - usunięcie STG-GAP-001 przez pełną integrację Cloudflare Turnstile z walidacją Siteverify po stronie serwera,
   - testy integracji, QA, backup i restore drill,
   - formalna decyzja staging GO / NO-GO,
-  - zakup i wdrożenie odrębnego produkcyjnego OVHcloud VPS-1 dopiero po staging GO,
+  - zakup i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 dopiero po staging GO,
   - produkcyjny smoke test, pierwszy backup i formalne zamknięcie Web MVP.
 - Faza 5: Universal Desktop Support API v1
   - capability map,
@@ -824,7 +825,8 @@ Feature jest ukończony, gdy:
 - 2026-06-18 – zaakceptowano i wdrożono DEC-024: zmniejszono skalę publicznych nagłówków, skrócono główny komunikat do „Praktyczna inżynieria” oraz przebudowano Fito Gen Essentials jako docelowy moduł produktowy bez wewnętrznego języka o stanie prac.
 - 2026-06-18 – zaakceptowano i wdrożono DEC-025: dodano GitHub Actions quality gate dla instalacji, Prisma, migracji, bootstrapu, typecheck, lint, build i smoke testów oraz publiczną politykę SECURITY.md.
 - 2026-06-19 – zaakceptowano i wdrożono DEC-026: zamknięto kontrolę bezpieczeństwa, zapisano wynik Gitleaks i audytu zależności, zaakceptowano RISK-SEC-001, ograniczono ścieżki assetów do `storage/`, dodano test regresji storage oraz checklistę stagingową.
-- 2026-06-19 – zaakceptowano DEC-027 i ADR-011: staging i produkcja zostaną wdrożone na odrębnych OVHcloud VPS-1 z Ubuntu Server 24.04 LTS i Docker Compose, wyłącznie dla `egenlabs.eu`; produkcyjny VPS zostanie zakupiony dopiero po staging GO, a zaszyfrowane backupy aplikacyjne będą kopiowane do prywatnego Cloudflare R2.
+- 2026-06-19 – zaakceptowano DEC-027 i ADR-011: staging i produkcja zostaną wdrożone na odrębnych OVHcloud VPS-2 z Ubuntu Server 24.04 LTS i Docker Compose, wyłącznie dla `egenlabs.eu`; produkcyjny VPS zostanie zakupiony dopiero po staging GO, a zaszyfrowane backupy aplikacyjne będą kopiowane do prywatnego Cloudflare R2.
+- 2026-06-23 – sprostowano nazwę handlową planu OVHcloud na VPS-2 dla parametrów 4 vCore, 8 GB RAM i 75 GB NVMe oraz zaakceptowano Caddy jako kontener reverse proxy w stacku staging/production.
 
 ## 29. Decision Log
 
@@ -1070,7 +1072,7 @@ Feature jest ukończony, gdy:
 - Status: Accepted
 - Data: 2026-06-19
 - Kategoria: Infrastructure / Security / Operations / Deployment
-- Podsumowanie: Staging i produkcja `egenlabs.eu` działają na odrębnych OVHcloud VPS-1 z Ubuntu Server 24.04 LTS i Docker Compose. Oba serwery są przeznaczone wyłącznie dla tego projektu. Produkcyjny VPS jest kupowany dopiero po formalnej decyzji staging GO. Bazy, storage, sieci i sekrety są rozdzielone, PostgreSQL nie jest wystawiony publicznie, a zaszyfrowane backupy aplikacyjne są kopiowane do prywatnego Cloudflare R2.
+- Podsumowanie: Staging i produkcja `egenlabs.eu` działają na odrębnych OVHcloud VPS-2 z Ubuntu Server 24.04 LTS i Docker Compose. Caddy jest kontenerem reverse proxy i jedyną usługą wystawioną publicznie na portach 80/443. Oba serwery są przeznaczone wyłącznie dla tego projektu. Produkcyjny VPS jest kupowany dopiero po formalnej decyzji staging GO. Bazy, storage, sieci i sekrety są rozdzielone, PostgreSQL nie jest wystawiony publicznie, a zaszyfrowane backupy aplikacyjne są kopiowane do prywatnego Cloudflare R2.
 - Sekcje, których dotyczy: 16, 21, 22, 23, 24, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
@@ -1537,12 +1539,12 @@ Data: 2026-06-19
 Web MVP wymaga kontrolowanego przejścia przez staging, restore drill i produkcję. Projekt jest utrzymywany solo, ma niewielką początkową skalę i nie uzasadnia Kubernetes, zarządzanej orkiestracji ani rezerwowania zasobów dla innych projektów. Współdzielenie jednego hosta przez staging i produkcję zwiększałoby blast radius, ryzyko błędu restore oraz konkurencję o zasoby.
 
 ### Decyzja
-- Staging działa na osobnym OVHcloud VPS-1: 4 vCore, 8 GB RAM, 75 GB storage, Ubuntu Server 24.04 LTS.
-- Produkcja działa na drugim, odrębnym OVHcloud VPS-1 o tej samej konfiguracji.
+- Staging działa na osobnym OVHcloud VPS-2: 4 vCore, 8 GB RAM, 75 GB storage, Ubuntu Server 24.04 LTS.
+- Produkcja działa na drugim, odrębnym OVHcloud VPS-2 o tej samej konfiguracji.
 - Oba hosty są przeznaczone wyłącznie dla `egenlabs.eu`.
 - Produkcyjny VPS jest kupowany dopiero po formalnym zaakceptowaniu stagingu i decyzji GO.
 - Oba środowiska korzystają z tego samego utrzymywalnego wzorca Docker Compose, ale mają odrębne bazy, sieci, storage i sekrety.
-- PostgreSQL nie publikuje portu do Internetu. Publicznie dostępny jest wyłącznie reverse proxy.
+- PostgreSQL nie publikuje portu do Internetu. Publicznie dostępny jest wyłącznie kontener Caddy na portach 80/443, a Next.js działa w prywatnej sieci Compose.
 - Cloudflare obsługuje DNS/proxy/TLS, a Turnstile używa osobnych kluczy stagingowych i produkcyjnych.
 - Backup aplikacyjny jest szyfrowany i kopiowany do prywatnego Cloudflare R2. Automatyczna kopia VPS pozostaje wyłącznie dodatkową warstwą ochronną.
 - Skalowanie VPS następuje po pomiarach, bez zakupu zapasu dla hipotetycznych przyszłych projektów.
@@ -1568,9 +1570,9 @@ Wybrana opcja zapewnia pełniejszą separację środowisk, bezpieczniejszy resto
 - Błędna retencja lub przekroczenie limitu R2.
 
 ### Dalsze działania
-- Kupić wyłącznie stagingowy OVHcloud VPS-1.
+- Kupić wyłącznie stagingowy OVHcloud VPS-2.
 - Wykonać read-only inspection i hardening Ubuntu Server 24.04 LTS.
-- Przygotować kontrolowany stack Docker Compose, reverse proxy, trwały storage i prywatną sieć PostgreSQL.
+- Przygotować kontrolowany stack Docker Compose z Caddy jako reverse proxy, trwałym storage i prywatną siecią PostgreSQL.
 - Usunąć STG-GAP-001 przez implementację Turnstile z serwerową walidacją Siteverify.
 - Przeprowadzić pełną checklistę stagingową i restore drill.
 - Kupić produkcyjny VPS dopiero po jawnej decyzji staging GO.

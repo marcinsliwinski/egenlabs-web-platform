@@ -6,9 +6,9 @@ Status: Accepted
 ## Zaakceptowana decyzja
 
 - Staging i produkcja `egenlabs.eu` działają na dwóch odrębnych VPS w OVHcloud.
-- Każde środowisko korzysta z planu VPS-1: 4 vCore, 8 GB RAM i 75 GB storage.
+- Każde środowisko korzysta z planu VPS-2: 4 vCore, 8 GB RAM i 75 GB storage.
 - System operacyjny: Ubuntu Server 24.04 LTS.
-- Model uruchomieniowy: Docker Compose z reverse proxy, aplikacją Next.js i PostgreSQL w prywatnej sieci.
+- Model uruchomieniowy: Docker Compose z Caddy jako reverse proxy, aplikacją Next.js i PostgreSQL w prywatnej sieci.
 - Serwery są przeznaczone wyłącznie dla projektu `egenlabs.eu`; nie rezerwuje się zasobów dla innych projektów.
 - Obecnie kupowany jest wyłącznie stagingowy VPS. Produkcyjny VPS zostanie kupiony dopiero po formalnej decyzji staging GO.
 - Cloudflare Free obsługuje DNS, proxy i TLS `Full (strict)`.
@@ -24,7 +24,7 @@ Dwa małe, odrębne VPS zapewniają lepszą separację i bezpieczniejszy restore
 - PostgreSQL nie publikuje portu do Internetu.
 - Storage jest montowany poza repozytorium.
 - Sekrety stagingu i produkcji są całkowicie odrębne.
-- Publicznie wystawiony jest wyłącznie reverse proxy.
+- Publicznie wystawiony jest wyłącznie Caddy na portach 80/443; aplikacja Next.js i PostgreSQL nie publikują portów do Internetu.
 - Backup aplikacyjny jest testowany przez restore drill; snapshot VPS nie zastępuje dumpu bazy i archiwum storage.
 - STG-GAP-001 musi zostać usunięty przed formalną akceptacją stagingu.
 
@@ -34,3 +34,10 @@ Dwa małe, odrębne VPS zapewniają lepszą separację i bezpieczniejszy restore
 - `docs/staging-readiness-checklist.md`
 - `docs/mvp-closure-plan-2026-06-18.md`
 - `docs/mvp-release-checkpoint.md`
+
+## Doprecyzowanie operacyjne 2026-06-23
+
+- Nazwa handlowa aktualnie zakupionego planu o parametrach 4 vCore, 8 GB RAM i 75 GB NVMe to OVHcloud VPS-2.
+- Zaakceptowano Caddy jako kontener reverse proxy w stacku Docker Compose.
+- Caddy obsługuje wejście HTTP/HTTPS i przekazuje ruch wyłącznie do usługi Next.js w prywatnej sieci Compose.
+- Wybór Caddy doprecyzowuje ADR-011 i nie zmienia modułów aplikacji, modelu danych ani kontraktów API.

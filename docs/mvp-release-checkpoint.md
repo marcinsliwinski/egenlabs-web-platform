@@ -20,10 +20,10 @@ Baseline po DEC-026 obejmuje:
 
 ## Zaakceptowany model wdrożenia
 
-- staging: osobny OVHcloud VPS-1, Ubuntu Server 24.04 LTS, Docker Compose,
-- production: drugi osobny OVHcloud VPS-1, kupowany dopiero po staging GO,
+- staging: osobny OVHcloud VPS-2, Ubuntu Server 24.04 LTS, Docker Compose i Caddy jako reverse proxy,
+- production: drugi osobny OVHcloud VPS-2, kupowany dopiero po staging GO,
 - oba środowiska wyłącznie dla `egenlabs.eu`, z odrębnymi bazami, storage i sekretami,
-- PostgreSQL bez publicznej ekspozycji,
+- Caddy jako jedyna usługa publiczna na portach 80/443; Next.js i PostgreSQL bez publicznej ekspozycji portów,
 - zaszyfrowane backupy aplikacyjne w prywatnym Cloudflare R2.
 
 Otwarte P1 przed akceptacją stagingu:
