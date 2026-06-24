@@ -16,7 +16,7 @@ compose() {
 }
 
 for required_file in "${COMPOSE_ENV_FILE}" "${APP_ENV_FILE}"; do
-  if [[ ! -f "${required_file}" ]]; then
+  if ! sudo test -f "${required_file}"; then
     echo "ERROR: Environment file not found: ${required_file}" >&2
     exit 1
   fi
