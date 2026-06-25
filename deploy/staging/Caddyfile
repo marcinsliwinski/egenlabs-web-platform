@@ -3,6 +3,12 @@
 }
 
 {$APP_DOMAIN} {
+	tls {
+		issuer acme {
+			disable_tlsalpn_challenge
+		}
+	}
+
 	encode zstd gzip
 
 	header {
