@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
   await revokeAdminSessionByToken(sessionToken);
 
-  const response = NextResponse.redirect(new URL('/admin/login?logged_out=1', request.url), {
+  const response = NextResponse.redirect(new URL('/admin/login?logged_out=1', authEnv.AUTH_URL), {
     status: 303
   });
 
