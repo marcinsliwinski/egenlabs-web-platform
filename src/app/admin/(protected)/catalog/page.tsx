@@ -1,7 +1,11 @@
 import Link from 'next/link';
 
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
-import { activateBuildAction, createBuildAction } from '@/features/catalog/catalog-actions';
+import {
+  activateBuildAction,
+  createBuildAction,
+  deactivateBuildAction
+} from '@/features/catalog/catalog-actions';
 import { getCatalogOverview } from '@/features/catalog/catalog-service';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -14,13 +18,16 @@ const successMessages: Record<string, string> = {
   build_created: 'Build created successfully.',
   build_created_and_activated: 'Build created and activated successfully.',
   build_activated: 'Build activated successfully.',
-  build_already_active: 'Selected build is already active.'
+  build_deactivated: 'Build deactivated successfully.',
+  build_already_active: 'Selected build is already active.',
+  build_already_inactive: 'Selected build is already inactive.'
 };
 
 const errorMessages: Record<string, string> = {
   forbidden: 'Only admins can modify catalog data.',
   invalid_build_input: 'Build form data is invalid. Review the required fields and try again.',
   invalid_build_activation: 'Unable to activate the selected build.',
+  invalid_build_deactivation: 'Unable to deactivate the selected build.',
   product_not_found: 'Selected product does not exist or is inactive.',
   edition_not_found: 'Selected edition does not exist, is inactive, or does not belong to the selected product.',
   channel_not_found: 'Selected release channel does not exist or is inactive.',
@@ -70,7 +77,7 @@ export default async function AdminCatalogPage({ searchParams }: AdminCatalogPag
         </p>
         {!isAdmin ? (
           <p role="status" style={{ color: '#5f4b00' }}>
-            Read-only mode: Editors can review catalog data but cannot create or activate builds.
+            Read-only mode: Editors can review catalog data but cannot create, activate, or deactivate builds.
           </p>
         ) : null}
         {successKey ? (
@@ -284,7 +291,13 @@ export default async function AdminCatalogPage({ searchParams }: AdminCatalogPag
                               <td style={{ padding: '0.5rem', borderBottom: '1px solid #f0f0f0' }}>
                                 {isAdmin ? (
                                   build.isActive ? (
-                                    'Current active build'
+                                    <div style={{ display: 'grid', gap: '0.5rem' }}>
+                                      <span>Current active build</span>
+                                      <form action={deactivateBuildAction}>
+                                        <input type="hidden" name="buildId" value={build.id} />
+                                        <button type="submit">Deactivate</button>
+                                      </form>
+                                    </div>
                                   ) : (
                                     <form action={activateBuildAction}>
                                       <input type="hidden" name="buildId" value={build.id} />

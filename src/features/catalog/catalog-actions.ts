@@ -47,7 +47,7 @@ const createBuildSchema = z
     }
   });
 
-const activateBuildSchema = z.object({
+const buildIdSchema = z.object({
   buildId: z.string().min(1, 'buildId is required')
 });
 
@@ -201,7 +201,7 @@ export async function createBuildAction(formData: FormData) {
 export async function activateBuildAction(formData: FormData) {
   const admin = await requireAdminWriteAccess();
 
-  const parsedInput = activateBuildSchema.safeParse({
+  const parsedInput = buildIdSchema.safeParse({
     buildId: formData.get('buildId')
   });
 
@@ -267,4 +267,57 @@ export async function activateBuildAction(formData: FormData) {
   revalidatePath(CATALOG_PATH);
   revalidatePath('/admin');
   getRedirectWithStatus('build_activated', 'success');
+}
+
+export async function deactivateBuildAction(formData: FormData) {
+  const admin = await requireAdminWriteAccess();
+
+  const parsedInput = buildIdSchema.safeParse({
+    buildId: formData.get('buildId')
+  });
+
+  if (!parsedInput.success) {
+    getRedirectWithStatus('invalid_build_deactivation', 'error');
+  }
+
+  const build = await db.build.findUnique({
+    where: { id: parsedInput.data.buildId },
+    select: {
+      id: true,
+      productId: true,
+      editionId: true,
+      channelId: true,
+      isActive: true
+    }
+  });
+
+  if (!build) {
+    getRedirectWithStatus('build_not_found', 'error');
+  }
+
+  if (!build.isActive) {
+    getRedirectWithStatus('build_already_inactive', 'success');
+  }
+
+  await db.build.update({
+    where: { id: build.id },
+    data: { isActive: false }
+  });
+
+  await logAdminAuditEvent({
+    admin,
+    actionType: 'BUILD_DEACTIVATED',
+    entityType: 'Build',
+    entityId: build.id,
+    summary: 'Deactivated build for release channel.',
+    metadata: {
+      productId: build.productId,
+      editionId: build.editionId,
+      channelId: build.channelId
+    }
+  });
+
+  revalidatePath(CATALOG_PATH);
+  revalidatePath('/admin');
+  getRedirectWithStatus('build_deactivated', 'success');
 }
