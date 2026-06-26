@@ -29,6 +29,7 @@ const errorMessages: Record<string, string> = {
   forbidden: 'Only ADMIN can resend transactional emails.',
   invalid_resend_request: 'The resend request payload is invalid.',
   email_log_not_found: 'The selected transactional email log was not found.',
+  email_log_not_resendable: 'Newsletter confirmation logs cannot be resent because confirmation links are redacted.',
   email_resend_failed: 'The resend attempt failed. Review the latest log entry for details.'
 };
 
@@ -138,13 +139,13 @@ export default async function AdminEmailsPage({ searchParams }: { searchParams?:
                   </ul>
                 </section>
 
-                {canResend ? (
+                {canResend && log.templateKey !== 'NEWSLETTER_CONFIRMATION' ? (
                   <form action={resendEmailLogAction} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <input type="hidden" name="emailLogId" value={log.id} />
                     <button type="submit">Resend this email</button>
                   </form>
                 ) : (
-                  <p>Only ADMIN can resend transactional emails.</p>
+                  <p>{log.templateKey === 'NEWSLETTER_CONFIRMATION' ? 'Generate a new confirmation email from the newsletter form; stored confirmation links are redacted.' : 'Only ADMIN can resend transactional emails.'}</p>
                 )}
 
                 <details>

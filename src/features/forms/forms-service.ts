@@ -1,3 +1,5 @@
+import { NewsletterSubscriptionStatus } from '@prisma/client';
+
 import { db } from '@/lib/db';
 import { requireAuthenticatedAdmin } from '@/features/auth/auth-service';
 import { getActiveConsentDefinitions } from '@/features/leads/lead-service';
@@ -5,9 +7,11 @@ import { getActiveConsentDefinitions } from '@/features/leads/lead-service';
 export async function getFormsAdminOverview() {
   const admin = await requireAuthenticatedAdmin();
 
-  const [newsletterCount, activeNewsletterCount, contactInquiryCount, enterpriseInterestCount, consentDefinitions, newsletterSubscriptions, contactInquiries, enterpriseInterests] = await Promise.all([
+  const [newsletterCount, pendingNewsletterCount, activeNewsletterCount, unsubscribedNewsletterCount, contactInquiryCount, enterpriseInterestCount, consentDefinitions, newsletterSubscriptions, contactInquiries, enterpriseInterests] = await Promise.all([
     db.newsletterSubscription.count(),
-    db.newsletterSubscription.count({ where: { isActive: true } }),
+    db.newsletterSubscription.count({ where: { status: NewsletterSubscriptionStatus.PENDING } }),
+    db.newsletterSubscription.count({ where: { status: NewsletterSubscriptionStatus.ACTIVE } }),
+    db.newsletterSubscription.count({ where: { status: NewsletterSubscriptionStatus.UNSUBSCRIBED } }),
     db.contactInquiry.count(),
     db.enterpriseInterest.count(),
     getActiveConsentDefinitions(),
@@ -33,7 +37,9 @@ export async function getFormsAdminOverview() {
     consentDefinitions,
     stats: {
       newsletterCount,
+      pendingNewsletterCount,
       activeNewsletterCount,
+      unsubscribedNewsletterCount,
       contactInquiryCount,
       enterpriseInterestCount
     },

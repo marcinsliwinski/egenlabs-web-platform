@@ -4,12 +4,15 @@ import { NewsletterSignupForm } from '@/components/newsletter-signup-form';
 import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 
 const successMessages: Record<string, string> = {
-  newsletter_saved: 'Dziękujemy. Zapis do newslettera został przyjęty.'
+  newsletter_saved: 'Dziękujemy. Zapis do newslettera został przyjęty.',
+  newsletter_confirmation_sent: 'Sprawdź skrzynkę email i potwierdź zapis do newslettera.',
+  newsletter_already_active: 'Ten adres jest już aktywny w newsletterze.'
 };
 
 const errorMessages: Record<string, string> = {
   invalid_newsletter_input: 'Podaj prawidłowy adres email i potwierdź zgodę marketingową.',
-  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.'
+  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.',
+  newsletter_confirmation_failed: 'Zapis oczekuje na potwierdzenie, ale nie udało się wysłać wiadomości. Spróbuj ponownie.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;

@@ -28,7 +28,10 @@ class LogOnlyEmailTransport implements EmailTransport {
       templateKey: payload.templateKey,
       toEmail: payload.toEmail,
       subject: payload.subject,
-      preview: payload.textBody.slice(0, 160)
+      preview:
+        payload.templateKey === 'NEWSLETTER_CONFIRMATION'
+          ? '[newsletter confirmation link redacted]'
+          : payload.textBody.slice(0, 160)
     });
 
     return {

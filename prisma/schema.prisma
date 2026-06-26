@@ -39,6 +39,12 @@ enum EmailLogStatus {
   FAILED
 }
 
+enum NewsletterSubscriptionStatus {
+  PENDING
+  ACTIVE
+  UNSUBSCRIBED
+}
+
 enum ContentStatus {
   DRAFT
   PUBLISHED
@@ -384,17 +390,25 @@ model MarketingPdf {
 }
 
 model NewsletterSubscription {
-  id            String   @id @default(cuid())
-  leadId        String   @unique
-  source        String
-  isActive      Boolean  @default(true)
-  subscribedAt  DateTime @default(now())
-  unsubscribedAt DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id                         String                       @id @default(cuid())
+  leadId                     String                       @unique
+  source                     String
+  status                     NewsletterSubscriptionStatus @default(PENDING)
+  isActive                   Boolean                      @default(false)
+  subscribedAt               DateTime                     @default(now())
+  confirmedAt                DateTime?
+  confirmationSentAt         DateTime?
+  confirmationTokenHash      String?                      @unique
+  confirmationTokenExpiresAt DateTime?
+  confirmationTokenConsumedAt DateTime?
+  unsubscribedAt             DateTime?
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+  lead                       Lead                         @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
+  @@index([status, subscribedAt])
   @@index([isActive, subscribedAt])
+  @@index([confirmationTokenExpiresAt])
 }
 
 model ContactInquiry {

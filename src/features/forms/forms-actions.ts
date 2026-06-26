@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { db } from '@/lib/db';
 import { getActiveConsentDefinitions } from '@/features/leads/lead-service';
+import { registerNewsletterSignup } from '@/features/forms/newsletter-service';
 
 const NEWSLETTER_PATH = '/newsletter';
 const CONTACT_PATH = '/contact';
@@ -93,57 +94,30 @@ export async function createNewsletterSignupAction(formData: FormData) {
     redirectNewsletterWithStatus(NEWSLETTER_PATH, 'invalid_newsletter_input', 'error');
   }
 
-  const marketingDefinition = await getMarketingConsentDefinition();
-
-  if (!marketingDefinition) {
-    redirectNewsletterWithStatus(parsedInput.data.returnPath, 'marketing_consent_missing', 'error');
-  }
-
   const headerStore = await headers();
-  const ipAddress = extractClientIp(headerStore.get('x-forwarded-for'));
-  const userAgent = headerStore.get('user-agent') ?? undefined;
-  const normalizedEmail = normalizeEmail(parsedInput.data.email);
-
-  await db.$transaction(async (transaction) => {
-    const lead = await transaction.lead.upsert({
-      where: { email: normalizedEmail },
-      update: {
-        lastSeenAt: new Date()
-      },
-      create: {
-        email: normalizedEmail,
-        lastSeenAt: new Date()
-      }
-    });
-
-    await transaction.newsletterSubscription.upsert({
-      where: { leadId: lead.id },
-      update: {
-        isActive: true,
-        subscribedAt: new Date(),
-        unsubscribedAt: null,
-        source: 'PUBLIC_NEWSLETTER_SIGNUP'
-      },
-      create: {
-        leadId: lead.id,
-        source: 'PUBLIC_NEWSLETTER_SIGNUP'
-      }
-    });
-
-    await transaction.consentRecord.create({
-      data: {
-        leadId: lead.id,
-        definitionId: marketingDefinition.id,
-        granted: true,
-        source: 'PUBLIC_NEWSLETTER_SIGNUP',
-        ipAddress,
-        userAgent
-      }
-    });
+  const result = await registerNewsletterSignup({
+    email: normalizeEmail(parsedInput.data.email),
+    ipAddress: extractClientIp(headerStore.get('x-forwarded-for')),
+    userAgent: headerStore.get('user-agent') ?? undefined
   });
 
+  if (!result.success) {
+    redirectNewsletterWithStatus(parsedInput.data.returnPath, result.reason, 'error');
+  }
+
   revalidatePublicFormPaths();
-  redirectNewsletterWithStatus(parsedInput.data.returnPath, 'newsletter_saved', 'success');
+
+  switch (result.status) {
+    case 'pending':
+      redirectNewsletterWithStatus(parsedInput.data.returnPath, 'newsletter_confirmation_sent', 'success');
+    case 'pending_email_failed':
+      redirectNewsletterWithStatus(parsedInput.data.returnPath, 'newsletter_confirmation_failed', 'error');
+    case 'already_active':
+      redirectNewsletterWithStatus(parsedInput.data.returnPath, 'newsletter_already_active', 'success');
+    case 'active':
+    default:
+      redirectNewsletterWithStatus(parsedInput.data.returnPath, 'newsletter_saved', 'success');
+  }
 }
 
 export async function createContactInquiryAction(formData: FormData) {

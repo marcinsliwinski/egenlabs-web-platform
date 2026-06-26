@@ -15,7 +15,7 @@ import {
   createPublicSlug
 } from '@/features/downloads/download-link';
 
-type TemplateKey = 'DOWNLOAD_WELCOME' | 'DOWNLOAD_LINK';
+type TemplateKey = 'DOWNLOAD_WELCOME' | 'DOWNLOAD_LINK' | 'NEWSLETTER_CONFIRMATION';
 
 type ActiveTemplate = {
   id: string | null;
@@ -61,6 +61,14 @@ const FALLBACK_TEMPLATES: Record<TemplateKey, ActiveTemplate> = {
     subjectTemplate: 'Your {{productName}} download delivery shell link',
     textBodyTemplate:
       'Hello,\n\nYour download delivery shell link for {{productName}} / {{editionName}} / {{channelName}} is ready:\n{{accessUrl}}\n\nPolicy mode: {{policyMode}}\nBuild: {{buildVersion}} (#{{buildNumber}})\n\nThis shell confirms issuance, validation, and delivery endpoint access. Final external storage delivery is not enabled yet in this step.\n\nRegards,\n{{appName}}'
+  },
+  NEWSLETTER_CONFIRMATION: {
+    id: null,
+    key: 'NEWSLETTER_CONFIRMATION',
+    version: 1,
+    subjectTemplate: 'Potwierdź zapis do newslettera eGen Labs',
+    textBodyTemplate:
+      'Dzień dobry,\n\naby potwierdzić zapis do newslettera eGen Labs, otwórz poniższy link:\n{{confirmationUrl}}\n\nLink jest ważny przez {{confirmationTtlHours}} godzin. Jeżeli to nie Ty wysłałeś formularz, zignoruj tę wiadomość.\n\nPozdrawiamy,\n{{appName}}'
   }
 };
 
@@ -97,7 +105,7 @@ async function getActiveTemplates(): Promise<Record<TemplateKey, ActiveTemplate>
     where: {
       isActive: true,
       key: {
-        in: ['DOWNLOAD_WELCOME', 'DOWNLOAD_LINK']
+        in: ['DOWNLOAD_WELCOME', 'DOWNLOAD_LINK', 'NEWSLETTER_CONFIRMATION']
       }
     },
     orderBy: [{ key: 'asc' }, { version: 'desc' }]
@@ -129,7 +137,16 @@ async function getActiveTemplates(): Promise<Record<TemplateKey, ActiveTemplate>
           subjectTemplate: templateMap.get('DOWNLOAD_LINK')!.subjectTemplate,
           textBodyTemplate: templateMap.get('DOWNLOAD_LINK')!.textBodyTemplate
         }
-      : FALLBACK_TEMPLATES.DOWNLOAD_LINK
+      : FALLBACK_TEMPLATES.DOWNLOAD_LINK,
+    NEWSLETTER_CONFIRMATION: templateMap.get('NEWSLETTER_CONFIRMATION')
+      ? {
+          id: templateMap.get('NEWSLETTER_CONFIRMATION')!.id,
+          key: 'NEWSLETTER_CONFIRMATION',
+          version: templateMap.get('NEWSLETTER_CONFIRMATION')!.version,
+          subjectTemplate: templateMap.get('NEWSLETTER_CONFIRMATION')!.subjectTemplate,
+          textBodyTemplate: templateMap.get('NEWSLETTER_CONFIRMATION')!.textBodyTemplate
+        }
+      : FALLBACK_TEMPLATES.NEWSLETTER_CONFIRMATION
   };
 }
 
@@ -194,6 +211,50 @@ async function markDownloadRequestFailed(downloadRequestId: string, reason: Issu
       notes: buildFailureNote(reason)
     }
   });
+}
+
+
+export async function issueNewsletterConfirmationEmail(input: {
+  leadId: string;
+  toEmail: string;
+  confirmationUrl: string;
+  confirmationTtlHours: number;
+}) {
+  const template = (await getActiveTemplates()).NEWSLETTER_CONFIRMATION;
+  const values = {
+    appName: emailEnv.APP_NAME,
+    confirmationUrl: input.confirmationUrl,
+    confirmationTtlHours: String(input.confirmationTtlHours)
+  } satisfies Record<string, string>;
+  const subject = interpolateTemplate(template.subjectTemplate, values);
+  const textBody = interpolateTemplate(template.textBodyTemplate, values);
+  const dispatch = await dispatchTransactionalEmail({
+    toEmail: input.toEmail,
+    subject,
+    textBody,
+    templateKey: template.key
+  });
+  const redactedTextBody = textBody.replace(input.confirmationUrl, '[confirmation link redacted]');
+
+  await db.emailLog.create({
+    data: {
+      templateId: template.id ?? undefined,
+      templateKey: template.key,
+      templateVersion: template.version,
+      leadId: input.leadId,
+      toEmail: input.toEmail,
+      subject,
+      textBody: redactedTextBody,
+      status: dispatch.status,
+      transportMode: dispatch.transportMode,
+      providerName: dispatch.providerName,
+      providerMessageId: dispatch.providerMessageId,
+      errorMessage: dispatch.errorMessage,
+      sentAt: dispatch.sentAt
+    }
+  });
+
+  return dispatch;
 }
 
 export async function issueTransactionalDownloadForRequest(downloadRequestId: string): Promise<IssuanceSuccess | IssuanceFailure> {
@@ -412,6 +473,13 @@ export async function resendTransactionalEmailLog(emailLogId: string) {
     return {
       success: false as const,
       reason: 'email_log_not_found' as const
+    };
+  }
+
+  if (existingLog.templateKey === 'NEWSLETTER_CONFIRMATION') {
+    return {
+      success: false as const,
+      reason: 'email_log_not_resendable' as const
     };
   }
 

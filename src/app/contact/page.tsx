@@ -14,12 +14,15 @@ const errorMessages: Record<string, string> = {
 };
 
 const newsletterSuccessMessages: Record<string, string> = {
-  newsletter_saved: 'Dziękujemy. Zapis do newslettera został przyjęty.'
+  newsletter_saved: 'Dziękujemy. Zapis do newslettera został przyjęty.',
+  newsletter_confirmation_sent: 'Sprawdź skrzynkę email i potwierdź zapis do newslettera.',
+  newsletter_already_active: 'Ten adres jest już aktywny w newsletterze.'
 };
 
 const newsletterErrorMessages: Record<string, string> = {
   invalid_newsletter_input: 'Podaj prawidłowy adres email i potwierdź zgodę.',
-  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna.'
+  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna.',
+  newsletter_confirmation_failed: 'Zapis oczekuje na potwierdzenie, ale wysłanie wiadomości nie powiodło się.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;

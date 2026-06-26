@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
 const emailTransportModeSchema = z.enum(['LOG_ONLY', 'BREVO']);
+const booleanEnvSchema = z.enum(['true', 'false']).default('true').transform((value) => value === 'true');
 
 const emailEnvSchema = z
   .object({
     APP_URL: z.string().url().default('http://localhost:3000'),
     APP_NAME: z.string().min(1).default('eGen Labs Web Platform'),
     EMAIL_TRANSPORT_MODE: emailTransportModeSchema.default('LOG_ONLY'),
+    ENABLE_DOUBLE_OPT_IN: booleanEnvSchema,
+    NEWSLETTER_CONFIRMATION_TTL_HOURS: z.coerce.number().int().positive().default(24),
     BREVO_API_BASE_URL: z.string().url().default('https://api.brevo.com/v3'),
     BREVO_API_KEY: z.string().trim().optional(),
     BREVO_SENDER_EMAIL: z.string().trim().email().optional(),
@@ -47,6 +50,8 @@ export const emailEnv = emailEnvSchema.parse({
   APP_URL: process.env.APP_URL,
   APP_NAME: process.env.APP_NAME,
   EMAIL_TRANSPORT_MODE: process.env.EMAIL_TRANSPORT_MODE,
+  ENABLE_DOUBLE_OPT_IN: process.env.ENABLE_DOUBLE_OPT_IN,
+  NEWSLETTER_CONFIRMATION_TTL_HOURS: process.env.NEWSLETTER_CONFIRMATION_TTL_HOURS,
   BREVO_API_BASE_URL: process.env.BREVO_API_BASE_URL,
   BREVO_API_KEY: process.env.BREVO_API_KEY,
   BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,

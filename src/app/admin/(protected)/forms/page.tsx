@@ -38,7 +38,9 @@ export default async function AdminFormsPage() {
         </p>
         <ul>
           <li>Newsletter signups: {overview.stats.newsletterCount}</li>
+          <li>Pending newsletter signups: {overview.stats.pendingNewsletterCount}</li>
           <li>Active newsletter signups: {overview.stats.activeNewsletterCount}</li>
+          <li>Unsubscribed newsletter signups: {overview.stats.unsubscribedNewsletterCount}</li>
           <li>Contact inquiries: {overview.stats.contactInquiryCount}</li>
           <li>Enterprise interest submissions: {overview.stats.enterpriseInterestCount}</li>
           <li>Active marketing consent version: {overview.consentDefinitions.marketingEmail?.version ?? 'missing'}</li>
@@ -54,8 +56,11 @@ export default async function AdminFormsPage() {
             {overview.newsletterSubscriptions.map((subscription) => (
               <article key={subscription.id} style={{ border: '1px solid #dedede', borderRadius: '12px', padding: '1rem' }}>
                 <h3 style={{ marginBottom: '0.25rem' }}>{subscription.lead.email}</h3>
-                <p style={{ margin: 0 }}>Source: {subscription.source} · Active: {subscription.isActive ? 'yes' : 'no'}</p>
-                <p style={{ margin: '0.5rem 0 0' }}>Subscribed: {formatDate(subscription.subscribedAt)}</p>
+                <p style={{ margin: 0 }}>Source: {subscription.source} · Status: {subscription.status}</p>
+                <p style={{ margin: '0.5rem 0 0' }}>Requested: {formatDate(subscription.subscribedAt)}</p>
+                <p style={{ margin: '0.5rem 0 0' }}>Confirmation sent: {formatDate(subscription.confirmationSentAt)}</p>
+                <p style={{ margin: '0.5rem 0 0' }}>Confirmed: {formatDate(subscription.confirmedAt)}</p>
+                <p style={{ margin: '0.5rem 0 0' }}>Unsubscribed: {formatDate(subscription.unsubscribedAt)}</p>
               </article>
             ))}
           </div>

@@ -170,8 +170,22 @@ export default async function HomePage({ searchParams }: { searchParams?: Search
             <span className="eyebrow eyebrow--light">Aktualności</span>
             <h2>Newsletter eGen Labs</h2>
             <p>Otrzymuj informacje o premierach, dokumentacji i rozwoju rozwiązań.</p>
-            {newsletterSuccess ? <p role="status" className="alert alert--success">Dziękujemy. Zapis do newslettera został przyjęty.</p> : null}
-            {newsletterError ? <p role="alert" className="alert alert--error">Nie udało się zapisać. Sprawdź adres email i zgodę.</p> : null}
+            {newsletterSuccess ? (
+              <p role="status" className="alert alert--success">
+                {newsletterSuccess === 'newsletter_confirmation_sent'
+                  ? 'Sprawdź skrzynkę email i potwierdź zapis do newslettera.'
+                  : newsletterSuccess === 'newsletter_already_active'
+                    ? 'Ten adres jest już aktywny w newsletterze.'
+                    : 'Dziękujemy. Zapis do newslettera został przyjęty.'}
+              </p>
+            ) : null}
+            {newsletterError ? (
+              <p role="alert" className="alert alert--error">
+                {newsletterError === 'newsletter_confirmation_failed'
+                  ? 'Zapis oczekuje na potwierdzenie, ale nie udało się wysłać wiadomości.'
+                  : 'Nie udało się zapisać. Sprawdź adres email i zgodę.'}
+              </p>
+            ) : null}
             <NewsletterSignupForm compact returnPath="/" />
           </div>
         </section>

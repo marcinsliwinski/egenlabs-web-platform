@@ -147,12 +147,15 @@ export async function getCsvExportByDataset(dataset: string) {
       return {
         success: true as const,
         fileName: DATASET_FILES['newsletter-subscriptions'],
-        csv: toCsv(['id', 'leadEmail', 'source', 'isActive', 'subscribedAt', 'unsubscribedAt', 'createdAt', 'updatedAt'], rows.map((row) => ({
+        csv: toCsv(['id', 'leadEmail', 'source', 'status', 'isActive', 'subscribedAt', 'confirmationSentAt', 'confirmedAt', 'unsubscribedAt', 'createdAt', 'updatedAt'], rows.map((row) => ({
           id: row.id,
           leadEmail: row.lead.email,
           source: row.source,
+          status: row.status,
           isActive: row.isActive,
           subscribedAt: row.subscribedAt.toISOString(),
+          confirmationSentAt: row.confirmationSentAt?.toISOString() ?? null,
+          confirmedAt: row.confirmedAt?.toISOString() ?? null,
           unsubscribedAt: row.unsubscribedAt?.toISOString() ?? null,
           createdAt: row.createdAt.toISOString(),
           updatedAt: row.updatedAt.toISOString()

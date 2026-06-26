@@ -41,10 +41,23 @@ export async function resendEmailLogAction(formData: FormData) {
 
   const resendResult = await resendTransactionalEmailLog(parsedInput.data.emailLogId);
 
+  if (!resendResult.success) {
+    await logAdminAuditEvent({
+      admin,
+      actionType: 'EMAIL_RESEND_REJECTED',
+      entityType: 'EmailLog',
+      entityId: parsedInput.data.emailLogId,
+      summary: `Rejected transactional email resend for log ${parsedInput.data.emailLogId}.`,
+      metadata: { reason: resendResult.reason }
+    });
+
+    redirectWithStatus(resendResult.reason, 'error');
+  }
+
   await logAdminAuditEvent({
     admin,
-    actionType: "EMAIL_RESEND_REQUESTED",
-    entityType: "EmailLog",
+    actionType: 'EMAIL_RESEND_REQUESTED',
+    entityType: 'EmailLog',
     entityId: parsedInput.data.emailLogId,
     summary: `Resent transactional email log ${parsedInput.data.emailLogId}.`,
     metadata: { resultStatus: resendResult.status }
@@ -52,10 +65,6 @@ export async function resendEmailLogAction(formData: FormData) {
 
   revalidatePath(ADMIN_EMAILS_PATH);
   revalidatePath('/admin');
-
-  if (!resendResult.success) {
-    redirectWithStatus('email_log_not_found', 'error');
-  }
 
   redirectWithStatus(resendResult.status === 'SENT' ? 'email_resent' : 'email_resend_failed', resendResult.status === 'SENT' ? 'success' : 'error');
 }
