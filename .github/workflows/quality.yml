@@ -35,6 +35,7 @@ jobs:
       APP_URL: http://127.0.0.1:3000
       APP_NAME: eGen Labs Web Platform
       EMAIL_TRANSPORT_MODE: LOG_ONLY
+      TURNSTILE_ENABLED: false
       BASE_URL: http://127.0.0.1:3000
 
     steps:
@@ -71,6 +72,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Validate Turnstile response rules
+        run: npm run smoke:turnstile
 
       - name: Validate storage path confinement
         run: npm run smoke:storage-paths

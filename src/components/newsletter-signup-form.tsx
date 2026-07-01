@@ -1,3 +1,4 @@
+import { TurnstileWidget } from '@/components/turnstile-widget';
 import { createNewsletterSignupAction } from '@/features/forms/forms-actions';
 
 type NewsletterSignupFormProps = {
@@ -18,6 +19,8 @@ export function NewsletterSignupForm({ compact = false, returnPath }: Newsletter
         <input type="checkbox" name="marketingConsent" required />
         <span>Wyrażam zgodę na otrzymywanie newslettera i komunikacji marketingowej eGen Labs.</span>
       </label>
+
+      <TurnstileWidget action="newsletter_signup" />
 
       <button type="submit">Zapisz się</button>
     </form>

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { issueTransactionalDownloadForRequest } from '@/features/email/email-service';
+import { verifyPublicFormTurnstile } from '@/features/turnstile/turnstile-service';
 import {
   getActiveConsentDefinitions,
   getPublicDownloadRegistrationOverview
@@ -49,10 +50,20 @@ export async function registerDownloadRequestAction(formData: FormData) {
   }
 
   const input = parsedInput.data;
-  const [{ combinations }, consentDefinitions, headerStore] = await Promise.all([
+  const headerStore = await headers();
+  const turnstileResult = await verifyPublicFormTurnstile({
+    formData,
+    headerStore,
+    expectedAction: 'download_registration'
+  });
+
+  if (!turnstileResult.success) {
+    getRedirectWithStatus('turnstile_verification_failed', 'error');
+  }
+
+  const [{ combinations }, consentDefinitions] = await Promise.all([
     getPublicDownloadRegistrationOverview(),
-    getActiveConsentDefinitions(),
-    headers()
+    getActiveConsentDefinitions()
   ]);
 
   const combination = combinations.find((item) => item.id === input.combinationId);

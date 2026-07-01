@@ -183,7 +183,9 @@ export default async function HomePage({ searchParams }: { searchParams?: Search
               <p role="alert" className="alert alert--error">
                 {newsletterError === 'newsletter_confirmation_failed'
                   ? 'Zapis oczekuje na potwierdzenie, ale nie udało się wysłać wiadomości.'
-                  : 'Nie udało się zapisać. Sprawdź adres email i zgodę.'}
+                  : newsletterError === 'turnstile_verification_failed'
+                    ? 'Nie udało się zweryfikować formularza. Odśwież stronę i spróbuj ponownie.'
+                    : 'Nie udało się zapisać. Sprawdź adres email i zgodę.'}
               </p>
             ) : null}
             <NewsletterSignupForm compact returnPath="/" />

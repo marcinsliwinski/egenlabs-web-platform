@@ -12,7 +12,8 @@ const successMessages: Record<string, string> = {
 const errorMessages: Record<string, string> = {
   invalid_newsletter_input: 'Podaj prawidłowy adres email i potwierdź zgodę marketingową.',
   marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.',
-  newsletter_confirmation_failed: 'Zapis oczekuje na potwierdzenie, ale nie udało się wysłać wiadomości. Spróbuj ponownie.'
+  newsletter_confirmation_failed: 'Zapis oczekuje na potwierdzenie, ale nie udało się wysłać wiadomości. Spróbuj ponownie.',
+  turnstile_verification_failed: 'Nie udało się zweryfikować formularza. Odśwież stronę i spróbuj ponownie.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;

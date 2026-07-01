@@ -26,9 +26,10 @@
     "ops:restore:db": "bash scripts/restore-postgres.sh",
     "ops:restore:storage": "bash scripts/restore-storage.sh",
     "smoke:mvp": "node scripts/smoke-mvp.mjs",
-    "checkpoint:mvp": "npm run typecheck && npm run lint && npm run smoke:storage-paths && npm run smoke:health && npm run smoke:mvp",
+    "checkpoint:mvp": "npm run typecheck && npm run lint && npm run smoke:turnstile && npm run smoke:storage-paths && npm run smoke:health && npm run smoke:mvp",
     "smoke:newsletter-doi": "node scripts/smoke-newsletter-double-opt-in.mjs",
-    "ops:cleanup:test-data": "node scripts/cleanup-staging-test-data.mjs"
+    "ops:cleanup:test-data": "node scripts/cleanup-staging-test-data.mjs",
+    "smoke:turnstile": "node --experimental-strip-types scripts/smoke-turnstile.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

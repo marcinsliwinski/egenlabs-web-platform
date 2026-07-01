@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getActiveConsentDefinitions } from '@/features/leads/lead-service';
 import { registerNewsletterSignup } from '@/features/forms/newsletter-service';
+import { verifyPublicFormTurnstile } from '@/features/turnstile/turnstile-service';
 
 const NEWSLETTER_PATH = '/newsletter';
 const CONTACT_PATH = '/contact';
@@ -95,6 +96,16 @@ export async function createNewsletterSignupAction(formData: FormData) {
   }
 
   const headerStore = await headers();
+  const turnstileResult = await verifyPublicFormTurnstile({
+    formData,
+    headerStore,
+    expectedAction: 'newsletter_signup'
+  });
+
+  if (!turnstileResult.success) {
+    redirectNewsletterWithStatus(parsedInput.data.returnPath, 'turnstile_verification_failed', 'error');
+  }
+
   const result = await registerNewsletterSignup({
     email: normalizeEmail(parsedInput.data.email),
     ipAddress: extractClientIp(headerStore.get('x-forwarded-for')),
@@ -134,13 +145,23 @@ export async function createContactInquiryAction(formData: FormData) {
     redirectWithStatus(CONTACT_PATH, 'invalid_contact_input', 'error');
   }
 
+  const headerStore = await headers();
+  const turnstileResult = await verifyPublicFormTurnstile({
+    formData,
+    headerStore,
+    expectedAction: 'contact_inquiry'
+  });
+
+  if (!turnstileResult.success) {
+    redirectWithStatus(CONTACT_PATH, 'turnstile_verification_failed', 'error');
+  }
+
   const marketingDefinition = await getMarketingConsentDefinition();
 
   if (!marketingDefinition) {
     redirectWithStatus(CONTACT_PATH, 'marketing_consent_missing', 'error');
   }
 
-  const headerStore = await headers();
   const ipAddress = extractClientIp(headerStore.get('x-forwarded-for'));
   const userAgent = headerStore.get('user-agent') ?? undefined;
   const normalizedEmail = normalizeEmail(parsedInput.data.email);
@@ -202,13 +223,23 @@ export async function createEnterpriseInterestAction(formData: FormData) {
     redirectWithStatus(ENTERPRISE_PATH, 'invalid_enterprise_input', 'error');
   }
 
+  const headerStore = await headers();
+  const turnstileResult = await verifyPublicFormTurnstile({
+    formData,
+    headerStore,
+    expectedAction: 'enterprise_interest'
+  });
+
+  if (!turnstileResult.success) {
+    redirectWithStatus(ENTERPRISE_PATH, 'turnstile_verification_failed', 'error');
+  }
+
   const marketingDefinition = await getMarketingConsentDefinition();
 
   if (!marketingDefinition) {
     redirectWithStatus(ENTERPRISE_PATH, 'marketing_consent_missing', 'error');
   }
 
-  const headerStore = await headers();
   const ipAddress = extractClientIp(headerStore.get('x-forwarded-for'));
   const userAgent = headerStore.get('user-agent') ?? undefined;
   const normalizedEmail = normalizeEmail(parsedInput.data.email);

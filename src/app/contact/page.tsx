@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { NewsletterSignupForm } from '@/components/newsletter-signup-form';
+import { TurnstileWidget } from '@/components/turnstile-widget';
 import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
 import { createContactInquiryAction } from '@/features/forms/forms-actions';
 
@@ -10,7 +11,8 @@ const successMessages: Record<string, string> = {
 
 const errorMessages: Record<string, string> = {
   invalid_contact_input: 'Uzupełnij wymagane pola formularza.',
-  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.'
+  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.',
+  turnstile_verification_failed: 'Nie udało się zweryfikować formularza. Odśwież stronę i spróbuj ponownie.'
 };
 
 const newsletterSuccessMessages: Record<string, string> = {
@@ -22,7 +24,8 @@ const newsletterSuccessMessages: Record<string, string> = {
 const newsletterErrorMessages: Record<string, string> = {
   invalid_newsletter_input: 'Podaj prawidłowy adres email i potwierdź zgodę.',
   marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna.',
-  newsletter_confirmation_failed: 'Zapis oczekuje na potwierdzenie, ale wysłanie wiadomości nie powiodło się.'
+  newsletter_confirmation_failed: 'Zapis oczekuje na potwierdzenie, ale wysłanie wiadomości nie powiodło się.',
+  turnstile_verification_failed: 'Nie udało się zweryfikować formularza. Odśwież stronę i spróbuj ponownie.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -99,6 +102,8 @@ export default async function ContactPage({ searchParams }: { searchParams?: Sea
                 <input type="checkbox" name="marketingConsent" />
                 <span>Wyrażam zgodę na przyszłą komunikację marketingową i newsletter eGen Labs.</span>
               </label>
+
+              <TurnstileWidget action="contact_inquiry" className="form-label--wide" />
 
               <button className="form-label--wide" type="submit">Wyślij wiadomość</button>
             </form>

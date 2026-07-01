@@ -68,7 +68,7 @@ const FALLBACK_TEMPLATES: Record<TemplateKey, ActiveTemplate> = {
     version: 1,
     subjectTemplate: 'Potwierdź zapis do newslettera eGen Labs',
     textBodyTemplate:
-      'Dzień dobry,\n\naby potwierdzić zapis do newslettera eGen Labs, otwórz poniższy link:\n{{confirmationUrl}}\n\nLink jest ważny przez {{confirmationTtlHours}} godzin. Jeżeli to nie Ty wysłałeś formularz, zignoruj tę wiadomość.\n\nPozdrawiamy,\n{{appName}}'
+      'Dzień dobry,\n\naby potwierdzić zapis do newslettera eGen Labs, otwórz poniższy link:\n{{confirmationUrl}}\n\nTermin ważności linku: {{confirmationTtlHours}} h. Jeżeli to nie Ty wysłałeś formularz, zignoruj tę wiadomość.\n\nPozdrawiamy,\n{{appName}}'
   }
 };
 

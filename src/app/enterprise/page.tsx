@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
+import { TurnstileWidget } from '@/components/turnstile-widget';
 import { createEnterpriseInterestAction } from '@/features/forms/forms-actions';
 
 const successMessages: Record<string, string> = {
@@ -9,7 +10,8 @@ const successMessages: Record<string, string> = {
 
 const errorMessages: Record<string, string> = {
   invalid_enterprise_input: 'Uzupełnij wymagane pola formularza.',
-  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.'
+  marketing_consent_missing: 'Aktualna definicja zgody marketingowej nie jest dostępna. Spróbuj ponownie po weryfikacji administracyjnej.',
+  turnstile_verification_failed: 'Nie udało się zweryfikować formularza. Odśwież stronę i spróbuj ponownie.'
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -78,6 +80,8 @@ export default async function EnterprisePage({ searchParams }: { searchParams?: 
                 <input type="checkbox" name="marketingConsent" />
                 <span>Wyrażam zgodę na przyszłą komunikację marketingową i newsletter eGen Labs.</span>
               </label>
+
+              <TurnstileWidget action="enterprise_interest" />
 
               <button type="submit">Wyślij zgłoszenie</button>
             </form>

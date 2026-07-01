@@ -38,6 +38,16 @@ const checks = [
   { path: '/enterprise', expectedStatus: 200, label: 'Enterprise form' },
   { path: '/download/register', expectedStatus: 200, label: 'Download registration' },
   { path: '/one-pager/fito-gen-one-pager', expectedStatus: 200, label: 'PDF detail page' },
+  {
+    path: '/api/v1/turnstile/config',
+    expectedStatus: 200,
+    label: 'Turnstile public configuration',
+    validateJson: body =>
+      typeof body === 'object' &&
+      body !== null &&
+      typeof body.enabled === 'boolean' &&
+      (body.enabled === false || typeof body.siteKey === 'string')
+  },
   { path: '/api/v1/health', expectedStatus: 200, label: 'Health endpoint', validateJson: body => body?.status === 'ok' },
   {
     path: '/api/v1/desktop/update?product=fito-gen&edition=essentials&channel=stable&currentVersion=0.0.0',

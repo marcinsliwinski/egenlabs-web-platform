@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { PageContainer, PublicShell, SectionHeader } from '@/components/public-site';
+import { TurnstileWidget } from '@/components/turnstile-widget';
 import { registerDownloadRequestAction } from '@/features/leads/lead-actions';
 import { getPublicDownloadRegistrationOverview } from '@/features/leads/lead-service';
 
@@ -19,7 +20,8 @@ const errorMessages: Record<string, string> = {
   download_combination_unavailable: 'Wybrana kombinacja pobrania nie jest już dostępna.',
   required_consent_missing: 'Brakuje wymaganej definicji zgody operacyjnej.',
   marketing_consent_missing: 'Brakuje definicji zgody marketingowej.',
-  download_issue_failed: 'Rejestracja została zapisana, ale techniczne wydanie linku pobrania nie powiodło się.'
+  download_issue_failed: 'Rejestracja została zapisana, ale techniczne wydanie linku pobrania nie powiodło się.',
+  turnstile_verification_failed: 'Nie udało się zweryfikować formularza. Odśwież stronę i spróbuj ponownie.'
 };
 
 function getSearchParamValue(value: string | string[] | undefined): string | undefined {
@@ -79,6 +81,8 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
                 <input name="marketingConsent" type="checkbox" />
                 <span>Wyrażam zgodę na przyszłe wiadomości marketingowe i newsletter eGen Labs.</span>
               </label>
+
+              <TurnstileWidget action="download_registration" />
 
               <button type="submit">Zarejestruj pobranie</button>
             </form>
