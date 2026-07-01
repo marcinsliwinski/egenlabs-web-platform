@@ -6,6 +6,7 @@ type TransactionalEmailPayload = {
   toEmail: string;
   subject: string;
   textBody: string;
+  htmlBody: string;
   templateKey: string;
 };
 
@@ -28,10 +29,7 @@ class LogOnlyEmailTransport implements EmailTransport {
       templateKey: payload.templateKey,
       toEmail: payload.toEmail,
       subject: payload.subject,
-      preview:
-        payload.templateKey === 'NEWSLETTER_CONFIRMATION'
-          ? '[newsletter confirmation link redacted]'
-          : payload.textBody.slice(0, 160)
+      bodyPreview: '[transactional email body omitted]'
     });
 
     return {
@@ -67,6 +65,7 @@ class BrevoEmailTransport implements EmailTransport {
           ],
           subject: payload.subject,
           textContent: payload.textBody,
+          htmlContent: payload.htmlBody,
           tags: ['egenlabs-web-platform', payload.templateKey.toLowerCase()]
         }),
         signal: controller.signal,

@@ -73,6 +73,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Validate transactional email templates
+        run: npm run smoke:email-html
+
       - name: Validate Turnstile response rules
         run: npm run smoke:turnstile
 

@@ -585,6 +585,7 @@ model EmailTemplate {
   name             String
   subjectTemplate  String
   textBodyTemplate String
+  htmlBodyTemplate String
   isActive         Boolean    @default(true)
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
@@ -605,6 +606,7 @@ model EmailLog {
   toEmail           String
   subject           String
   textBody          String
+  htmlBody          String?
   status            EmailLogStatus
   transportMode     String
   providerName      String?

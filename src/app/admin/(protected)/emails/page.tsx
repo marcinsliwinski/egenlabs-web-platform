@@ -89,7 +89,7 @@ export default async function AdminEmailsPage({ searchParams }: { searchParams?:
           <ul>
             {overview.templates.map((template) => (
               <li key={template.id}>
-                <strong>{template.key}</strong> v{template.version} — {template.name} — {template.isActive ? 'active' : 'inactive'}
+                <strong>{template.key}</strong> v{template.version} — {template.name} — text + HTML — {template.isActive ? 'active' : 'inactive'}
               </li>
             ))}
           </ul>
@@ -149,7 +149,7 @@ export default async function AdminEmailsPage({ searchParams }: { searchParams?:
                 )}
 
                 <details>
-                  <summary>Email body preview</summary>
+                  <summary>Text body preview</summary>
                   <pre
                     style={{
                       whiteSpace: 'pre-wrap',
@@ -160,6 +160,21 @@ export default async function AdminEmailsPage({ searchParams }: { searchParams?:
                     }}
                   >
                     {log.textBody}
+                  </pre>
+                </details>
+
+                <details>
+                  <summary>HTML source preview</summary>
+                  <pre
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      background: '#f7f7f7',
+                      padding: '0.75rem',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    {log.htmlBody ?? 'HTML body was not recorded for this historical log.'}
                   </pre>
                 </details>
               </article>

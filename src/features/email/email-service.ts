@@ -7,6 +7,15 @@ import {
 
 import { db } from '@/lib/db';
 import { emailEnv } from '@/features/email/email-env';
+import {
+  type ActiveTemplate,
+  buildPlainTextHtmlDocument,
+  FALLBACK_TEMPLATES,
+  interpolateHtmlTemplate,
+  interpolateTextTemplate,
+  redactRenderedValue,
+  type TemplateKey
+} from '@/features/email/email-template';
 import { dispatchTransactionalEmail } from '@/features/email/email-transport';
 import {
   buildDownloadAccessUrl,
@@ -14,16 +23,6 @@ import {
   createDownloadTokenHash,
   createPublicSlug
 } from '@/features/downloads/download-link';
-
-type TemplateKey = 'DOWNLOAD_WELCOME' | 'DOWNLOAD_LINK' | 'NEWSLETTER_CONFIRMATION';
-
-type ActiveTemplate = {
-  id: string | null;
-  key: TemplateKey;
-  version: number;
-  subjectTemplate: string;
-  textBodyTemplate: string;
-};
 
 type IssuanceSuccess = {
   success: true;
@@ -44,37 +43,6 @@ type IssuanceFailure = {
     | 'lead_missing'
     | 'temporary_ttl_missing';
 };
-
-const FALLBACK_TEMPLATES: Record<TemplateKey, ActiveTemplate> = {
-  DOWNLOAD_WELCOME: {
-    id: null,
-    key: 'DOWNLOAD_WELCOME',
-    version: 1,
-    subjectTemplate: 'Your {{productName}} registration is recorded',
-    textBodyTemplate:
-      'Hello,\n\nYour download registration for {{productName}} / {{editionName}} / {{channelName}} has been recorded in the accepted MVP flow.\n\nBuild: {{buildVersion}} (#{{buildNumber}})\nRequest ID: {{requestId}}\n\nThis environment currently uses the transactional email shell in {{transportMode}} mode.\n\nRegards,\n{{appName}}'
-  },
-  DOWNLOAD_LINK: {
-    id: null,
-    key: 'DOWNLOAD_LINK',
-    version: 1,
-    subjectTemplate: 'Your {{productName}} download delivery shell link',
-    textBodyTemplate:
-      'Hello,\n\nYour download delivery shell link for {{productName}} / {{editionName}} / {{channelName}} is ready:\n{{accessUrl}}\n\nPolicy mode: {{policyMode}}\nBuild: {{buildVersion}} (#{{buildNumber}})\n\nThis shell confirms issuance, validation, and delivery endpoint access. Final external storage delivery is not enabled yet in this step.\n\nRegards,\n{{appName}}'
-  },
-  NEWSLETTER_CONFIRMATION: {
-    id: null,
-    key: 'NEWSLETTER_CONFIRMATION',
-    version: 1,
-    subjectTemplate: 'Potwierdź zapis do newslettera eGen Labs',
-    textBodyTemplate:
-      'Dzień dobry,\n\naby potwierdzić zapis do newslettera eGen Labs, otwórz poniższy link:\n{{confirmationUrl}}\n\nTermin ważności linku: {{confirmationTtlHours}} h. Jeżeli to nie Ty wysłałeś formularz, zignoruj tę wiadomość.\n\nPozdrawiamy,\n{{appName}}'
-  }
-};
-
-function interpolateTemplate(template: string, values: Record<string, string>) {
-  return template.replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (_, key: string) => values[key] ?? '');
-}
 
 function buildTemplateValues(input: {
   requestId: string;
@@ -126,7 +94,8 @@ async function getActiveTemplates(): Promise<Record<TemplateKey, ActiveTemplate>
           key: 'DOWNLOAD_WELCOME',
           version: templateMap.get('DOWNLOAD_WELCOME')!.version,
           subjectTemplate: templateMap.get('DOWNLOAD_WELCOME')!.subjectTemplate,
-          textBodyTemplate: templateMap.get('DOWNLOAD_WELCOME')!.textBodyTemplate
+          textBodyTemplate: templateMap.get('DOWNLOAD_WELCOME')!.textBodyTemplate,
+          htmlBodyTemplate: templateMap.get('DOWNLOAD_WELCOME')!.htmlBodyTemplate
         }
       : FALLBACK_TEMPLATES.DOWNLOAD_WELCOME,
     DOWNLOAD_LINK: templateMap.get('DOWNLOAD_LINK')
@@ -135,7 +104,8 @@ async function getActiveTemplates(): Promise<Record<TemplateKey, ActiveTemplate>
           key: 'DOWNLOAD_LINK',
           version: templateMap.get('DOWNLOAD_LINK')!.version,
           subjectTemplate: templateMap.get('DOWNLOAD_LINK')!.subjectTemplate,
-          textBodyTemplate: templateMap.get('DOWNLOAD_LINK')!.textBodyTemplate
+          textBodyTemplate: templateMap.get('DOWNLOAD_LINK')!.textBodyTemplate,
+          htmlBodyTemplate: templateMap.get('DOWNLOAD_LINK')!.htmlBodyTemplate
         }
       : FALLBACK_TEMPLATES.DOWNLOAD_LINK,
     NEWSLETTER_CONFIRMATION: templateMap.get('NEWSLETTER_CONFIRMATION')
@@ -144,7 +114,8 @@ async function getActiveTemplates(): Promise<Record<TemplateKey, ActiveTemplate>
           key: 'NEWSLETTER_CONFIRMATION',
           version: templateMap.get('NEWSLETTER_CONFIRMATION')!.version,
           subjectTemplate: templateMap.get('NEWSLETTER_CONFIRMATION')!.subjectTemplate,
-          textBodyTemplate: templateMap.get('NEWSLETTER_CONFIRMATION')!.textBodyTemplate
+          textBodyTemplate: templateMap.get('NEWSLETTER_CONFIRMATION')!.textBodyTemplate,
+          htmlBodyTemplate: templateMap.get('NEWSLETTER_CONFIRMATION')!.htmlBodyTemplate
         }
       : FALLBACK_TEMPLATES.NEWSLETTER_CONFIRMATION
   };
@@ -226,15 +197,18 @@ export async function issueNewsletterConfirmationEmail(input: {
     confirmationUrl: input.confirmationUrl,
     confirmationTtlHours: String(input.confirmationTtlHours)
   } satisfies Record<string, string>;
-  const subject = interpolateTemplate(template.subjectTemplate, values);
-  const textBody = interpolateTemplate(template.textBodyTemplate, values);
+  const subject = interpolateTextTemplate(template.subjectTemplate, values);
+  const textBody = interpolateTextTemplate(template.textBodyTemplate, values);
+  const htmlBody = interpolateHtmlTemplate(template.htmlBodyTemplate, values);
   const dispatch = await dispatchTransactionalEmail({
     toEmail: input.toEmail,
     subject,
     textBody,
+    htmlBody,
     templateKey: template.key
   });
-  const redactedTextBody = textBody.replace(input.confirmationUrl, '[confirmation link redacted]');
+  const redactedTextBody = redactRenderedValue(textBody, input.confirmationUrl, '[confirmation link redacted]');
+  const redactedHtmlBody = redactRenderedValue(htmlBody, input.confirmationUrl, '[confirmation link redacted]');
 
   await db.emailLog.create({
     data: {
@@ -245,6 +219,7 @@ export async function issueNewsletterConfirmationEmail(input: {
       toEmail: input.toEmail,
       subject,
       textBody: redactedTextBody,
+      htmlBody: redactedHtmlBody,
       status: dispatch.status,
       transportMode: dispatch.transportMode,
       providerName: dispatch.providerName,
@@ -353,8 +328,9 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
     templateId: template.id ?? undefined,
     templateKey: template.key,
     templateVersion: template.version,
-    subject: interpolateTemplate(template.subjectTemplate, templateValues),
-    textBody: interpolateTemplate(template.textBodyTemplate, templateValues)
+    subject: interpolateTextTemplate(template.subjectTemplate, templateValues),
+    textBody: interpolateTextTemplate(template.textBodyTemplate, templateValues),
+    htmlBody: interpolateHtmlTemplate(template.htmlBodyTemplate, templateValues)
   });
 
   const welcomeEmail = renderFromTemplate(templates.DOWNLOAD_WELCOME);
@@ -364,6 +340,7 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
     toEmail: existingRequest.email!,
     subject: welcomeEmail.subject,
     textBody: welcomeEmail.textBody,
+    htmlBody: welcomeEmail.htmlBody,
     templateKey: welcomeEmail.templateKey
   });
 
@@ -371,6 +348,7 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
     toEmail: existingRequest.email!,
     subject: downloadEmail.subject,
     textBody: downloadEmail.textBody,
+    htmlBody: downloadEmail.htmlBody,
     templateKey: downloadEmail.templateKey
   });
 
@@ -408,6 +386,7 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
           toEmail: existingRequest.email!,
           subject: welcomeEmail.subject,
           textBody: welcomeEmail.textBody,
+          htmlBody: welcomeEmail.htmlBody,
           status: welcomeDispatch.status,
           transportMode: welcomeDispatch.transportMode,
           providerName: welcomeDispatch.providerName,
@@ -425,6 +404,7 @@ export async function issueTransactionalDownloadForRequest(downloadRequestId: st
           toEmail: existingRequest.email!,
           subject: downloadEmail.subject,
           textBody: downloadEmail.textBody,
+          htmlBody: downloadEmail.htmlBody,
           status: downloadDispatch.status,
           transportMode: downloadDispatch.transportMode,
           providerName: downloadDispatch.providerName,
@@ -483,10 +463,12 @@ export async function resendTransactionalEmailLog(emailLogId: string) {
     };
   }
 
+  const htmlBody = existingLog.htmlBody ?? buildPlainTextHtmlDocument(existingLog.textBody);
   const dispatch = await dispatchTransactionalEmail({
     toEmail: existingLog.toEmail,
     subject: existingLog.subject,
     textBody: existingLog.textBody,
+    htmlBody,
     templateKey: existingLog.templateKey
   });
 
@@ -501,6 +483,7 @@ export async function resendTransactionalEmailLog(emailLogId: string) {
       toEmail: existingLog.toEmail,
       subject: existingLog.subject,
       textBody: existingLog.textBody,
+      htmlBody,
       status: dispatch.status,
       transportMode: dispatch.transportMode,
       providerName: dispatch.providerName,

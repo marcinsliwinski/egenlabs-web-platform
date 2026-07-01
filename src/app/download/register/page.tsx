@@ -84,7 +84,7 @@ export default async function DownloadRegistrationPage({ searchParams }: Downloa
 
               <TurnstileWidget action="download_registration" />
 
-              <button type="submit">Zarejestruj pobranie</button>
+              <button type="submit">Pobierz</button>
             </form>
           )}
         </section>
