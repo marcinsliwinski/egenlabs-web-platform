@@ -54,7 +54,9 @@ Długoterminowo platforma ma wspierać model multi-product, a nie wyłącznie po
 
 ### Kryteria sukcesu MVP launch
 - Serwis działa produkcyjnie pod domeną egenlabs.eu.
-- Użytkownik może przejść pełny flow: wejście na stronę, rejestracja, zapis zgód, otrzymanie e-maila, pobranie aplikacji.
+- Użytkownik może przejść pełny web flow: wejście na stronę, rejestracja, zapis zgód, otrzymanie wiadomości transakcyjnych oraz wydanie kontrolowanego linku pobrania zgodnie z aktywną polityką.
+- Newsletter wykorzystuje double opt-in, a wiadomości transakcyjne posiadają równoległą wersję tekstową i HTML.
+- Publikacja finalnego binarnego buildu Fito Gen Essentials i włączenie bezpośredniego pobierania nie blokują formalnego zamknięcia Web MVP; pozostają osobnym krokiem release po zatwierdzeniu desktopowego buildu.
 - Panel administracyjny pozwala zarządzać co najmniej:
   - leadami i rejestracjami,
   - zgodami,
@@ -144,7 +146,7 @@ Do pierwszej wersji produkcyjnej wchodzi:
 
 Zakres MVP pozostaje dominująco zorientowany na uruchomienie i obsługę pierwszego produktu cyfrowego, a pion krótkofalarski wchodzi jako publiczny, statyczny katalog informacyjny: 23 produkty GEN-FED / CMC-GEN 261, dwa dokumenty PDF v20 i kontakt w sprawie dostępności, bez handlu elektronicznego.
 
-Publiczny moduł Fito Gen jest prezentowany jako docelowa, profesjonalna strona produktu. Aktywacja bezpośredniego pobierania pozostaje osobnym krokiem release i nastąpi po zatwierdzeniu finalnego buildu desktopowego.
+Publiczny moduł Fito Gen jest prezentowany jako docelowa, profesjonalna strona produktu. Aktywacja bezpośredniego pobierania pozostaje osobnym krokiem release i nastąpi po zatwierdzeniu finalnego buildu desktopowego. Do czasu tej decyzji build oraz polityka pobierania mogą pozostać nieaktywne bez blokowania zamknięcia Web MVP.
 
 Po zielonym checkpointcie MVP kolejną fazą platformy pozostaje Universal Desktop Support API v1 jako wspólna warstwa wsparcia dla wielu aplikacji desktopowych publikowanych przez eGen Labs, ale bieżący priorytet operacyjny przesunięto na visual launch pass, aby jak najszybciej wystartować z profesjonalną stroną publiczną.
 
@@ -246,9 +248,15 @@ Poza MVP pozostają:
 - WF-002O: Katalog ma umożliwiać opcjonalne przypisanie zdjęcia głównego i galerii do serii oraz poszczególnych modeli bez wymogu wdrożenia panelu uploadu w MVP.
 - WF-003: Użytkownik ma mieć możliwość rejestracji e-mailowej w celu pobrania aplikacji.
 - WF-004: System ma umożliwiać zapis do newslettera bez pobierania aplikacji.
+- WF-004A: Zapis do newslettera ma używać double opt-in; subskrypcja staje się aktywna dopiero po świadomym potwierdzeniu przez użytkownika.
+- WF-004B: Token potwierdzający newsletter ma być przechowywany wyłącznie jako hash, posiadać kontrolowany lifecycle i nie może występować w surowej postaci w logach aplikacyjnych ani zapisanych treściach e-maili.
 - WF-005: System ma rejestrować i wersjonować zgody użytkownika.
 - WF-006: System ma wysyłać e-mail powitalny.
+- WF-006A: Każda wiadomość transakcyjna objęta MVP ma posiadać wersjonowany szablon tekstowy z prawdziwymi znakami nowej linii oraz kompletny szablon HTML.
 - WF-007: System ma wysyłać e-mail z linkiem do pobrania aplikacji.
+- WF-007A: Transport Brevo ma wysyłać równolegle `textContent` i `htmlContent`, a `EmailLog` ma zachowywać wysłaną wersję tekstową, HTML i metadane dostawcy.
+- WF-007B: Ponowna wysyłka kwalifikującej się wiadomości ma używać zapisanej treści tekstowej i HTML, otrzymywać odrębny Provider Message ID oraz tworzyć wpis audytowy.
+- WF-007C: Dynamiczne wartości w HTML muszą być bezpiecznie kodowane. URL potwierdzenia newslettera jest redagowany w zapisanym `EmailLog`; treść `DOWNLOAD_LINK` zachowuje pełny wydany URL pobrania wyłącznie w celu wiernego resendu i dlatego jest traktowana jako wrażliwa dana operacyjna. Surowe tokeny nie mogą trafiać do logów kontenera, raportów ani dokumentacji.
 - WF-008: System ma obsługiwać konfigurowalne polityki linków pobrania: publiczny, jednorazowy, czasowy, prywatny stały.
 - WF-009: Administrator ma mieć możliwość zarządzania produktami, edycjami, kanałami i buildami.
 - WF-010: Administrator ma mieć możliwość oznaczenia jednego aktywnego buildu na kanał wydania.
@@ -258,6 +266,7 @@ Poza MVP pozostają:
 - WF-014: Administrator ma mieć możliwość zarządzania materiałami PDF i ich widocznością.
 - WF-015: Administrator ma mieć możliwość zarządzania formularzami, definicjami zgód i treściami zgód.
 - WF-016: Administrator ma mieć możliwość przeglądu leadów, zgód, download requests i logów e-maili.
+- WF-016A: Panel administratora ma prezentować tekst wiadomości oraz bezpieczny podgląd źródła HTML bez wykonywania zapisanego HTML i ma umożliwiać kontrolowany resend kwalifikujących się wiadomości.
 - WF-017: Administrator ma mieć możliwość przeglądu i filtrowania telemetrii.
 - WF-018: System ma udostępniać formularz kontaktowy.
 - WF-019: System ma udostępniać formularz zainteresowania wersją Enterprise.
@@ -301,6 +310,8 @@ Poza MVP pozostają:
 - WNF-017: Publiczne treści mają być merytoryczne, profesjonalne i spójne z pozycjonowaniem eGen Labs jako marki własnych rozwiązań inżynieryjnych.
 - WNF-018: Lokalne assety buildów i dokumentów mogą być odczytywane wyłącznie ze zweryfikowanych ścieżek wewnątrz katalogu `storage/`; ścieżki absolutne, traversal i wyjście przez dowiązania symboliczne są odrzucane.
 - WNF-019: Każdy push i pull request do `main` musi przechodzić automatyczny quality gate obejmujący zależności, Prisma, migracje, bootstrap, typecheck, lint, kontrolę storage, build i smoke testy.
+- WNF-020: Automatyczny checkpoint MVP ma obejmować co najmniej smoke testy wiadomości tekstowych i HTML, Turnstile, ograniczenia storage, health oraz publicznych tras i endpointów MVP.
+- WNF-021: Treści HTML wiadomości muszą stosować bezpieczne kodowanie wartości dynamicznych. Logi aplikacyjne, raporty i dokumentacja nie mogą ujawniać surowych tokenów newslettera ani pobierania; kontrolowanym wyjątkiem jest chroniona treść `DOWNLOAD_LINK` w `EmailLog`, zawierająca wydany URL wymagany do wiernego resendu.
 
 ## 14. Standardy jakości kodu i dobre praktyki programistyczne
 - Stosować Clean Code i dobre praktyki właściwe dla użytego stacku.
@@ -334,6 +345,10 @@ Poza MVP pozostają:
 - Zgody muszą być wersjonowane, rejestrowane i możliwe do wykazania.
 - Pobranie aplikacji wymaga rejestracji e-mailowej.
 - Zgoda marketingowa musi być oddzielona od obowiązkowej rejestracji operacyjnej.
+- Subskrypcja newslettera jest aktywowana dopiero po poprawnym double opt-in; oczekująca subskrypcja nie jest traktowana jako ważna aktywna zgoda marketingowa.
+- Rekordy domenowe tokenów potwierdzających newsletter i pobierania przechowują wyłącznie hashe; wykorzystanie lub wygaśnięcie tokenu jest rejestrowane w jego lifecycle. Wydany URL pobrania może występować w utrwalonej treści `DOWNLOAD_LINK` w `EmailLog`, ponieważ resend odtwarza dokładnie pierwotną wiadomość.
+- Dla każdego klucza szablonu wiadomości może istnieć tylko jedna aktywna wersja; starsze wersje pozostają nieaktywne jako historia.
+- Resend używa utrwalonej treści tekstowej i HTML oryginalnej wiadomości, tworzy nowe zdarzenie dostawcy i podlega audytowi.
 - Link do pobrania może być wydawany zgodnie z konfiguracją polityki pobrania.
 - News feed musi być filtrowany po produkcie, edycji, wersji, kanale i kategorii.
 - Telemetry intake nie może blokować pracy aplikacji desktopowej.
@@ -387,8 +402,8 @@ Publiczny katalog krótkofalarski pozostaje statycznym modułem treściowym w ko
 - Admin Module – panel administracyjny i operacje zaplecza.
 - Product Catalog Module – produkty, edycje, kanały wydań, buildy, assets.
 - Download Module – rejestracja pobrań, polityki pobrania, generowanie i walidacja linków.
-- Lead & Consent Module – leady, zgody, wersje zgód, potwierdzenia.
-- Email Module – szablony, integracja z Brevo, logi wysyłek.
+- Lead & Consent Module – leady, wersjonowane zgody, `NewsletterSubscription`, double opt-in oraz lifecycle potwierdzeń.
+- Email Module – wersjonowane szablony tekstowe i HTML, bezpieczne renderowanie wartości dynamicznych, integracja z Brevo, logi wysyłek, redakcja URL-a potwierdzenia newslettera, ochrona utrwalonych URL-i pobrania i kontrolowany resend.
 - Content Module – blog, FAQ, news feed, PDF/media assets.
 - Contact & Demand Module – formularz kontaktowy, Enterprise interest, feature requests, software demand requests.
 - Telemetry Module – intake telemetrii, zapis zdarzeń, filtrowanie danych diagnostycznych.
@@ -415,6 +430,7 @@ Publiczny katalog krótkofalarski pozostaje statycznym modułem treściowym w ko
 - Lead
 - ConsentDefinition
 - ConsentRecord
+- NewsletterSubscription
 - EmailTemplate
 - EmailLog
 - BlogPost
@@ -449,14 +465,18 @@ Publiczny katalog krótkofalarski pozostaje statycznym modułem treściowym w ko
 - Jeden build należy do jednego produktu, jednej edycji i jednego kanału.
 - Jeden kanał może mieć maksymalnie jeden build aktywny dla danego produktu i edycji.
 - ConsentRecord jest powiązany z wersją definicji zgody.
+- NewsletterSubscription jest odrębną encją lifecycle powiązaną z Lead i przechowuje stan oczekujący, aktywny lub zakończony, znaczniki potwierdzenia oraz wyłącznie hash tokenu double opt-in.
+- EmailTemplate przechowuje wersjonowane szablony tekstowe i `htmlBodyTemplate`; dla jednego klucza aktywna jest tylko jedna wersja.
+- EmailLog przechowuje faktycznie wysłany `textBody`, opcjonalny `htmlBody`, status, transport, dostawcę i Provider Message ID. URL potwierdzenia newslettera jest redagowany przed zapisem. Dla `DOWNLOAD_LINK` pełny wydany URL pozostaje w treści na potrzeby wiernego resendu, dlatego rekord, baza i backupy są traktowane jako dane wrażliwe i podlegają kontroli dostępu oraz retencji.
 - TelemetryEvent jest powiązany z installation_id oraz opcjonalnie z lead_id.
 - MediaAsset obsługuje widoczność publiczną lub prywatną.
-- Subscriber jako osobna encja nie jest potrzebny w MVP; stan subskrypcji wynika z Lead i ConsentRecord.
+- Tożsamość odbiorcy pozostaje w Lead, natomiast NewsletterSubscription reprezentuje lifecycle subskrypcji; nie wprowadza się osobnego profilu użytkownika końcowego.
 - Universal Desktop Support API v1 przechowuje wyłącznie metadane manifestów, paczek i kontraktów wspierających aplikacje desktopowe; nie przechowuje ich operacyjnych danych domenowych.
 
 ## 19. Integracje
 ### Integracje zewnętrzne
-- Brevo – transactional e-mail i newsletter.
+- Brevo – transactional e-mail i newsletter; transport wysyła równolegle treść tekstową i HTML oraz zapisuje identyfikator wiadomości dostawcy.
+- Newsletter wykorzystuje double opt-in z kontrolowanym tokenem, stroną potwierdzenia i świadomą finalizacją zapisu.
 - Cloudflare – DNS, proxy, CDN i podstawowa ochrona ruchu.
 - Cloudflare Turnstile – ochrona formularzy przed spamem i botami.
 - VPS Filesystem Storage – przechowywanie buildów, PDF-ów i materiałów marketingowych.
@@ -539,6 +559,8 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Log audytowy dla operacji krytycznych i zmian administracyjnych.
 - Ochrona formularzy publicznych przez Cloudflare Turnstile. Token jest obowiązkowo weryfikowany po stronie serwera przez Siteverify przed zapisem danych, utworzeniem leada lub wysłaniem e-maila.
 - Staging i produkcja używają odrębnych site key i secret key Turnstile; sekret nie może być dostępny po stronie klienta ani występować w logach.
+- Surowy URL potwierdzenia newslettera nie może być utrwalany w `EmailLog`, logach kontenera, raportach ani dokumentacji; w `EmailLog` używany jest redagowany placeholder. Surowe tokeny pobrania nie mogą trafiać do logów kontenera, raportów ani dokumentacji. Treść `DOWNLOAD_LINK` w `EmailLog` zachowuje jednak pełny wydany URL na potrzeby wiernego resendu i musi być chroniona jak sekret typu bearer.
+- Dynamiczne wartości osadzane w wiadomościach HTML muszą być kodowane kontekstowo, a panel administratora nie może wykonywać zapisanego HTML podczas podglądu źródła.
 - Ograniczanie dostępu do prywatnych zasobów i prywatnych PDF-ów.
 - Kontrola uprawnień do treści, buildów i konfiguracji panelu.
 - Telemetria traktowana jako dane diagnostyczne, wymagające świadomego modelu dostępu i retencji.
@@ -575,6 +597,15 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Wdrożenie Universal Desktop Support API v1 wymaga stabilnych URL-i dla manifestów i paczek oraz kontrolowanego procesu publikacji nowych wersji.
 - GitHub Actions quality gate jest obowiązkową bramką dla `main` i musi pozostać zielony przed stagingiem oraz produkcją.
 - Runtime storage jest montowany poza repozytorium; aplikacja otrzymuje wyłącznie minimalne wymagane uprawnienia do katalogów buildów i mediów.
+
+### Aktualny baseline stagingu na 2026-07-01
+- Staging działa pod `staging.egenlabs.eu` na odrębnym VPS i wykorzystuje prywatny PostgreSQL, trwały storage poza repozytorium oraz Caddy na publicznych portach 80/443.
+- Zatwierdzony i wdrożony commit stagingowy to `d632500b895b0c8a379090c5ebfce1f45e54720f` (`Add HTML transactional email templates`).
+- STG-GAP-001, STG-GAP-002 i STG-GAP-003 są funkcjonalnie zakończone i zaakceptowane.
+- Czysty punkt odtworzeniowy PostgreSQL po testach STG-GAP-003 znajduje się w `/var/backups/egenlabs-staging/stg-gap-003-post-cleanup-20260701-122733`; SHA-256 dumpu: `744780bf52f7f533ad17bf973dc5daf3b8da7ee1ec355e701d09d0c70607a370`.
+- Zweryfikowany backup storage znajduje się w `/var/backups/egenlabs-staging/stg-gap-003-pre-deploy-20260701-105544/storage/storage.tar.gz`; SHA-256 archiwum: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`.
+- Testowy build `0.0.0-staging-test` (`900001`) pozostaje nieaktywny, a polityka pobierania `ONE_TIME` pozostaje wyłączona.
+- Pełny restore drill stagingu, zaszyfrowana kopia poza VPS i formalna decyzja staging GO pozostają niezakończone.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -657,12 +688,24 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - checklista stagingowa, backup i restore drill,
   - przygotowanie formalnego release checkpoint.
 - Faza 4C: Staging, Production & Web MVP Closure
-  - wdrożenie stagingu na odrębnym OVHcloud VPS-2,
-  - usunięcie STG-GAP-001 przez pełną integrację Cloudflare Turnstile z walidacją Siteverify po stronie serwera,
-  - testy integracji, QA, backup i restore drill,
-  - formalna decyzja staging GO / NO-GO,
+  - wdrożenie stagingu na odrębnym OVHcloud VPS-2 — zakończone,
+  - usunięcie STG-GAP-001 przez pełną integrację Cloudflare Turnstile z walidacją Siteverify po stronie serwera — zakończone i zaakceptowane,
+  - usunięcie STG-GAP-002 przez newsletter double opt-in — zakończone i zaakceptowane,
+  - usunięcie STG-GAP-003 przez wersjonowane wiadomości tekstowe i HTML, Brevo, logowanie, redakcję oraz resend — zakończone i zaakceptowane,
+  - testy integracji, QA i utworzenie czystego backupu — zakończone dla bieżącego commita stagingowego,
+  - pełny restore drill bazy i storage oraz kopia zaszyfrowana poza VPS — pozostają do wykonania,
+  - formalna decyzja staging GO / NO-GO — pozostaje do podjęcia po restore drill,
   - zakup i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 dopiero po staging GO,
-  - produkcyjny smoke test, pierwszy backup i formalne zamknięcie Web MVP.
+  - produkcyjny smoke test, pierwszy backup, restore drill produkcji i formalne zamknięcie Web MVP.
+
+### Bieżąca kolejność zamknięcia Web MVP po 2026-07-01
+1. Przeprowadzić pełny restore drill stagingu dla PostgreSQL i storage oraz potwierdzić health, migracje i checkpoint MVP po odtworzeniu.
+2. Zapewnić zaszyfrowaną kopię backupu stagingowego poza VPS i potwierdzić politykę retencji.
+3. Wykonać końcowy checkpoint stagingu i podjąć formalną decyzję staging GO / NO-GO.
+4. Przygotować i wdrożyć odrębne środowisko produkcyjne z dokładnie zaakceptowanego commita.
+5. Przeprowadzić migracje, smoke testy, kontrolowane testy integracji, czyszczenie danych testowych, backup i restore drill produkcji.
+6. Formalnie zaakceptować produkcję i zamknąć Web MVP.
+
 - Faza 5: Universal Desktop Support API v1
   - capability map,
   - dokumentacja kontraktów,
@@ -719,9 +762,21 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Odczyt lokalnych assetów jest ograniczony do `storage/` i objęty automatycznym testem ścieżek poprawnych oraz niedozwolonych.
 - Istnieją aktualne raport bezpieczeństwa, plan zamknięcia i checklista stagingowa.
 
+### Kryteria akceptacyjne stagingu
+- Staging działa na odrębnym VPS, wykorzystuje odrębne sekrety, bazę i storage, a PostgreSQL nie publikuje portu do Internetu.
+- Dokładny commit stagingowy jest zapisany, repozytorium jest czyste, GitHub Actions quality gate i pełny `checkpoint:mvp` są zielone.
+- STG-GAP-001, STG-GAP-002 i STG-GAP-003 są zamknięte oraz potwierdzone rzeczywistymi testami integracyjnymi.
+- Testowe dane osobowe i rekordy operacyjne są po testach usunięte, a build i polityka pobierania wracają do stanu nieaktywnego.
+- Istnieje czysty backup PostgreSQL i storage z sumami kontrolnymi oraz niesensytywne dowody wykonania testów i czyszczenia.
+- Pełny restore drill odtwarza bazę i storage, a następnie kończy się zielonym health, statusem migracji i checkpointem MVP.
+- Zaszyfrowany backup jest przechowywany poza VPS zgodnie z polityką retencji.
+- Formalna decyzja staging GO może zostać podjęta dopiero po spełnieniu wszystkich powyższych punktów.
+
+Stan na 2026-07-01: wszystkie kryteria poza pełnym restore drill, kopią poza VPS i formalną decyzją staging GO są spełnione dla commita `d632500b895b0c8a379090c5ebfce1f45e54720f`.
+
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
-- Użytkownik może się zarejestrować i otrzymać e-mail z linkiem do pobrania.
+- Użytkownik może się zarejestrować i otrzymać e-mail z kontrolowanym linkiem pobrania zgodnie z polityką; finalny binarny build Fito Gen może pozostać nieopublikowany do czasu odrębnej akceptacji desktopowego release.
 - Zgody są zapisane, wersjonowane i możliwe do wykazania.
 - Administrator może zarządzać buildami, treściami, linkami i materiałami PDF.
 - Panel administracyjny wymaga poprawnego logowania e-mail + hasło.
@@ -783,6 +838,8 @@ Feature jest ukończony, gdy:
 - Ryzyko publikacji nieoptymalnych zdjęć o niewłaściwym formacie, rozdzielczości lub opisie alternatywnym.
 - RISK-SEC-001: Next.js 16.2.9 dostarcza zależność PostCSS raportowaną jako moderate; aktualny zakres nie przyjmuje niezaufanego CSS, ryzyko jest tymczasowo zaakceptowane i monitorowane przy aktualizacjach frameworka.
 - Ryzyko nieprawidłowej konfiguracji runtime storage lub dowiązań symbolicznych; ograniczone przez walidację ścieżek, realpath i smoke test.
+- Ostrzeżenie `MODULE_TYPELESS_PACKAGE_JSON` w smoke testach TypeScript jest zaakceptowanym niskim długiem; projekt nie dodaje obecnie `"type": "module"` do `package.json` bez odrębnej analizy wpływu.
+- Ostrzeżenie Turbopack/NFT dotyczące szerokiego śledzenia plików pozostaje zaakceptowanym niskim długiem związanym z runtime storage i wymaga monitorowania przy aktualizacjach Next.js.
 
 ### Ryzyka biznesowe
 - Niski współczynnik konwersji download po formularzu.
@@ -805,6 +862,8 @@ Feature jest ukończony, gdy:
 - Ryzyko utraty dostępności pojedynczego środowiska przy awarii jego VPS; ograniczone przez rozdzielenie stagingu i produkcji, backup poza VPS i procedurę odtworzeniową.
 - Ryzyko przekroczenia darmowego limitu Cloudflare R2 lub błędnej retencji backupów; ograniczone przez monitoring rozmiaru, rotację i alert progowy.
 - Ryzyko obsługi dwóch hostów przy pracy solo; ograniczone przez identyczny stack Docker Compose, checklisty i automatyzację powtarzalnych czynności.
+- Ryzyko pozostawienia danych osobowych w raportach tymczasowych lub backupach testowych; ograniczone przez maskowanie raportów, transakcyjne czyszczenie, kontrolę sum i usuwanie sensytywnych punktów odtworzeniowych po walidacji.
+- RISK-SEC-002: `EmailLog` dla `DOWNLOAD_LINK` zachowuje pełny wydany URL typu bearer, aby umożliwić wierny resend. Ryzyko jest ograniczone przez dostęp wyłącznie dla administratora, lifecycle linków `ONE_TIME` / `TEMPORARY`, ochronę bazy i backupów, retencję `EmailLog`, czyszczenie danych testowych oraz zakaz kopiowania surowych URL-i do logów kontenera, raportów i dokumentacji. W kolejnej wersji należy rozważyć szyfrowanie utrwalonej treści lub bezpieczne ponowne wydawanie linku zamiast przechowywania pełnego URL-a.
 
 ## 28. Dziennik zmian
 - 2026-04-10 – utworzono początkową wersję dokumentu po zakończeniu etapów inicjacji projektu.
@@ -827,6 +886,10 @@ Feature jest ukończony, gdy:
 - 2026-06-19 – zaakceptowano i wdrożono DEC-026: zamknięto kontrolę bezpieczeństwa, zapisano wynik Gitleaks i audytu zależności, zaakceptowano RISK-SEC-001, ograniczono ścieżki assetów do `storage/`, dodano test regresji storage oraz checklistę stagingową.
 - 2026-06-19 – zaakceptowano DEC-027 i ADR-011: staging i produkcja zostaną wdrożone na odrębnych OVHcloud VPS-2 z Ubuntu Server 24.04 LTS i Docker Compose, wyłącznie dla `egenlabs.eu`; produkcyjny VPS zostanie zakupiony dopiero po staging GO, a zaszyfrowane backupy aplikacyjne będą kopiowane do prywatnego Cloudflare R2.
 - 2026-06-23 – sprostowano nazwę handlową planu OVHcloud na VPS-2 dla parametrów 4 vCore, 8 GB RAM i 75 GB NVMe oraz zaakceptowano Caddy jako kontener reverse proxy w stacku staging/production.
+- 2026-07-01 – zaktualizowano stan fazy 4C: staging działa na commicie `d632500b895b0c8a379090c5ebfce1f45e54720f`, a STG-GAP-001 (Turnstile), STG-GAP-002 (newsletter double opt-in) i STG-GAP-003 (transactional e-mail text + HTML) są zakończone i zaakceptowane.
+- 2026-07-01 – zaakceptowano migrację `20260701123000_add_transactional_email_html`, aktywne szablony `DOWNLOAD_WELCOME v2`, `DOWNLOAD_LINK v2` i `NEWSLETTER_CONFIRMATION v3`, transport Brevo z `textContent` i `htmlContent`, bezpieczne kodowanie HTML, redakcję URL-a potwierdzenia newslettera, ochronę utrwalonego URL-a pobrania oraz kontrolowany resend z audytem.
+- 2026-07-01 – potwierdzono rzeczywiste testy wiadomości newslettera i pobierania, pełny checkpoint MVP, usunięcie kontrolowanych danych testowych, wyłączenie testowego builda i polityki pobierania oraz utworzenie czystego backupu po testach.
+- 2026-07-01 – do formalnego zakończenia stagingu pozostawiono pełny restore drill PostgreSQL i storage, zaszyfrowaną kopię poza VPS oraz decyzję staging GO / NO-GO.
 
 ## 29. Decision Log
 
@@ -1074,6 +1137,20 @@ Feature jest ukończony, gdy:
 - Kategoria: Infrastructure / Security / Operations / Deployment
 - Podsumowanie: Staging i produkcja `egenlabs.eu` działają na odrębnych OVHcloud VPS-2 z Ubuntu Server 24.04 LTS i Docker Compose. Caddy jest kontenerem reverse proxy i jedyną usługą wystawioną publicznie na portach 80/443. Oba serwery są przeznaczone wyłącznie dla tego projektu. Produkcyjny VPS jest kupowany dopiero po formalnej decyzji staging GO. Bazy, storage, sieci i sekrety są rozdzielone, PostgreSQL nie jest wystawiony publicznie, a zaszyfrowane backupy aplikacyjne są kopiowane do prywatnego Cloudflare R2.
 - Sekcje, których dotyczy: 16, 21, 22, 23, 24, 26, 27, 28
+
+### DEC-028
+- ADR ID: Brak
+- Tytuł: Transactional e-mail text + HTML i zamknięcie STG-GAP-003
+- Status: Accepted
+- Data: 2026-07-01
+- Kategoria: Product / Email / Security / Operations / Quality
+- Podsumowanie: Zaakceptowano wdrożenie na stagingu wersjonowanych wiadomości transakcyjnych z równoległą treścią tekstową i HTML, integrację Brevo przez `textContent` i `htmlContent`, zapis obu wariantów w `EmailLog`, bezpieczne kodowanie dynamicznych wartości, redakcję URL-a potwierdzenia newslettera, bezpieczny podgląd źródła HTML i kontrolowany resend. Treść `DOWNLOAD_LINK` zachowuje pełny wydany URL na potrzeby wiernego resendu i jest traktowana jako wrażliwa dana operacyjna; surowy token nie występuje w logach kontenera, raportach ani dokumentacji. Aktywne szablony to `DOWNLOAD_WELCOME v2`, `DOWNLOAD_LINK v2` i `NEWSLETTER_CONFIRMATION v3`; migracja `20260701123000_add_transactional_email_html` została zastosowana. Rzeczywiste testy Brevo, double opt-in, pobierania i resendu przeszły, dane testowe zostały transakcyjnie usunięte, a czysty backup zachowany. Akceptacja STG-GAP-003 nie jest równoznaczna z formalnym staging GO; przed GO pozostają restore drill, kopia backupu poza VPS i końcowy checkpoint.
+- Commit bazowy: `d632500b895b0c8a379090c5ebfce1f45e54720f`
+- Czysty backup PostgreSQL: `/var/backups/egenlabs-staging/stg-gap-003-post-cleanup-20260701-122733`
+- SHA-256 PostgreSQL: `744780bf52f7f533ad17bf973dc5daf3b8da7ee1ec355e701d09d0c70607a370`
+- Backup storage: `/var/backups/egenlabs-staging/stg-gap-003-pre-deploy-20260701-105544/storage/storage.tar.gz`
+- SHA-256 storage: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`
+- Sekcje, których dotyczy: 5, 7, 12, 13, 15, 17, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1570,12 +1647,12 @@ Wybrana opcja zapewnia pełniejszą separację środowisk, bezpieczniejszy resto
 - Błędna retencja lub przekroczenie limitu R2.
 
 ### Dalsze działania
-- Kupić wyłącznie stagingowy OVHcloud VPS-2.
-- Wykonać read-only inspection i hardening Ubuntu Server 24.04 LTS.
-- Przygotować kontrolowany stack Docker Compose z Caddy jako reverse proxy, trwałym storage i prywatną siecią PostgreSQL.
-- Usunąć STG-GAP-001 przez implementację Turnstile z serwerową walidacją Siteverify.
-- Przeprowadzić pełną checklistę stagingową i restore drill.
-- Kupić produkcyjny VPS dopiero po jawnej decyzji staging GO.
+- Stagingowy OVHcloud VPS-2, hardening i kontrolowany stack Docker Compose z Caddy, trwałym storage oraz prywatnym PostgreSQL są wdrożone.
+- STG-GAP-001, STG-GAP-002 i STG-GAP-003 są zakończone oraz zaakceptowane na commicie `d632500b895b0c8a379090c5ebfce1f45e54720f`.
+- Przeprowadzić pełny restore drill stagingu dla PostgreSQL i storage oraz powtórzyć health, migracje i checkpoint MVP po odtworzeniu.
+- Skopiować zaszyfrowany backup poza VPS i potwierdzić retencję.
+- Podjąć jawną decyzję staging GO / NO-GO.
+- Kupić i wdrożyć produkcyjny VPS dopiero po staging GO.
 
 ### Powiązane sekcje
 - 16. Przegląd architektury
