@@ -601,7 +601,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 ### Aktualny baseline stagingu na 2026-07-02
 - Staging działa pod `staging.egenlabs.eu` na odrębnym VPS i wykorzystuje prywatny PostgreSQL, trwały storage poza repozytorium oraz Caddy na publicznych portach 80/443.
 - Formalnie zaakceptowany commit aplikacyjny stagingu to `d632500b895b0c8a379090c5ebfce1f45e54720f` (`Add HTML transactional email templates`).
-- Oficjalny `main` po aktualizacji dokumentacji wskazuje commit `475de14bf6bd049d7d383bf187e8cde12a53fb06` (`docs(ops): record STG-GAP-003 acceptance`); commit dokumentacyjny nie zmienia obrazu aplikacji stagingowej.
+- Oficjalny `main` po formalnym staging GO i jego udokumentowaniu wskazywał commit `ddb2ec52f7ea0d525c15924b2cfc350b4ac94880` (`docs(ops): record staging GO`); commity dokumentacyjne nie zmieniają obrazu aplikacji stagingowej.
 - STG-GAP-001, STG-GAP-002 i STG-GAP-003 są funkcjonalnie zakończone i zaakceptowane.
 - Czysty punkt odtworzeniowy PostgreSQL po testach STG-GAP-003 znajduje się w `/var/backups/egenlabs-staging/stg-gap-003-post-cleanup-20260701-122733`; SHA-256 dumpu: `744780bf52f7f533ad17bf973dc5daf3b8da7ee1ec355e701d09d0c70607a370`.
 - Zweryfikowany backup storage znajduje się w `/var/backups/egenlabs-staging/stg-gap-003-pre-deploy-20260701-105544/storage/storage.tar.gz`; SHA-256 archiwum: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`.
@@ -610,6 +610,15 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Testowy build `0.0.0-staging-test` (`900001`) pozostaje nieaktywny, a polityka pobierania `ONE_TIME` pozostaje wyłączona.
 - Użytkownik podjął formalną decyzję staging GO dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`.
 - Zaszyfrowana kopia backupu poza VPS i potwierdzona polityka retencji pozostają obowiązkowym warunkiem operacyjnym przed wdrożeniem produkcyjnym.
+
+### Aktualny baseline produkcyjnego deployment shell na 2026-07-02
+- PROD-GAP-001 jest zakończony i zaakceptowany dla commita operacyjnego `8eff64e29b13ef669b90fa5ef05e99c54c059581` (`ops(prod): add production deployment shell`).
+- Zaakceptowany baseline kodu aplikacyjnego pozostaje na commicie `d632500b895b0c8a379090c5ebfce1f45e54720f`; commit operacyjny nie zmienia `src/`, schematu Prisma, assetów publicznych, storage, `Dockerfile`, lockfile ani konfiguracji runtime aplikacji.
+- Produkcyjny stack używa projektu Compose `egenlabs-production`, bazy `egenlabs_production`, konfiguracji `/etc/egenlabs-production`, storage `/var/lib/egenlabs-production/storage` oraz backupów `/var/backups/egenlabs-production`.
+- PostgreSQL i aplikacja nie publikują portów hosta; backendowa sieć Compose jest `internal: true`, a jedyną publiczną usługą jest Caddy na portach 80/443.
+- Repozytorium zawiera produkcyjny Compose, Caddyfile, bezpieczne przykłady konfiguracji, kontrolowany skrypt deploymentu, smoke test polityki konfiguracji, runbook oraz checklistę readiness.
+- GitHub Actions uruchamia `smoke:production-config`; Quality Gate dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581` zakończył się sukcesem.
+- Produkcyjny deployment shell nie oznacza jeszcze gotowości VPS ani decyzji `PRODUCTION GO`; przed wdrożeniem pozostają production preflight, backup poza VPS, infrastruktura, sekrety, DNS, firewall, TLS i końcowa akceptacja.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -640,6 +649,10 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Universal Desktop Support API v1 wymaga smoke testów kontraktów, kontroli zgodności payloadów oraz procedur publikacji i aktualizacji manifestów i paczek.
 - Przed release wykonywane są: pełny Gitleaks historii, `npm audit`, kontrola czystości Git oraz weryfikacja, że raporty bezpieczeństwa robocze nie są commitowane.
 - Wynik kontroli bezpieczeństwa i zaakceptowane ryzyka zależności są zapisywane w dokumentacji release.
+- Produkcyjne wdrożenie korzysta z `scripts/deploy-production.sh`, który wymaga jawnego `EXPECTED_COMMIT`, czystego worktree, odrębnych plików środowiskowych oraz poprawnej konfiguracji Compose.
+- `docs/production-deployment-runbook.md` jest operacyjną procedurą wdrożenia i rollbacku, a `docs/production-readiness-checklist.md` jest obowiązkową listą kontrolną przed decyzją `PRODUCTION GO`.
+- Test `smoke:production-config` kontroluje separację nazw, ścieżek, sieci i portów produkcji od stagingu oraz brak oczywistych sekretów w przykładach konfiguracji.
+- Produkcyjny rollback aplikacyjny nie może automatycznie cofać migracji bazy; rollback danych wymaga zatrzymania zapisów, zachowania stanu awaryjnego i użycia zweryfikowanego backupu.
 
 ## 24. Fazy dostarczenia
 - Faza 1: Foundation
@@ -699,14 +712,15 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - testy integracji, QA, czyszczenie danych testowych i utworzenie czystego backupu — zakończone dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`,
   - izolowany restore drill bazy i storage oraz końcowy checkpoint stagingu — zakończone i zaakceptowane 2026-07-02,
   - formalna decyzja staging GO — podjęta dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`,
+  - PROD-GAP-001: produkcyjny deployment shell, runbook, readiness checklist i test konfiguracji — zakończone i zaakceptowane dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581`,
   - zaszyfrowana kopia backupu poza VPS i polityka retencji — pozostają warunkiem przed wdrożeniem produkcyjnym,
-  - zakup, konfiguracja i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 — następny etap,
+  - zakup, hardening, konfiguracja i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 — następny etap,
   - produkcyjny smoke test, kontrolowane testy integracji, czyszczenie danych testowych, pierwszy czysty backup, restore drill produkcji i formalne zamknięcie Web MVP.
 
 ### Bieżąca kolejność zamknięcia Web MVP po 2026-07-02
 1. Zapewnić zaszyfrowaną kopię zaakceptowanego backupu stagingowego poza VPS i potwierdzić politykę retencji.
-2. Wykonać production preflight oraz przygotować odrębny produkcyjny OVHcloud VPS-2, bazę, storage, sekrety, DNS i HTTPS.
-3. Wdrożyć na produkcji dokładnie zaakceptowany commit aplikacyjny `d632500b895b0c8a379090c5ebfce1f45e54720f` bez dodatkowych zmian funkcjonalnych.
+2. Wykonać production preflight zgodnie z zaakceptowanym shellem operacyjnym `8eff64e29b13ef669b90fa5ef05e99c54c059581` oraz przygotować odrębny produkcyjny OVHcloud VPS-2, bazę, storage, sekrety, DNS, firewall i HTTPS.
+3. Wdrożyć release operacyjny zawierający niezmieniony baseline kodu aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`, bez dodatkowych zmian funkcjonalnych.
 4. Przeprowadzić migracje, smoke testy, pełny checkpoint MVP i kontrolowane testy integracji produkcyjnych.
 5. Usunąć dane testowe, utworzyć czysty backup produkcji i wykonać restore drill PostgreSQL oraz storage.
 6. Formalnie zaakceptować produkcję, zaktualizować dokumentację release i zamknąć Web MVP.
@@ -735,6 +749,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Universal Desktop Support API v1
 - Security & Compliance
 - Security Closure & Staging Readiness
+- Production Deployment & Readiness
 - Deployment & Operations
 
 ## 26. Kryteria akceptacyjne
@@ -779,6 +794,18 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Formalna decyzja staging GO jest jawna i wskazuje dokładny zaakceptowany commit aplikacyjny.
 
 Stan na 2026-07-02: wszystkie kryteria stagingowe są spełnione, a staging GO został formalnie zaakceptowany dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`. Zaszyfrowana kopia poza VPS pozostaje warunkiem production preflight.
+
+### Kryteria akceptacyjne produkcyjnego deployment shell
+- Produkcyjny stack posiada odrębny projekt Compose, bazę, konfigurację, storage, backupy, sieci i sekrety.
+- PostgreSQL i aplikacja nie publikują portów hosta, backend jest siecią wewnętrzną, a wyłącznie Caddy publikuje porty 80/443.
+- Repozytorium zawiera bezpieczne przykłady konfiguracji bez rzeczywistych sekretów.
+- Skrypt deploymentu wymaga dokładnego commita, czystego worktree, kontrolowanych migracji, zdrowej aplikacji i publicznego health checku.
+- Istnieją udokumentowane procedury preflight, deploymentu, post-deployment verification oraz rollbacku bez automatycznego cofania migracji.
+- Automatyczny test polityki konfiguracji produkcyjnej przechodzi lokalnie i w GitHub Actions.
+- Zmiana nie modyfikuje kodu aplikacji, schematu danych, lockfile ani zatwierdzonego storage.
+- Formalna akceptacja wskazuje dokładny commit operacyjny.
+
+Stan na 2026-07-02: kryteria produkcyjnego deployment shell są spełnione i PROD-GAP-001 został zaakceptowany dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581`. Nie jest to jeszcze decyzja `PRODUCTION GO`.
 
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
@@ -868,6 +895,8 @@ Feature jest ukończony, gdy:
 - Ryzyko utraty dostępności pojedynczego środowiska przy awarii jego VPS; ograniczone przez rozdzielenie stagingu i produkcji, backup poza VPS i procedurę odtworzeniową.
 - Ryzyko przekroczenia darmowego limitu Cloudflare R2 lub błędnej retencji backupów; ograniczone przez monitoring rozmiaru, rotację i alert progowy.
 - Ryzyko obsługi dwóch hostów przy pracy solo; ograniczone przez identyczny stack Docker Compose, checklisty i automatyzację powtarzalnych czynności.
+- Ryzyko dryfu konfiguracji pomiędzy stagingiem i produkcją; ograniczone przez odrębny, testowany produkcyjny Compose, jawne ścieżki środowiskowe, `smoke:production-config`, runbook i checklistę readiness.
+- Ryzyko uruchomienia produkcji z niewłaściwego commita lub brudnego worktree; ograniczone przez obowiązkowy `EXPECTED_COMMIT`, kontrolę Git oraz rejestrowanie commita operacyjnego i baseline aplikacyjnego.
 - Ryzyko pozostawienia danych osobowych w raportach tymczasowych lub backupach testowych; ograniczone przez maskowanie raportów, transakcyjne czyszczenie, kontrolę sum i usuwanie sensytywnych punktów odtworzeniowych po walidacji.
 - RISK-SEC-002: `EmailLog` dla `DOWNLOAD_LINK` zachowuje pełny wydany URL typu bearer, aby umożliwić wierny resend. Ryzyko jest ograniczone przez dostęp wyłącznie dla administratora, lifecycle linków `ONE_TIME` / `TEMPORARY`, ochronę bazy i backupów, retencję `EmailLog`, czyszczenie danych testowych oraz zakaz kopiowania surowych URL-i do logów kontenera, raportów i dokumentacji. W kolejnej wersji należy rozważyć szyfrowanie utrwalonej treści lub bezpieczne ponowne wydawanie linku zamiast przechowywania pełnego URL-a.
 
@@ -899,6 +928,8 @@ Feature jest ukończony, gdy:
 - 2026-07-02 – wykonano izolowany restore drill stagingu: dump PostgreSQL odtworzono do niepublicznego kontenera tymczasowego, potwierdzono 16 migracji, aktywne szablony v2/v3, brak kontrolowanych danych testowych oraz wyłączony stan pobierania; storage odtworzono do katalogu tymczasowego i potwierdzono zgodność sumy pliku PDF z aktywnym storage.
 - 2026-07-02 – końcowy checkpoint stagingu potwierdził usunięcie zasobów tymczasowych, aktualność migracji, zielony pełny `checkpoint:mvp`, zdrowe kontenery i wyłączone pobieranie testowe.
 - 2026-07-02 – użytkownik formalnie zaakceptował staging GO dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`; zaszyfrowana kopia backupu poza VPS i polityka retencji pozostają warunkiem przed wdrożeniem produkcyjnym.
+- 2026-07-02 – zakończono i zaakceptowano PROD-GAP-001 dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581`: dodano odrębny produkcyjny stack Docker Compose, Caddyfile, bezpieczne przykłady konfiguracji, kontrolowany deployment script, test polityki konfiguracji, runbook, readiness checklist i bramkę CI.
+- 2026-07-02 – potwierdzono, że PROD-GAP-001 nie zmienia zaakceptowanego baseline kodu aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`; production preflight, infrastruktura, sekrety, DNS, backup poza VPS i formalne `PRODUCTION GO` pozostają otwarte.
 
 ## 29. Decision Log
 
@@ -1176,6 +1207,18 @@ Feature jest ukończony, gdy:
 - SHA-256 storage: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`
 - SHA-256 odtworzonego i aktywnego `fito-gen-one-pager.pdf`: `649ef90d4a7ab00a63687fe7c8465d87cdc864ffe7ff77c21f71a12b936d5226`
 - Sekcje, których dotyczy: 22, 23, 24, 26, 27, 28, 29, 40
+
+### DEC-030
+- ADR ID: ADR-011
+- Tytuł: Produkcyjny deployment shell i zamknięcie PROD-GAP-001
+- Status: Accepted
+- Data: 2026-07-02
+- Kategoria: Infrastructure / Security / Operations / Deployment / Quality
+- Podsumowanie: Zaakceptowano odrębny produkcyjny deployment shell dla eGen Labs Web Platform. Repozytorium otrzymało `compose.production.yaml`, produkcyjny Caddyfile, bezpieczne przykłady konfiguracji, kontrolowany skrypt wdrożeniowy, test polityki konfiguracji, runbook i checklistę readiness. Stack używa projektu `egenlabs-production`, bazy `egenlabs_production`, konfiguracji `/etc/egenlabs-production`, storage `/var/lib/egenlabs-production/storage` i backupów `/var/backups/egenlabs-production`. PostgreSQL oraz aplikacja nie publikują portów hosta, sieć backendowa jest wewnętrzna, a Caddy jest jedyną publiczną usługą na portach 80/443. Skrypt wymaga dokładnego `EXPECTED_COMMIT`, czystego worktree, kontrolowanych migracji, zdrowia aplikacji i publicznego health checku. `smoke:production-config` został dodany do GitHub Actions i Quality Gate zakończył się sukcesem. Zmiana nie modyfikuje kodu aplikacji, schematu Prisma, lockfile ani storage i nie stanowi jeszcze decyzji `PRODUCTION GO`.
+- Zaakceptowany baseline kodu aplikacyjnego: `d632500b895b0c8a379090c5ebfce1f45e54720f`
+- Zaakceptowany commit operacyjny: `8eff64e29b13ef669b90fa5ef05e99c54c059581`
+- Poprzedzający commit dokumentacyjny staging GO: `ddb2ec52f7ea0d525c15924b2cfc350b4ac94880`
+- Sekcje, których dotyczy: 14, 21, 22, 23, 24, 25, 26, 27, 28, 29, 40
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1676,8 +1719,9 @@ Wybrana opcja zapewnia pełniejszą separację środowisk, bezpieczniejszy resto
 - STG-GAP-001, STG-GAP-002 i STG-GAP-003 są zakończone oraz zaakceptowane na commicie `d632500b895b0c8a379090c5ebfce1f45e54720f`.
 - Izolowany restore drill stagingu dla PostgreSQL i storage, końcowy health, status migracji i pełny checkpoint MVP zostały zaliczone.
 - Formalna decyzja staging GO została podjęta dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`.
+- PROD-GAP-001 został zakończony i zaakceptowany dla commita operacyjnego `8eff64e29b13ef669b90fa5ef05e99c54c059581`; produkcyjny Compose, Caddyfile, deployment script, runbook, readiness checklist i test konfiguracji są dostępne w repozytorium.
 - Skopiować zaszyfrowany zaakceptowany backup poza VPS i potwierdzić retencję przed wdrożeniem produkcyjnym.
-- Przygotować, zabezpieczyć i wdrożyć odrębny produkcyjny VPS zgodnie z production preflight.
+- Przygotować, zabezpieczyć i wdrożyć odrębny produkcyjny VPS zgodnie z production preflight i zaakceptowanym shellem operacyjnym.
 - Po wdrożeniu produkcji wykonać kontrolowane testy, czyszczenie danych, czysty backup i restore drill produkcji.
 
 ### Powiązane sekcje
