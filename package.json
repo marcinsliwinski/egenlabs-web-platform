@@ -30,7 +30,8 @@
     "smoke:newsletter-doi": "node scripts/smoke-newsletter-double-opt-in.mjs",
     "ops:cleanup:test-data": "node scripts/cleanup-staging-test-data.mjs",
     "smoke:turnstile": "node --experimental-strip-types scripts/smoke-turnstile.mjs",
-    "smoke:email-html": "node --experimental-strip-types scripts/smoke-transactional-email-html.mjs"
+    "smoke:email-html": "node --experimental-strip-types scripts/smoke-transactional-email-html.mjs",
+    "smoke:production-config": "node scripts/smoke-production-config.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

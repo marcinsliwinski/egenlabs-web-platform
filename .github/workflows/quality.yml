@@ -81,6 +81,8 @@ jobs:
 
       - name: Validate storage path confinement
         run: npm run smoke:storage-paths
+      - name: Validate production deployment configuration
+        run: npm run smoke:production-config
 
       - name: Build
         env:

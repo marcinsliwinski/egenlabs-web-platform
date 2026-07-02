@@ -1,0 +1,136 @@
+name: egenlabs-production
+
+services:
+  postgres:
+    image: postgres:16.14-alpine3.24
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+
+  migrate:
+    profiles: ["ops"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: egenlabs-web-platform:${APP_IMAGE_TAG:-production}
+    init: true
+    env_file:
+      - ${APP_ENV_FILE:-/etc/egenlabs-production/app.env}
+    command: ["npx", "prisma", "migrate", "deploy"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  builder:
+    profiles: ["ops"]
+    image: egenlabs-web-platform:${APP_IMAGE_TAG:-production}
+    init: true
+    user: "0:0"
+    env_file:
+      - ${APP_ENV_FILE:-/etc/egenlabs-production/app.env}
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        find /app/.next -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+        npm run build
+        chown -R 1000:1000 /app/.next
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - next_build:/app/.next
+      - /var/lib/egenlabs-production/storage:/app/storage
+    networks:
+      - backend
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  app:
+    image: egenlabs-web-platform:${APP_IMAGE_TAG:-production}
+    init: true
+    user: "1000:1000"
+    restart: unless-stopped
+    env_file:
+      - ${APP_ENV_FILE:-/etc/egenlabs-production/app.env}
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3000"
+    volumes:
+      - next_build:/app/.next
+      - /var/lib/egenlabs-production/storage:/app/storage
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/v1/health').then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1));",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/production/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - frontend
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  frontend:
+  backend:
+    internal: true
+
+volumes:
+  postgres_data:
+  next_build:
+  caddy_data:
+  caddy_config:
