@@ -598,14 +598,18 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - GitHub Actions quality gate jest obowiązkową bramką dla `main` i musi pozostać zielony przed stagingiem oraz produkcją.
 - Runtime storage jest montowany poza repozytorium; aplikacja otrzymuje wyłącznie minimalne wymagane uprawnienia do katalogów buildów i mediów.
 
-### Aktualny baseline stagingu na 2026-07-01
+### Aktualny baseline stagingu na 2026-07-02
 - Staging działa pod `staging.egenlabs.eu` na odrębnym VPS i wykorzystuje prywatny PostgreSQL, trwały storage poza repozytorium oraz Caddy na publicznych portach 80/443.
-- Zatwierdzony i wdrożony commit stagingowy to `d632500b895b0c8a379090c5ebfce1f45e54720f` (`Add HTML transactional email templates`).
+- Formalnie zaakceptowany commit aplikacyjny stagingu to `d632500b895b0c8a379090c5ebfce1f45e54720f` (`Add HTML transactional email templates`).
+- Oficjalny `main` po aktualizacji dokumentacji wskazuje commit `475de14bf6bd049d7d383bf187e8cde12a53fb06` (`docs(ops): record STG-GAP-003 acceptance`); commit dokumentacyjny nie zmienia obrazu aplikacji stagingowej.
 - STG-GAP-001, STG-GAP-002 i STG-GAP-003 są funkcjonalnie zakończone i zaakceptowane.
 - Czysty punkt odtworzeniowy PostgreSQL po testach STG-GAP-003 znajduje się w `/var/backups/egenlabs-staging/stg-gap-003-post-cleanup-20260701-122733`; SHA-256 dumpu: `744780bf52f7f533ad17bf973dc5daf3b8da7ee1ec355e701d09d0c70607a370`.
 - Zweryfikowany backup storage znajduje się w `/var/backups/egenlabs-staging/stg-gap-003-pre-deploy-20260701-105544/storage/storage.tar.gz`; SHA-256 archiwum: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`.
+- Izolowany restore drill PostgreSQL i storage został zaliczony 2026-07-02: odtworzono 16 migracji, aktywne szablony v2/v3 i oczyszczony stan danych, a suma odtworzonego pliku storage była identyczna z aktywnym storage.
+- Końcowy checkpoint stagingu potwierdził aktualne migracje, zielony `checkpoint:mvp`, zdrowe kontenery, wyłączone pobieranie testowe oraz usunięcie zasobów tymczasowych restore drillu.
 - Testowy build `0.0.0-staging-test` (`900001`) pozostaje nieaktywny, a polityka pobierania `ONE_TIME` pozostaje wyłączona.
-- Pełny restore drill stagingu, zaszyfrowana kopia poza VPS i formalna decyzja staging GO pozostają niezakończone.
+- Użytkownik podjął formalną decyzję staging GO dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`.
+- Zaszyfrowana kopia backupu poza VPS i potwierdzona polityka retencji pozostają obowiązkowym warunkiem operacyjnym przed wdrożeniem produkcyjnym.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -692,19 +696,20 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - usunięcie STG-GAP-001 przez pełną integrację Cloudflare Turnstile z walidacją Siteverify po stronie serwera — zakończone i zaakceptowane,
   - usunięcie STG-GAP-002 przez newsletter double opt-in — zakończone i zaakceptowane,
   - usunięcie STG-GAP-003 przez wersjonowane wiadomości tekstowe i HTML, Brevo, logowanie, redakcję oraz resend — zakończone i zaakceptowane,
-  - testy integracji, QA i utworzenie czystego backupu — zakończone dla bieżącego commita stagingowego,
-  - pełny restore drill bazy i storage oraz kopia zaszyfrowana poza VPS — pozostają do wykonania,
-  - formalna decyzja staging GO / NO-GO — pozostaje do podjęcia po restore drill,
-  - zakup i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 dopiero po staging GO,
-  - produkcyjny smoke test, pierwszy backup, restore drill produkcji i formalne zamknięcie Web MVP.
+  - testy integracji, QA, czyszczenie danych testowych i utworzenie czystego backupu — zakończone dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`,
+  - izolowany restore drill bazy i storage oraz końcowy checkpoint stagingu — zakończone i zaakceptowane 2026-07-02,
+  - formalna decyzja staging GO — podjęta dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`,
+  - zaszyfrowana kopia backupu poza VPS i polityka retencji — pozostają warunkiem przed wdrożeniem produkcyjnym,
+  - zakup, konfiguracja i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 — następny etap,
+  - produkcyjny smoke test, kontrolowane testy integracji, czyszczenie danych testowych, pierwszy czysty backup, restore drill produkcji i formalne zamknięcie Web MVP.
 
-### Bieżąca kolejność zamknięcia Web MVP po 2026-07-01
-1. Przeprowadzić pełny restore drill stagingu dla PostgreSQL i storage oraz potwierdzić health, migracje i checkpoint MVP po odtworzeniu.
-2. Zapewnić zaszyfrowaną kopię backupu stagingowego poza VPS i potwierdzić politykę retencji.
-3. Wykonać końcowy checkpoint stagingu i podjąć formalną decyzję staging GO / NO-GO.
-4. Przygotować i wdrożyć odrębne środowisko produkcyjne z dokładnie zaakceptowanego commita.
-5. Przeprowadzić migracje, smoke testy, kontrolowane testy integracji, czyszczenie danych testowych, backup i restore drill produkcji.
-6. Formalnie zaakceptować produkcję i zamknąć Web MVP.
+### Bieżąca kolejność zamknięcia Web MVP po 2026-07-02
+1. Zapewnić zaszyfrowaną kopię zaakceptowanego backupu stagingowego poza VPS i potwierdzić politykę retencji.
+2. Wykonać production preflight oraz przygotować odrębny produkcyjny OVHcloud VPS-2, bazę, storage, sekrety, DNS i HTTPS.
+3. Wdrożyć na produkcji dokładnie zaakceptowany commit aplikacyjny `d632500b895b0c8a379090c5ebfce1f45e54720f` bez dodatkowych zmian funkcjonalnych.
+4. Przeprowadzić migracje, smoke testy, pełny checkpoint MVP i kontrolowane testy integracji produkcyjnych.
+5. Usunąć dane testowe, utworzyć czysty backup produkcji i wykonać restore drill PostgreSQL oraz storage.
+6. Formalnie zaakceptować produkcję, zaktualizować dokumentację release i zamknąć Web MVP.
 
 - Faza 5: Universal Desktop Support API v1
   - capability map,
@@ -768,11 +773,12 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - STG-GAP-001, STG-GAP-002 i STG-GAP-003 są zamknięte oraz potwierdzone rzeczywistymi testami integracyjnymi.
 - Testowe dane osobowe i rekordy operacyjne są po testach usunięte, a build i polityka pobierania wracają do stanu nieaktywnego.
 - Istnieje czysty backup PostgreSQL i storage z sumami kontrolnymi oraz niesensytywne dowody wykonania testów i czyszczenia.
-- Pełny restore drill odtwarza bazę i storage, a następnie kończy się zielonym health, statusem migracji i checkpointem MVP.
-- Zaszyfrowany backup jest przechowywany poza VPS zgodnie z polityką retencji.
-- Formalna decyzja staging GO może zostać podjęta dopiero po spełnieniu wszystkich powyższych punktów.
+- Pełny izolowany restore drill odtwarza bazę i storage, potwierdza migracje, stan danych i integralność plików, a działający staging pozostaje dostępny.
+- Końcowy checkpoint potwierdza brak zasobów tymczasowych, aktualność migracji, zielony `checkpoint:mvp`, wyłączone pobieranie i zdrowe kontenery.
+- Zaszyfrowany backup poza VPS i potwierdzona polityka retencji są wymagane przed wdrożeniem produkcyjnym.
+- Formalna decyzja staging GO jest jawna i wskazuje dokładny zaakceptowany commit aplikacyjny.
 
-Stan na 2026-07-01: wszystkie kryteria poza pełnym restore drill, kopią poza VPS i formalną decyzją staging GO są spełnione dla commita `d632500b895b0c8a379090c5ebfce1f45e54720f`.
+Stan na 2026-07-02: wszystkie kryteria stagingowe są spełnione, a staging GO został formalnie zaakceptowany dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`. Zaszyfrowana kopia poza VPS pozostaje warunkiem production preflight.
 
 ### Kryteria akceptacyjne MVP
 - Strona publiczna działa na produkcji.
@@ -890,6 +896,9 @@ Feature jest ukończony, gdy:
 - 2026-07-01 – zaakceptowano migrację `20260701123000_add_transactional_email_html`, aktywne szablony `DOWNLOAD_WELCOME v2`, `DOWNLOAD_LINK v2` i `NEWSLETTER_CONFIRMATION v3`, transport Brevo z `textContent` i `htmlContent`, bezpieczne kodowanie HTML, redakcję URL-a potwierdzenia newslettera, ochronę utrwalonego URL-a pobrania oraz kontrolowany resend z audytem.
 - 2026-07-01 – potwierdzono rzeczywiste testy wiadomości newslettera i pobierania, pełny checkpoint MVP, usunięcie kontrolowanych danych testowych, wyłączenie testowego builda i polityki pobierania oraz utworzenie czystego backupu po testach.
 - 2026-07-01 – do formalnego zakończenia stagingu pozostawiono pełny restore drill PostgreSQL i storage, zaszyfrowaną kopię poza VPS oraz decyzję staging GO / NO-GO.
+- 2026-07-02 – wykonano izolowany restore drill stagingu: dump PostgreSQL odtworzono do niepublicznego kontenera tymczasowego, potwierdzono 16 migracji, aktywne szablony v2/v3, brak kontrolowanych danych testowych oraz wyłączony stan pobierania; storage odtworzono do katalogu tymczasowego i potwierdzono zgodność sumy pliku PDF z aktywnym storage.
+- 2026-07-02 – końcowy checkpoint stagingu potwierdził usunięcie zasobów tymczasowych, aktualność migracji, zielony pełny `checkpoint:mvp`, zdrowe kontenery i wyłączone pobieranie testowe.
+- 2026-07-02 – użytkownik formalnie zaakceptował staging GO dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`; zaszyfrowana kopia backupu poza VPS i polityka retencji pozostają warunkiem przed wdrożeniem produkcyjnym.
 
 ## 29. Decision Log
 
@@ -1151,6 +1160,22 @@ Feature jest ukończony, gdy:
 - Backup storage: `/var/backups/egenlabs-staging/stg-gap-003-pre-deploy-20260701-105544/storage/storage.tar.gz`
 - SHA-256 storage: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`
 - Sekcje, których dotyczy: 5, 7, 12, 13, 15, 17, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29
+
+### DEC-029
+- ADR ID: ADR-011
+- Tytuł: Formalny staging GO po izolowanym restore drill
+- Status: Accepted
+- Data: 2026-07-02
+- Kategoria: Infrastructure / Operations / Quality / Release
+- Podsumowanie: Zaakceptowano całe środowisko stagingowe eGen Labs Web Platform dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`. Izolowany restore drill odtworzył czysty dump PostgreSQL do tymczasowego, niepublicznego kontenera i potwierdził 16 zakończonych migracji, aktywne szablony `DOWNLOAD_WELCOME v2`, `DOWNLOAD_LINK v2` i `NEWSLETTER_CONFIRMATION v3`, brak kontrolowanych danych testowych oraz wyłączony stan pobierania. Backup storage został rozpakowany do katalogu tymczasowego, a suma SHA-256 odtworzonego PDF była identyczna z aktywnym storage. Końcowy checkpoint potwierdził brak pozostałych zasobów tymczasowych, aktualne migracje, zielony pełny `checkpoint:mvp`, zdrowe kontenery i wyłączone pobieranie testowe. Staging GO otwiera etap production preflight; zaszyfrowana kopia zaakceptowanego backupu poza VPS i potwierdzona polityka retencji pozostają obowiązkowym warunkiem przed wdrożeniem produkcyjnym.
+- Commit aplikacyjny stagingu: `d632500b895b0c8a379090c5ebfce1f45e54720f`
+- Commit dokumentacyjny poprzedzający decyzję GO: `475de14bf6bd049d7d383bf187e8cde12a53fb06`
+- Czysty backup PostgreSQL: `/var/backups/egenlabs-staging/stg-gap-003-post-cleanup-20260701-122733`
+- SHA-256 PostgreSQL: `744780bf52f7f533ad17bf973dc5daf3b8da7ee1ec355e701d09d0c70607a370`
+- Backup storage: `/var/backups/egenlabs-staging/stg-gap-003-pre-deploy-20260701-105544/storage/storage.tar.gz`
+- SHA-256 storage: `8125c31b55834f48dc816c858954e1a1520badc5a602c8069dd882769e4ffcdf`
+- SHA-256 odtworzonego i aktywnego `fito-gen-one-pager.pdf`: `649ef90d4a7ab00a63687fe7c8465d87cdc864ffe7ff77c21f71a12b936d5226`
+- Sekcje, których dotyczy: 22, 23, 24, 26, 27, 28, 29, 40
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1649,10 +1674,11 @@ Wybrana opcja zapewnia pełniejszą separację środowisk, bezpieczniejszy resto
 ### Dalsze działania
 - Stagingowy OVHcloud VPS-2, hardening i kontrolowany stack Docker Compose z Caddy, trwałym storage oraz prywatnym PostgreSQL są wdrożone.
 - STG-GAP-001, STG-GAP-002 i STG-GAP-003 są zakończone oraz zaakceptowane na commicie `d632500b895b0c8a379090c5ebfce1f45e54720f`.
-- Przeprowadzić pełny restore drill stagingu dla PostgreSQL i storage oraz powtórzyć health, migracje i checkpoint MVP po odtworzeniu.
-- Skopiować zaszyfrowany backup poza VPS i potwierdzić retencję.
-- Podjąć jawną decyzję staging GO / NO-GO.
-- Kupić i wdrożyć produkcyjny VPS dopiero po staging GO.
+- Izolowany restore drill stagingu dla PostgreSQL i storage, końcowy health, status migracji i pełny checkpoint MVP zostały zaliczone.
+- Formalna decyzja staging GO została podjęta dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`.
+- Skopiować zaszyfrowany zaakceptowany backup poza VPS i potwierdzić retencję przed wdrożeniem produkcyjnym.
+- Przygotować, zabezpieczyć i wdrożyć odrębny produkcyjny VPS zgodnie z production preflight.
+- Po wdrożeniu produkcji wykonać kontrolowane testy, czyszczenie danych, czysty backup i restore drill produkcji.
 
 ### Powiązane sekcje
 - 16. Przegląd architektury
