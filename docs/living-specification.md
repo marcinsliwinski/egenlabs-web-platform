@@ -328,6 +328,7 @@ Poza MVP pozostają:
 - Stosować Git i GitHub jako obowiązkowy workflow version control.
 - Utrzymywać aktualny `.gitignore` i rozszerzać go przy dodawaniu nowych typów plików, narzędzi lub katalogów roboczych.
 - Nie commitować do repozytorium sekretów, plików `.env`, kluczy API, haseł, certyfikatów prywatnych, backupów, dumpów baz, eksportów danych użytkowników, lokalnych uploadów, build artifacts ani logów zawierających dane wrażliwe.
+- Repozytoryjna konfiguracja `.gitleaks.toml` rozszerza domyślne reguły Gitleaks. Potwierdzone pojedyncze false positive mogą być ignorowane wyłącznie przez dokładny fingerprint znaleziska w `.gitleaksignore`, obejmujący commit, ścieżkę, regułę i numer linii. Zabronione jest wyłączanie całej reguły, ścieżki albo klasy znalezisk bez osobnej analizy i akceptacji.
 - W dokumentacji, w tym w `/docs/living-specification.md`, używać wyłącznie placeholderów i opisów technicznych zamiast rzeczywistych sekretów, danych osobowych lub produkcyjnych identyfikatorów wrażliwych.
 - Commitować historię migracji do repozytorium.
 - Stosować checklistę review nawet przy pracy solo.
@@ -570,7 +571,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Endpointy intake Universal Desktop Support API v1 muszą uwzględniać walidację wejścia, ograniczanie nadużyć i bezpieczne logowanie błędów.
 - Paczki referencyjne publikowane przez platformę powinny posiadać metadane integralności, w szczególności checksumy.
 - Publiczna warstwa UI ma stosować zasadę minimalizacji danych: prywatne dane producenta nie są powielane na kartach produktowych ani w stopce, ale mogą pozostać w zatwierdzonych dokumentach produktu udostępnianych do pobrania.
-- Pełna historia Git jest skanowana narzędziem Gitleaks przed release; zaakceptowany baseline z 2026-06-19 obejmuje 31 commitów i 0 wykrytych sekretów.
+- Pełna historia Git jest skanowana narzędziem Gitleaks przed release oraz automatycznie w GitHub Actions. Repozytoryjny `.gitleaks.toml` rozszerza domyślne reguły, a `.gitleaksignore` może zawierać wyłącznie dokładne fingerprinty indywidualnie potwierdzonych false positive. Historyczny niesekretny placeholder PostgreSQL z commita `3e09aa325ea8bdb10ee8269cec2634e9ab737b52` jest ignorowany wyłącznie jako konkretne znalezisko powiązane z jedną ścieżką, regułą i linią; nie jest to zgoda na rzeczywiste sekrety ani podobne wartości w przyszłych commitach.
 - Zależności produkcyjne nie mogą posiadać niezaakceptowanych podatności critical ani high. Podatności moderate wymagają analizy ekspozycji i wpisu do rejestru ryzyka.
 - Wartości `storagePath` muszą wskazywać relatywne pliki wewnątrz `storage/builds/...` albo `storage/media/...`; ścieżki absolutne i wychodzące poza storage są zabronione.
 
@@ -595,7 +596,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Pliki środowiskowe, sekrety, prywatne buildy, backupy, dumpy baz, lokalne storage i dane eksportowane z systemu muszą pozostawać poza repozytorium i być objęte `.gitignore`.
 - Platforma musi wspierać publikację wersjonowanych manifestów i paczek dla Universal Desktop Support API v1.
 - Wdrożenie Universal Desktop Support API v1 wymaga stabilnych URL-i dla manifestów i paczek oraz kontrolowanego procesu publikacji nowych wersji.
-- GitHub Actions quality gate jest obowiązkową bramką dla `main` i musi pozostać zielony przed stagingiem oraz produkcją.
+- GitHub Actions quality gate jest obowiązkową bramką dla `main` i musi pozostać zielony przed stagingiem oraz produkcją. Checkout CI pobiera pełną historię, a przed instalacją zależności wykonywany jest pełny skan Gitleaks z przypiętym obrazem v8.30.1, repozytoryjną konfiguracją `.gitleaks.toml` i jawną ścieżką do `.gitleaksignore`.
 - Runtime storage jest montowany poza repozytorium; aplikacja otrzymuje wyłącznie minimalne wymagane uprawnienia do katalogów buildów i mediów.
 
 ### Aktualny baseline stagingu na 2026-07-02
@@ -627,6 +628,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Backup plików konfiguracyjnych i uploadów.
 - Okresowy przegląd `.gitignore` oraz listy plików śledzonych przez Git przed publikacją zmian na GitHubie.
 - Procedura operacyjna ma wymagać sprawdzenia, czy commit lub pull request nie zawiera danych wrażliwych, sekretów, prywatnych eksportów, backupów ani logów diagnostycznych z danymi użytkowników.
+- False positive Gitleaks musi zostać udokumentowany i obsłużony najmniejszym możliwym wyjątkiem: dokładnym fingerprintem pojedynczego znaleziska w `.gitleaksignore`. Nie wolno przepisywać historii dla potwierdzonego niesekretnego placeholdera ani stosować szerokich wyjątków ukrywających przyszłe znaleziska.
 - Procedura restore dla MVP.
 - Okresowe testy odtwarzania.
 - Retencja danych roboczo:
@@ -778,7 +780,7 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Katalog obsługuje opcjonalne zdjęcia serii i modeli zgodnie z udokumentowanym standardem plików.
 - Ogólna komunikacja GEN-FED / CMC-GEN może wskazywać komponenty stosowane w rodzinie rozwiązań, a karty konkretnych SKU pozostają zgodne z ich rzeczywistą konfiguracją.
 - GitHub Actions quality gate przechodzi dla bieżącego `main`.
-- Pełny skan Gitleaks historii Git nie wykrywa sekretów, a `npm audit` nie zgłasza niezaakceptowanych podatności critical ani high.
+- Pełny skan Gitleaks historii Git, wykonywany również w GitHub Actions z repozytoryjną konfiguracją, nie wykrywa sekretów poza jawnie udokumentowanymi false positive ograniczonymi do dokładnych fingerprintów w `.gitleaksignore`; `npm audit` nie zgłasza niezaakceptowanych podatności critical ani high.
 - Odczyt lokalnych assetów jest ograniczony do `storage/` i objęty automatycznym testem ścieżek poprawnych oraz niedozwolonych.
 - Istnieją aktualne raport bezpieczeństwa, plan zamknięcia i checklista stagingowa.
 
@@ -848,6 +850,7 @@ Feature jest ukończony, gdy:
 - Przeciążenie scope’u przez zbyt szerokie myślenie multi-product już w MVP.
 - Zbyt rozbudowany panel administracyjny.
 - Niedoszacowanie auth i bezpieczeństwa.
+- Mechanizm `.gitleaksignore` oparty na fingerprintach jest eksperymentalny i może zmienić się między wersjami. Ryzyko ogranicza przypięcie Gitleaks v8.30.1, pojedynczy dokładny fingerprint, pełny skan lokalny i CI oraz obowiązkowy retest przed aktualizacją narzędzia. Szerokie wyjątki są zabronione.
 - Zbyt szeroka telemetria bez dopracowanego modelu danych i retencji.
 - Zbyt skomplikowany download flow.
 - Problemy z deliverability e-maili.
@@ -930,6 +933,7 @@ Feature jest ukończony, gdy:
 - 2026-07-02 – użytkownik formalnie zaakceptował staging GO dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`; zaszyfrowana kopia backupu poza VPS i polityka retencji pozostają warunkiem przed wdrożeniem produkcyjnym.
 - 2026-07-02 – zakończono i zaakceptowano PROD-GAP-001 dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581`: dodano odrębny produkcyjny stack Docker Compose, Caddyfile, bezpieczne przykłady konfiguracji, kontrolowany deployment script, test polityki konfiguracji, runbook, readiness checklist i bramkę CI.
 - 2026-07-02 – potwierdzono, że PROD-GAP-001 nie zmienia zaakceptowanego baseline kodu aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`; production preflight, infrastruktura, sekrety, DNS, backup poza VPS i formalne `PRODUCTION GO` pozostają otwarte.
+- 2026-07-03 – zaakceptowano PROD-GAP-002: repozytoryjną politykę Gitleaks, dokładny fingerprint historycznego niesekretnego placeholdera PostgreSQL w `.gitleaksignore`, zmianę bieżącego placeholdera stagingowego oraz pełny skan historii Git w GitHub Actions z przypiętym obrazem Gitleaks v8.30.1.
 
 ## 29. Decision Log
 
@@ -1219,6 +1223,15 @@ Feature jest ukończony, gdy:
 - Zaakceptowany commit operacyjny: `8eff64e29b13ef669b90fa5ef05e99c54c059581`
 - Poprzedzający commit dokumentacyjny staging GO: `ddb2ec52f7ea0d525c15924b2cfc350b4ac94880`
 - Sekcje, których dotyczy: 14, 21, 22, 23, 24, 25, 26, 27, 28, 29, 40
+
+### DEC-031
+- ADR ID: Brak
+- Tytuł: Repozytoryjna polityka Gitleaks i pełny skan historii w CI
+- Status: Accepted
+- Data: 2026-07-03
+- Kategoria: Security / Infrastructure / Quality / CI
+- Podsumowanie: Pełny preprodukcyjny skan 47 commitów Gitleaks v8.30.1 wykrył jeden false positive w historycznym pliku przykładowym `deploy/staging/compose.env.example`. Potwierdzono, że była to instrukcyjna wartość zastępcza dla hasła PostgreSQL, a nie sekret. Zaakceptowano `.gitleaks.toml` rozszerzający domyślne reguły oraz `.gitleaksignore` zawierający dokładnie jeden fingerprint tego znaleziska, wiążący commit `3e09aa325ea8bdb10ee8269cec2634e9ab737b52`, ścieżkę, regułę i numer linii. Bieżący placeholder stagingowy zostaje zastąpiony wartością o jednoznacznie niesekretnym charakterze. GitHub Actions pobiera pełną historię i uruchamia skan przypiętym obrazem Gitleaks v8.30.1 z jawną ścieżką do pliku ignore. Nie wyłącza się reguły `generic-api-key`, nie przepisuje historii Git i nie uznaje wyjątku za zgodę na podobne wartości w przyszłych commitach. Każda aktualizacja Gitleaks wymaga ponownej walidacji mechanizmu fingerprintów.
+- Sekcje, których dotyczy: 14, 21, 22, 23, 26, 27, 28, 29
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
