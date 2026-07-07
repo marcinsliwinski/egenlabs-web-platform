@@ -656,6 +656,31 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Test `smoke:production-config` kontroluje separację nazw, ścieżek, sieci i portów produkcji od stagingu oraz brak oczywistych sekretów w przykładach konfiguracji.
 - Produkcyjny rollback aplikacyjny nie może automatycznie cofać migracji bazy; rollback danych wymaga zatrzymania zapisów, zachowania stanu awaryjnego i użycia zweryfikowanego backupu.
 
+### Production preflight — offsite baseline backup przed produkcją
+
+- Przed właściwym wdrożeniem produkcyjnym wymagane jest wykonanie zaszyfrowanej kopii backupu poza VPS.
+- Dla stagingowego baseline GO wykonano zaszyfrowaną kopię off-VPS/offsite:
+  - źródło: zaakceptowany staging backup po cleanupie danych testowych,
+  - szyfrowanie: `age`,
+  - plaintext nie został zapisany lokalnie ani wysłany do chmury,
+  - lokalna kopia zaszyfrowana została zweryfikowana przez odszyfrowanie strumieniowe,
+  - kopia w Cloudflare R2 została zweryfikowana przez upload, download-back i porównanie SHA-256,
+  - prywatny klucz `age` posiada drugą niezależną kopię bezpieczeństwa.
+- Cloudflare R2 dla backupów stagingowych:
+  - bucket: `egenlabs-staging-backups`,
+  - prefix baseline: `staging/stg-go-baseline-20260701/`,
+  - liczba obiektów baseline: `3`,
+  - zaszyfrowane archiwum SHA-256: `ec1224bf5e091ca98887e9ae76f6d339112924047f10cd4cbae22a4e341ff9f6`,
+  - bucket prywatny,
+  - brak public bucket URL,
+  - brak custom domain,
+  - brak lifecycle rule usuwającej ukończony baseline backup,
+  - domyślna reguła `Default Multipart Abort Rule — Abort uploads after 7 day(s)` jest akceptowalna, ponieważ dotyczy niedokończonych multipart uploadów, a nie ukończonych backupów.
+- Retencja baseline stagingowego backupu:
+  - backup baseline nie podlega automatycznemu usunięciu przez lifecycle,
+  - powinien zostać zachowany co najmniej do zakończenia produkcyjnego backupu, restore drillu i osobnej decyzji operacyjnej,
+  - usunięcie wymaga osobnej akceptacji.
+
 ## 24. Fazy dostarczenia
 - Faza 1: Foundation
   - architektura repo,
@@ -845,6 +870,18 @@ Feature jest ukończony, gdy:
 - jest wdrażalny,
 - jest opisany na tyle, aby dało się go utrzymać później.
 
+### Kryterium production preflight — offsite baseline backup
+
+- Production preflight może przejść dalej dopiero po spełnieniu następujących warunków backupowych:
+  - zaakceptowany backup stagingowy jest obecny i ma zgodne sumy SHA-256,
+  - istnieje zaszyfrowana lokalna kopia off-VPS,
+  - kopia została zweryfikowana przez odszyfrowanie strumieniowe i sprawdzenie sum źródłowych,
+  - zaszyfrowany backup został wysłany do prywatnego Cloudflare R2,
+  - backup z R2 został pobrany kontrolnie i ma zgodną sumę SHA-256,
+  - plaintext backupu nie został zapisany lokalnie ani wysłany do R2,
+  - prywatny klucz `age` ma drugą niezależną kopię bezpieczeństwa,
+  - R2 bucket nie ma publicznego dostępu ani reguły usuwającej ukończony baseline backup.
+
 ## 27. Ryzyka
 ### Ryzyka techniczne
 - Przeciążenie scope’u przez zbyt szerokie myślenie multi-product już w MVP.
@@ -934,6 +971,8 @@ Feature jest ukończony, gdy:
 - 2026-07-02 – zakończono i zaakceptowano PROD-GAP-001 dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581`: dodano odrębny produkcyjny stack Docker Compose, Caddyfile, bezpieczne przykłady konfiguracji, kontrolowany deployment script, test polityki konfiguracji, runbook, readiness checklist i bramkę CI.
 - 2026-07-02 – potwierdzono, że PROD-GAP-001 nie zmienia zaakceptowanego baseline kodu aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`; production preflight, infrastruktura, sekrety, DNS, backup poza VPS i formalne `PRODUCTION GO` pozostają otwarte.
 - 2026-07-03 – zaakceptowano PROD-GAP-002: repozytoryjną politykę Gitleaks, dokładny fingerprint historycznego niesekretnego placeholdera PostgreSQL w `.gitleaksignore`, zmianę bieżącego placeholdera stagingowego oraz pełny skan historii Git w GitHub Actions z przypiętym obrazem Gitleaks v8.30.1.
+
+- 2026-07-07 – Zamknięto production preflight backup step: wykonano zaszyfrowaną lokalną kopię off-VPS stagingowego baseline backupu, wysłano ją do prywatnego Cloudflare R2, zweryfikowano download-back SHA-256, potwierdzono drugą niezależną kopię klucza `age` oraz brak lifecycle rule usuwającej ukończony baseline backup.
 
 ## 29. Decision Log
 
@@ -1232,6 +1271,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Security / Infrastructure / Quality / CI
 - Podsumowanie: Pełny preprodukcyjny skan 47 commitów Gitleaks v8.30.1 wykrył jeden false positive w historycznym pliku przykładowym `deploy/staging/compose.env.example`. Potwierdzono, że była to instrukcyjna wartość zastępcza dla hasła PostgreSQL, a nie sekret. Zaakceptowano `.gitleaks.toml` rozszerzający domyślne reguły oraz `.gitleaksignore` zawierający dokładnie jeden fingerprint tego znaleziska, wiążący commit `3e09aa325ea8bdb10ee8269cec2634e9ab737b52`, ścieżkę, regułę i numer linii. Bieżący placeholder stagingowy zostaje zastąpiony wartością o jednoznacznie niesekretnym charakterze. GitHub Actions pobiera pełną historię i uruchamia skan przypiętym obrazem Gitleaks v8.30.1 z jawną ścieżką do pliku ignore. Nie wyłącza się reguły `generic-api-key`, nie przepisuje historii Git i nie uznaje wyjątku za zgodę na podobne wartości w przyszłych commitach. Każda aktualizacja Gitleaks wymaga ponownej walidacji mechanizmu fingerprintów.
 - Sekcje, których dotyczy: 14, 21, 22, 23, 26, 27, 28, 29
+
+### DEC-032
+- ADR ID: ADR-011
+- Tytuł: Zaszyfrowany offsite baseline backup przed produkcją
+- Status: Accepted
+- Data: 2026-07-07
+- Kategoria: Infrastructure / Security / Operations
+- Podsumowanie: Przed właściwym wdrożeniem produkcyjnym wykonano zaszyfrowaną kopię stagingowego baseline backupu poza VPS i wysłano ją do prywatnego Cloudflare R2. Backup został zweryfikowany lokalnie oraz przez pobranie z R2 i porównanie SHA-256. Plaintext backupu nie został zapisany lokalnie ani wysłany do R2. Prywatny klucz `age` ma drugą niezależną kopię bezpieczeństwa.
+- Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
