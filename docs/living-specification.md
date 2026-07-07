@@ -575,6 +575,16 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Zależności produkcyjne nie mogą posiadać niezaakceptowanych podatności critical ani high. Podatności moderate wymagają analizy ekspozycji i wpisu do rejestru ryzyka.
 - Wartości `storagePath` muszą wskazywać relatywne pliki wewnątrz `storage/builds/...` albo `storage/media/...`; ścieżki absolutne i wychodzące poza storage są zabronione.
 
+### Produkcyjne sekrety i integracje formularzy
+
+- Produkcyjne sekrety aplikacji i infrastruktury są przechowywane poza repozytorium w plikach:
+  - `/etc/egenlabs-production/compose.env`,
+  - `/etc/egenlabs-production/app.env`.
+- Pliki produkcyjnych env mają właściciela `root:root`, tryb `0600` i nie są drukowane w logach operacyjnych.
+- Produkcja używa osobnych sekretów względem stagingu, w tym osobnego produkcyjnego widgetu Cloudflare Turnstile oraz osobnego produkcyjnego klucza API Brevo.
+- Produkcyjne wartości `POSTGRES_PASSWORD` i `AUTH_SECRET` zostały wygenerowane automatycznie podczas kontrolowanego preflightu.
+- Jawne wartości sekretów nie zostały zapisane w repozytorium, nie zostały przesłane do czatu i nie zostały wypisane w logach walidacyjnych.
+
 ## 22. Założenia infrastrukturalne i wdrożeniowe
 - Środowiska: dev, staging, prod.
 - Wdrożenie kontenerowe z użyciem Docker i Docker Compose.
@@ -620,6 +630,24 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Repozytorium zawiera produkcyjny Compose, Caddyfile, bezpieczne przykłady konfiguracji, kontrolowany skrypt deploymentu, smoke test polityki konfiguracji, runbook oraz checklistę readiness.
 - GitHub Actions uruchamia `smoke:production-config`; Quality Gate dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581` zakończył się sukcesem.
 - Produkcyjny deployment shell nie oznacza jeszcze gotowości VPS ani decyzji `PRODUCTION GO`; przed wdrożeniem pozostają production preflight, backup poza VPS, infrastruktura, sekrety, DNS, firewall, TLS i końcowa akceptacja.
+
+### Produkcyjna konfiguracja środowiskowa
+
+- Produkcyjna konfiguracja środowiskowa została przygotowana dla:
+  - domeny `egenlabs.eu`,
+  - projektu Compose `egenlabs-production`,
+  - bazy `egenlabs_production`,
+  - storage `/var/lib/egenlabs-production/storage`,
+  - env `/etc/egenlabs-production/compose.env` i `/etc/egenlabs-production/app.env`.
+- Produkcyjne wysyłanie e-maili jest skonfigurowane w trybie Brevo:
+  - `EMAIL_TRANSPORT_MODE=brevo`,
+  - adres nadawcy i odpowiedzi: `kontakt@egenlabs.eu`,
+  - nazwa nadawcy: `eGen Labs Web Platform`.
+- Produkcyjny Cloudflare Turnstile jest włączony:
+  - `TURNSTILE_ENABLED=true`,
+  - używany jest osobny produkcyjny widget i osobne produkcyjne klucze względem stagingu.
+- `docker compose config --quiet` dla `compose.production.yaml` i realnych produkcyjnych env zakończył się powodzeniem.
+- Na etapie przygotowania env nie uruchomiono kontenerów, migracji ani deploymentu.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -680,6 +708,23 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - backup baseline nie podlega automatycznemu usunięciu przez lifecycle,
   - powinien zostać zachowany co najmniej do zakończenia produkcyjnego backupu, restore drillu i osobnej decyzji operacyjnej,
   - usunięcie wymaga osobnej akceptacji.
+
+### Production preflight — produkcyjne env i backup pre-deploy
+
+- Po przygotowaniu produkcyjnych env wykonano zaszyfrowaną kopię off-VPS/offsite plików:
+  - `/etc/egenlabs-production/compose.env`,
+  - `/etc/egenlabs-production/app.env`.
+- Kopia została zaszyfrowana lokalnym kluczem `age`; plaintext env nie został zapisany lokalnie.
+- Zaszyfrowane archiwum zostało wysłane do prywatnego Cloudflare R2:
+  - bucket: `egenlabs-production-backups`,
+  - prefix: `production/env-pre-deploy-20260707/`,
+  - liczba obiektów: `3`,
+  - zaszyfrowane archiwum: `egenlabs-production-env-pre-deploy-20260707.tar.age`,
+  - SHA-256: `392d216dcd1808b55ad25efa1ddca500c96aaeafa61ef83fd2086db7884ec1af`.
+- Backup z R2 został pobrany kontrolnie i zweryfikowany przez porównanie SHA-256.
+- Jawny plaintext env nie został wysłany do R2.
+- Produkcyjny bucket R2 pozostaje prywatny, bez public bucket URL, bez custom domain i bez lifecycle rule usuwającej ukończony backup.
+- Automatyczne cykliczne backupy produkcyjnej bazy i storage nie zostały jeszcze skonfigurowane; zostaną dodane po właściwym production deployment jako osobny krok operacyjny, preferencyjnie przez `systemd timer`.
 
 ## 24. Fazy dostarczenia
 - Faza 1: Foundation
@@ -882,6 +927,21 @@ Feature jest ukończony, gdy:
   - prywatny klucz `age` ma drugą niezależną kopię bezpieczeństwa,
   - R2 bucket nie ma publicznego dostępu ani reguły usuwającej ukończony baseline backup.
 
+### Kryterium production preflight — produkcyjne env
+
+- Production preflight konfiguracji env może zostać uznany za zaliczony, gdy:
+  - `/etc/egenlabs-production/compose.env` i `/etc/egenlabs-production/app.env` istnieją jako `root:root`, `0600`,
+  - produkcyjne env zawierają komplet wymaganych zmiennych,
+  - konfiguracja używa domeny `egenlabs.eu`,
+  - nazwa aplikacji i nadawcy to `eGen Labs Web Platform`,
+  - Brevo jest skonfigurowane w trybie produkcyjnym,
+  - Cloudflare Turnstile jest włączony z produkcyjnym widgetem i produkcyjnymi kluczami,
+  - `docker compose config --quiet` przechodzi na realnych produkcyjnych env,
+  - zaszyfrowana kopia env istnieje poza VPS,
+  - kopia env została wysłana do prywatnego R2 i zweryfikowana przez download-back SHA-256,
+  - plaintext env nie został zapisany lokalnie ani wysłany do R2,
+  - deployment, migracje i kontenery nie zostały uruchomione bez jawnego `PRODUCTION GO`.
+
 ## 27. Ryzyka
 ### Ryzyka techniczne
 - Przeciążenie scope’u przez zbyt szerokie myślenie multi-product już w MVP.
@@ -973,6 +1033,8 @@ Feature jest ukończony, gdy:
 - 2026-07-03 – zaakceptowano PROD-GAP-002: repozytoryjną politykę Gitleaks, dokładny fingerprint historycznego niesekretnego placeholdera PostgreSQL w `.gitleaksignore`, zmianę bieżącego placeholdera stagingowego oraz pełny skan historii Git w GitHub Actions z przypiętym obrazem Gitleaks v8.30.1.
 
 - 2026-07-07 – Zamknięto production preflight backup step: wykonano zaszyfrowaną lokalną kopię off-VPS stagingowego baseline backupu, wysłano ją do prywatnego Cloudflare R2, zweryfikowano download-back SHA-256, potwierdzono drugą niezależną kopię klucza `age` oraz brak lifecycle rule usuwającej ukończony baseline backup.
+
+- 2026-07-07 – Zamknięto production env preflight: przygotowano produkcyjne pliki `/etc/egenlabs-production/compose.env` i `/etc/egenlabs-production/app.env`, skonfigurowano Brevo, produkcyjny Cloudflare Turnstile oraz nazwę `eGen Labs Web Platform`, zwalidowano `docker compose config --quiet`, wykonano zaszyfrowaną kopię env poza VPS, wysłano ją do prywatnego Cloudflare R2 i zweryfikowano download-back SHA-256. Nie uruchomiono kontenerów, migracji ani deploymentu.
 
 ## 29. Decision Log
 
@@ -1279,6 +1341,15 @@ Feature jest ukończony, gdy:
 - Data: 2026-07-07
 - Kategoria: Infrastructure / Security / Operations
 - Podsumowanie: Przed właściwym wdrożeniem produkcyjnym wykonano zaszyfrowaną kopię stagingowego baseline backupu poza VPS i wysłano ją do prywatnego Cloudflare R2. Backup został zweryfikowany lokalnie oraz przez pobranie z R2 i porównanie SHA-256. Plaintext backupu nie został zapisany lokalnie ani wysłany do R2. Prywatny klucz `age` ma drugą niezależną kopię bezpieczeństwa.
+- Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
+
+### DEC-033
+- ADR ID: ADR-011
+- Tytuł: Produkcyjne env i zaszyfrowany backup pre-deploy
+- Status: Accepted
+- Data: 2026-07-07
+- Kategoria: Infrastructure / Security / Operations
+- Podsumowanie: Przygotowano produkcyjne pliki env poza repozytorium w `/etc/egenlabs-production`, aktywowano Brevo i produkcyjny Cloudflare Turnstile, ustawiono nazwę `eGen Labs Web Platform`, zwalidowano `compose.production.yaml` z realnym env oraz wykonano zaszyfrowaną kopię env poza VPS i w prywatnym Cloudflare R2. Backup został zweryfikowany przez download-back SHA-256. Plaintext env nie został zapisany lokalnie ani wysłany do R2. Nie wykonano deploymentu, migracji ani startu kontenerów.
 - Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
