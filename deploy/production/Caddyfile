@@ -2,6 +2,10 @@
   email {$ACME_EMAIL}
 }
 
+www.{$APP_DOMAIN} {
+  redir https://{$APP_DOMAIN}{uri} 301
+}
+
 {$APP_DOMAIN} {
   encode zstd gzip
 

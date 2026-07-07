@@ -649,6 +649,18 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - `docker compose config --quiet` dla `compose.production.yaml` i realnych produkcyjnych env zakończył się powodzeniem.
 - Na etapie przygotowania env nie uruchomiono kontenerów, migracji ani deploymentu.
 
+### Produkcyjny canonical redirect `www`
+
+- Produkcyjna konfiguracja Caddy obsługuje domenę kanoniczną `egenlabs.eu`.
+- `www.egenlabs.eu` jest obsługiwane jako alias wyłącznie do przekierowania:
+  - `www.egenlabs.eu -> egenlabs.eu`,
+  - kod HTTP: `301`,
+  - zachowanie ścieżki i query string przez `{uri}`.
+- Właściwy cutover DNS dla publicznego startu produkcji powinien obejmować:
+  - `egenlabs.eu A -> 51.210.107.213`,
+  - `www.egenlabs.eu A -> 51.210.107.213`.
+- Rekord `AAAA` dla `egenlabs.eu` i `www.egenlabs.eu` nie jest wymagany na pierwszym produkcyjnym uruchomieniu i może zostać dodany później jako osobny kontrolowany krok.
+
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
 - Monitoring błędów backendu, nieudanych logowań, e-maili, formularzy, pobrań i endpointów update/news/telemetry.
@@ -942,6 +954,15 @@ Feature jest ukończony, gdy:
   - plaintext env nie został zapisany lokalnie ani wysłany do R2,
   - deployment, migracje i kontenery nie zostały uruchomione bez jawnego `PRODUCTION GO`.
 
+### Kryterium production preflight — canonical redirect `www`
+
+- Produkcyjny cutover DNS może obejmować `www.egenlabs.eu`, gdy:
+  - `deploy/production/Caddyfile` zawiera blok `www.{$APP_DOMAIN}`,
+  - blok `www.{$APP_DOMAIN}` wykonuje `301` do `https://{$APP_DOMAIN}{uri}`,
+  - `docker compose config --quiet` przechodzi dla produkcyjnej konfiguracji,
+  - składnia Caddyfile jest poprawna,
+  - przed `PRODUCTION GO` rekordy `A` dla `egenlabs.eu` i `www.egenlabs.eu` są gotowe do wskazania na `51.210.107.213`.
+
 ## 27. Ryzyka
 ### Ryzyka techniczne
 - Przeciążenie scope’u przez zbyt szerokie myślenie multi-product już w MVP.
@@ -1035,6 +1056,8 @@ Feature jest ukończony, gdy:
 - 2026-07-07 – Zamknięto production preflight backup step: wykonano zaszyfrowaną lokalną kopię off-VPS stagingowego baseline backupu, wysłano ją do prywatnego Cloudflare R2, zweryfikowano download-back SHA-256, potwierdzono drugą niezależną kopię klucza `age` oraz brak lifecycle rule usuwającej ukończony baseline backup.
 
 - 2026-07-07 – Zamknięto production env preflight: przygotowano produkcyjne pliki `/etc/egenlabs-production/compose.env` i `/etc/egenlabs-production/app.env`, skonfigurowano Brevo, produkcyjny Cloudflare Turnstile oraz nazwę `eGen Labs Web Platform`, zwalidowano `docker compose config --quiet`, wykonano zaszyfrowaną kopię env poza VPS, wysłano ją do prywatnego Cloudflare R2 i zweryfikowano download-back SHA-256. Nie uruchomiono kontenerów, migracji ani deploymentu.
+
+- 2026-07-07 – Przygotowano produkcyjny canonical redirect `www.egenlabs.eu -> egenlabs.eu` w Caddy. Zmiana umożliwia docelowy cutover obu rekordów `A`: apex `egenlabs.eu` i `www.egenlabs.eu` na produkcyjny VPS `51.210.107.213`. Nie wykonano zmian DNS, nie uruchomiono kontenerów ani deploymentu.
 
 ## 29. Decision Log
 
@@ -1351,6 +1374,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Infrastructure / Security / Operations
 - Podsumowanie: Przygotowano produkcyjne pliki env poza repozytorium w `/etc/egenlabs-production`, aktywowano Brevo i produkcyjny Cloudflare Turnstile, ustawiono nazwę `eGen Labs Web Platform`, zwalidowano `compose.production.yaml` z realnym env oraz wykonano zaszyfrowaną kopię env poza VPS i w prywatnym Cloudflare R2. Backup został zweryfikowany przez download-back SHA-256. Plaintext env nie został zapisany lokalnie ani wysłany do R2. Nie wykonano deploymentu, migracji ani startu kontenerów.
 - Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
+
+### DEC-034
+- ADR ID: ADR-011
+- Tytuł: Canonical redirect `www.egenlabs.eu -> egenlabs.eu`
+- Status: Accepted
+- Data: 2026-07-07
+- Kategoria: Infrastructure / DNS / Operations
+- Podsumowanie: Produkcyjny Caddyfile obsługuje `www.egenlabs.eu` jako alias przekierowujący kodem `301` do kanonicznej domeny `egenlabs.eu`, zachowując ścieżkę i query string. Dzięki temu właściwy production cutover może objąć zarówno `egenlabs.eu`, jak i `www.egenlabs.eu`, bez pozostawiania `www` na starej stronie OVH. Zmiana nie uruchamia deploymentu i nie zmienia DNS.
+- Sekcje, których dotyczy: 22, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
