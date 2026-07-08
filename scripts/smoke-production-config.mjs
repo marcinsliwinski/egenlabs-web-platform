@@ -74,11 +74,15 @@ assert.match(composeEnv, /^POSTGRES_DB=egenlabs_production$/m);
 assert.match(appEnv, /^NODE_ENV=production$/m);
 assert.match(appEnv, /^APP_URL=https:\/\/egenlabs\.eu$/m);
 assert.match(appEnv, /^EMAIL_TRANSPORT_MODE=BREVO$/m);
+assert.match(appEnv, /^BREVO_SENDER_EMAIL=kontakt@egenlabs\.eu$/m);
+assert.match(appEnv, /^BREVO_SENDER_NAME=eGen Labs Web Platform$/m);
 assert.match(appEnv, /^TURNSTILE_ENABLED=true$/m);
 assert.match(deployScript, /EXPECTED_COMMIT/);
 assert.match(deployScript, /git status --porcelain/);
 assert.match(deployScript, /compose config --quiet/);
 assert.match(deployScript, /run --rm migrate/);
+assert.match(deployScript, /docker inspect/);
+assert.doesNotMatch(deployScript, /compose ps --format json app[\s\S]*node -e/);
 assert.match(caddy, /reverse_proxy app:3000/);
 
 const suspiciousAssignments = all

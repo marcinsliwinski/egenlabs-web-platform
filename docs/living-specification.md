@@ -640,9 +640,9 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - storage `/var/lib/egenlabs-production/storage`,
   - env `/etc/egenlabs-production/compose.env` i `/etc/egenlabs-production/app.env`.
 - Produkcyjne wysyłanie e-maili jest skonfigurowane w trybie Brevo:
-  - `EMAIL_TRANSPORT_MODE=brevo`,
-  - adres nadawcy i odpowiedzi: `kontakt@egenlabs.eu`,
-  - nazwa nadawcy: `eGen Labs Web Platform`.
+  - `EMAIL_TRANSPORT_MODE=BREVO`,
+  - `BREVO_SENDER_EMAIL=kontakt@egenlabs.eu`,
+  - `BREVO_SENDER_NAME=eGen Labs Web Platform`.
 - Produkcyjny Cloudflare Turnstile jest włączony:
   - `TURNSTILE_ENABLED=true`,
   - używany jest osobny produkcyjny widget i osobne produkcyjne klucze względem stagingu.
@@ -660,6 +660,17 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - `egenlabs.eu A -> 51.210.107.213`,
   - `www.egenlabs.eu A -> 51.210.107.213`.
 - Rekord `AAAA` dla `egenlabs.eu` i `www.egenlabs.eu` nie jest wymagany na pierwszym produkcyjnym uruchomieniu i może zostać dodany później jako osobny kontrolowany krok.
+
+### Aktualny baseline produkcji po pierwszym production rollout na 2026-07-07
+
+- Produkcja została uruchomiona dla release candidate `fcd9d5e1536a7e3e840468a52d35276ad0fe2523` (`ops(prod): add www canonical redirect`).
+- Publiczny cutover DNS został zaliczony dla `egenlabs.eu` i `www.egenlabs.eu`, oba rekordy `A` wskazują na produkcyjny VPS `51.210.107.213`; rekord `AAAA` pozostaje niewymagany na pierwszym uruchomieniu.
+- TLS/HTTPS działa, Caddy jest jedyną usługą publiczną na portach 80/443, a PostgreSQL i aplikacja nie publikują portów 5432 ani 3000 do Internetu.
+- Kontenery produkcyjne `postgres`, `app` i `caddy` działają zdrowo, publiczny health endpoint przechodzi, a `www.egenlabs.eu` przekierowuje kanonicznie do `https://egenlabs.eu`.
+- Production smoke tests zostały zaliczone bez mutacji danych: DNS, container health, public endpoints, `www` redirect oraz brak publicznych portów 3000/5432.
+- Po deploymencie wykonano manualny backup produkcyjnej bazy i storage na VPS w katalogu `/var/backups/egenlabs-production/prod-post-deploy-20260707-141047`, zweryfikowano SHA-256, wykonano zaszyfrowaną kopię DB + storage poza VPS, przyjęto upload zaszyfrowanego backupu do prywatnego R2 `egenlabs-production-backups` oraz wykonano zaszyfrowany backup aktualnych env po deploymencie.
+- Sekrety nie zostały wypisane, plaintext nie był uploadowany do R2, a backupi produkcyjne są traktowane jako dane wrażliwe.
+- Automatyczne cykliczne backupy produkcyjnej bazy i storage nie są jeszcze skonfigurowane; pozostają osobnym etapem `PROD-GAP-005`.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -691,10 +702,11 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Universal Desktop Support API v1 wymaga smoke testów kontraktów, kontroli zgodności payloadów oraz procedur publikacji i aktualizacji manifestów i paczek.
 - Przed release wykonywane są: pełny Gitleaks historii, `npm audit`, kontrola czystości Git oraz weryfikacja, że raporty bezpieczeństwa robocze nie są commitowane.
 - Wynik kontroli bezpieczeństwa i zaakceptowane ryzyka zależności są zapisywane w dokumentacji release.
-- Produkcyjne wdrożenie korzysta z `scripts/deploy-production.sh`, który wymaga jawnego `EXPECTED_COMMIT`, czystego worktree, odrębnych plików środowiskowych oraz poprawnej konfiguracji Compose.
+- Produkcyjne wdrożenie korzysta z `scripts/deploy-production.sh`, który wymaga jawnego `EXPECTED_COMMIT`, czystego worktree, odrębnych plików środowiskowych oraz poprawnej konfiguracji Compose; skrypt nie może wymagać Node.js zainstalowanego na hoście VPS, ponieważ Node.js jest zależnością kontenerów aplikacyjnych, a host produkcyjny wymaga wyłącznie Docker Engine i Docker Compose.
 - `docs/production-deployment-runbook.md` jest operacyjną procedurą wdrożenia i rollbacku, a `docs/production-readiness-checklist.md` jest obowiązkową listą kontrolną przed decyzją `PRODUCTION GO`.
 - Test `smoke:production-config` kontroluje separację nazw, ścieżek, sieci i portów produkcji od stagingu oraz brak oczywistych sekretów w przykładach konfiguracji.
 - Produkcyjny rollback aplikacyjny nie może automatycznie cofać migracji bazy; rollback danych wymaga zatrzymania zapisów, zachowania stanu awaryjnego i użycia zweryfikowanego backupu.
+- Procedury weryfikacji backupów w katalogach `root:root` z trybem `0700` muszą wykonywać operacje katalogowe i `sha256sum` przez kontrolowany wzorzec `sudo bash -c "cd ... && sha256sum ..."`, bez zmiany właściciela backupu i bez wypisywania sekretów.
 
 ### Production preflight — offsite baseline backup przed produkcją
 
@@ -963,6 +975,18 @@ Feature jest ukończony, gdy:
   - składnia Caddyfile jest poprawna,
   - przed `PRODUCTION GO` rekordy `A` dla `egenlabs.eu` i `www.egenlabs.eu` są gotowe do wskazania na `51.210.107.213`.
 
+### Kryterium PROD-GAP-004 — production deployment/env hardening po pierwszym rollout
+
+- PROD-GAP-004 może zostać uznany za zakończony, gdy:
+  - `scripts/deploy-production.sh` nie używa `node` na hoście VPS do parsowania statusu zdrowia kontenera,
+  - status aplikacji jest sprawdzany przez Docker Compose i `docker inspect` na healthchecku kontenera,
+  - publiczny health check po starcie Caddy pozostaje częścią deployment shell,
+  - `deploy/production/app.env.example` zawiera `EMAIL_TRANSPORT_MODE=BREVO`, `BREVO_SENDER_EMAIL` i `BREVO_SENDER_NAME`, zgodne z walidacją aplikacji,
+  - przykłady i dokumentacja nie sugerują wartości transportu zapisanej małymi literami zamiast `BREVO`,
+  - procedury backupowe dla katalogów `root:root` `0700` używają wzorca `sudo bash -c "cd ... && sha256sum ..."`,
+  - zmiana jest wdrożona jako patch repo bez restartu, redeploymentu lub zatrzymania działającej produkcji,
+  - Quality Gate przechodzi na zielono, a produkcja pozostaje healthy.
+
 ## 27. Ryzyka
 ### Ryzyka techniczne
 - Przeciążenie scope’u przez zbyt szerokie myślenie multi-product już w MVP.
@@ -1017,6 +1041,8 @@ Feature jest ukończony, gdy:
 - Ryzyko przekroczenia darmowego limitu Cloudflare R2 lub błędnej retencji backupów; ograniczone przez monitoring rozmiaru, rotację i alert progowy.
 - Ryzyko obsługi dwóch hostów przy pracy solo; ograniczone przez identyczny stack Docker Compose, checklisty i automatyzację powtarzalnych czynności.
 - Ryzyko dryfu konfiguracji pomiędzy stagingiem i produkcją; ograniczone przez odrębny, testowany produkcyjny Compose, jawne ścieżki środowiskowe, `smoke:production-config`, runbook i checklistę readiness.
+- Ryzyko przypadkowego wprowadzenia zależności od Node.js na hoście produkcyjnym; ograniczone przez Docker-only deployment shell, healthcheck kontenera przez `docker inspect` oraz test `smoke:production-config`.
+- Ryzyko niepełnej odporności operacyjnej do czasu wdrożenia automatycznych backupów produkcyjnych; ograniczone tymczasowo przez manualny backup po deploymencie, zaszyfrowane kopie poza VPS i etap `PROD-GAP-005`.
 - Ryzyko uruchomienia produkcji z niewłaściwego commita lub brudnego worktree; ograniczone przez obowiązkowy `EXPECTED_COMMIT`, kontrolę Git oraz rejestrowanie commita operacyjnego i baseline aplikacyjnego.
 - Ryzyko pozostawienia danych osobowych w raportach tymczasowych lub backupach testowych; ograniczone przez maskowanie raportów, transakcyjne czyszczenie, kontrolę sum i usuwanie sensytywnych punktów odtworzeniowych po walidacji.
 - RISK-SEC-002: `EmailLog` dla `DOWNLOAD_LINK` zachowuje pełny wydany URL typu bearer, aby umożliwić wierny resend. Ryzyko jest ograniczone przez dostęp wyłącznie dla administratora, lifecycle linków `ONE_TIME` / `TEMPORARY`, ochronę bazy i backupów, retencję `EmailLog`, czyszczenie danych testowych oraz zakaz kopiowania surowych URL-i do logów kontenera, raportów i dokumentacji. W kolejnej wersji należy rozważyć szyfrowanie utrwalonej treści lub bezpieczne ponowne wydawanie linku zamiast przechowywania pełnego URL-a.
@@ -1058,6 +1084,8 @@ Feature jest ukończony, gdy:
 - 2026-07-07 – Zamknięto production env preflight: przygotowano produkcyjne pliki `/etc/egenlabs-production/compose.env` i `/etc/egenlabs-production/app.env`, skonfigurowano Brevo, produkcyjny Cloudflare Turnstile oraz nazwę `eGen Labs Web Platform`, zwalidowano `docker compose config --quiet`, wykonano zaszyfrowaną kopię env poza VPS, wysłano ją do prywatnego Cloudflare R2 i zweryfikowano download-back SHA-256. Nie uruchomiono kontenerów, migracji ani deploymentu.
 
 - 2026-07-07 – Przygotowano produkcyjny canonical redirect `www.egenlabs.eu -> egenlabs.eu` w Caddy. Zmiana umożliwia docelowy cutover obu rekordów `A`: apex `egenlabs.eu` i `www.egenlabs.eu` na produkcyjny VPS `51.210.107.213`. Nie wykonano zmian DNS, nie uruchomiono kontenerów ani deploymentu.
+
+- 2026-07-08 – Zaakceptowano i opisano PROD-GAP-004: utwardzenie production deployment/env po pierwszym rollout, usunięcie zależności deployment shell od hostowego Node.js, doprecyzowanie produkcyjnego Brevo env, wzorzec weryfikacji backupów `root:root` `0700` przez `sudo bash -c`, zapisanie faktu pierwszego production rollout, smoke testów, manualnych backupów oraz pozostawienie automatycznych backupów jako PROD-GAP-005.
 
 ## 29. Decision Log
 
@@ -1383,6 +1411,15 @@ Feature jest ukończony, gdy:
 - Kategoria: Infrastructure / DNS / Operations
 - Podsumowanie: Produkcyjny Caddyfile obsługuje `www.egenlabs.eu` jako alias przekierowujący kodem `301` do kanonicznej domeny `egenlabs.eu`, zachowując ścieżkę i query string. Dzięki temu właściwy production cutover może objąć zarówno `egenlabs.eu`, jak i `www.egenlabs.eu`, bez pozostawiania `www` na starej stronie OVH. Zmiana nie uruchamia deploymentu i nie zmienia DNS.
 - Sekcje, których dotyczy: 22, 26, 27, 28
+
+### DEC-035
+- ADR ID: ADR-012
+- Tytuł: Production deployment/env hardening po pierwszym rollout
+- Status: Accepted
+- Data: 2026-07-08
+- Kategoria: Infrastructure / Security / Operations
+- Podsumowanie: Po pierwszym production rollout utwardzono proces deploymentu i przykłady konfiguracji: deployment shell nie może wymagać Node.js na hoście VPS, health aplikacji jest sprawdzany przez Docker healthcheck i `docker inspect`, produkcyjny env example używa `EMAIL_TRANSPORT_MODE=BREVO` oraz wymaganych `BREVO_SENDER_EMAIL` i `BREVO_SENDER_NAME`, a procedury backupowe dla katalogów `root:root` `0700` używają `sudo bash -c` do weryfikacji sum. Zmiana dokumentuje pierwszy production rollout, smoke testy, manualne backupy i pozostawia automatyczne backupy jako osobny etap `PROD-GAP-005`.
+- Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
 Status: Accepted
@@ -1896,6 +1933,58 @@ Wybrana opcja zapewnia pełniejszą separację środowisk, bezpieczniejszy resto
 - 24. Fazy dostarczenia
 - 26. Kryteria akceptacyjne
 - 27. Ryzyka
+
+### Zastępuje / Zastąpiony przez
+- Brak
+
+## 41. ADR-012: Production deployment and environment hardening after first production rollout
+Status: Accepted
+Data: 2026-07-08
+
+### Kontekst
+Pierwszy production rollout eGen Labs Web Platform zakończył się sukcesem, ale ujawnił operacyjne gapy, które nie zmieniają zakresu aplikacji, lecz wpływają na powtarzalność wdrożeń i bezpieczeństwo operacyjne. Deployment shell próbował parsować status kontenera przez `node` na hoście VPS, mimo że host produkcyjny zgodnie z przyjętym modelem ma wymagać Docker Engine i Docker Compose, a Node.js jest zależnością kontenerów. Produkcyjny env wymagał doprecyzowania nazw zmiennych Brevo zgodnych z walidacją aplikacji. Manualny backup pokazał też konieczność jawnego wzorca pracy z katalogami backupów `root:root` `0700`.
+
+### Decyzja
+- Production deployment shell nie wymaga Node.js zainstalowanego na hoście VPS.
+- Health aplikacji w czasie deploymentu jest sprawdzany na podstawie Docker healthchecka kontenera przez Docker Compose i `docker inspect`.
+- Publiczny health check po starcie Caddy pozostaje wymaganym elementem deploymentu.
+- Produkcyjny `app.env.example` używa `EMAIL_TRANSPORT_MODE=BREVO`, `BREVO_SENDER_EMAIL` i `BREVO_SENDER_NAME`, zgodnie z runtime validation aplikacji.
+- Procedury weryfikacji backupów w katalogach `root:root` `0700` używają `sudo bash -c "cd ... && sha256sum ..."`, bez zmiany właściciela backupu.
+- Automatyczne backupy produkcyjne pozostają poza tym patchem i są realizowane jako osobny etap `PROD-GAP-005`.
+
+### Rozważane opcje
+- Opcja A: zainstalować Node.js na hoście produkcyjnym.
+- Opcja B: usunąć zależność od hostowego Node.js i użyć Docker healthchecków oraz `docker inspect`.
+- Opcja C: zastąpić deployment shell ręcznym runbookiem bez automatycznej pętli health.
+
+### Uzasadnienie
+Wybrano opcję B, ponieważ jest zgodna z przyjętym modelem kontenerowego deploymentu, zmniejsza liczbę pakietów wymaganych na hoście, ogranicza dryf konfiguracji i zachowuje automatyczną walidację zdrowia aplikacji. Instalowanie Node.js na hoście zwiększałoby powierzchnię utrzymania i łamało założenie czystego VPS opartego na Dockerze. Ręczny runbook bez pętli health obniżyłby powtarzalność deploymentu.
+
+### Konsekwencje
+- Pozytywne: mniej zależności hostowych i mniejsze ryzyko rozjazdu produkcyjnego VPS względem dokumentacji.
+- Pozytywne: health aplikacji pozostaje sprawdzany automatycznie przed uruchomieniem publicznego reverse proxy.
+- Pozytywne: przykłady env są zgodne z walidacją aplikacji i rzeczywistym produkcyjnym rolloutem.
+- Negatywne: deployment shell pozostaje zależny od poprawnego działania Docker healthchecka kontenera.
+- Negatywne: automatyczne backupy nadal wymagają osobnego etapu wdrożeniowego.
+
+### Ryzyka
+- Błędna definicja healthchecka kontenera może opóźnić albo zablokować deployment mimo działającej aplikacji.
+- Ręczna edycja produkcyjnych env nadal wymaga dyscypliny, ponieważ realne wartości pozostają poza repozytorium.
+- Do czasu `PROD-GAP-005` produkcja nie ma jeszcze cyklicznego, automatycznego backupu aplikacyjnego.
+
+### Dalsze działania
+- Wdrożyć patch PROD-GAP-004 w repo bez restartu lub redeploymentu działającej produkcji.
+- Uruchomić lokalny Quality Gate oraz CI GitHub Actions.
+- Po zielonym CI zsynchronizować repo na produkcyjnym VPS bez deploymentu i wykonać read-only validation.
+- Przygotować osobny projekt i baseline dla `PROD-GAP-005` — automated production backups.
+
+### Powiązane sekcje
+- 21. Bezpieczeństwo i kontrola dostępu
+- 22. Założenia infrastrukturalne i wdrożeniowe
+- 23. Aspekty operacyjne
+- 26. Kryteria akceptacyjne
+- 27. Ryzyka
+- 28. Dziennik zmian
 
 ### Zastępuje / Zastąpiony przez
 - Brak

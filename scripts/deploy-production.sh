@@ -31,6 +31,27 @@ compose() {
   docker compose     --project-name "$PROJECT_NAME"     --env-file "$COMPOSE_ENV_FILE"     --file "$COMPOSE_FILE"     "$@"
 }
 
+container_health_status() {
+  local service_name="$1"
+  local container_id=""
+  local status=""
+
+  container_id="$(compose ps --quiet "$service_name" 2>/dev/null | head -n 1 || true)"
+
+  if [[ -z "$container_id" ]]; then
+    printf 'missing'
+    return 0
+  fi
+
+  status="$(
+    docker inspect \
+      --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' \
+      "$container_id" 2>/dev/null || true
+  )"
+
+  printf '%s' "${status:-unknown}"
+}
+
 printf '=== VALIDATE CONFIGURATION ===\n'
 compose config --quiet
 
@@ -51,19 +72,7 @@ compose up --detach app
 
 printf '=== WAIT FOR APPLICATION HEALTH ===\n'
 for attempt in $(seq 1 60); do
-  status="$(
-    compose ps --format json app |
-      node -e '
-        let input = "";
-        process.stdin.on("data", (chunk) => (input += chunk));
-        process.stdin.on("end", () => {
-          const rows = input.trim()
-            ? input.trim().split(/\n+/).map(JSON.parse)
-            : [];
-          process.stdout.write(rows[0]?.Health || "");
-        });
-      '
-  )"
+  status="$(container_health_status app)"
 
   printf 'Attempt %s/60 — app health: %s\n' "$attempt" "${status:-unknown}"
 

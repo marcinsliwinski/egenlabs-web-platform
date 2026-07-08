@@ -62,6 +62,28 @@ npm run ops:backup:db
 npm run ops:backup:storage
 ```
 
+
+## Production root-owned backup verification
+
+Production backup directories under `/var/backups/egenlabs-production` may be
+owned by `root:root` and restricted to mode `0700`. Do not change ownership just
+to verify checksums. Run directory-scoped checksum verification through `sudo
+bash -c` instead:
+
+```bash
+sudo bash -c 'cd /var/backups/egenlabs-production/<backup-id> && sha256sum -c SHA256SUMS'
+```
+
+Use the same pattern for ad-hoc checksum generation inside a restricted backup
+directory:
+
+```bash
+sudo bash -c 'cd /var/backups/egenlabs-production/<backup-id> && sha256sum db/postgres.sql storage/storage.tar.gz manifest.txt > SHA256SUMS'
+```
+
+Never print secrets, environment file contents, database dumps, or private
+backup payloads in operational reports.
+
 ## Restore workflow
 
 ### 1. Restore PostgreSQL

@@ -26,10 +26,11 @@ public service and publishes ports 80 and 443.
 2. The repository worktree is clean and detached at the accepted commit.
 3. Production DNS points to the production VPS only when the cutover is approved.
 4. `/etc/egenlabs-production/*.env` exists, is root-owned, mode `0600`, and contains no staging values.
-5. Production storage exists and is owned by UID/GID `1000:1000`.
-6. A verified encrypted backup is stored outside the VPS.
-7. Rollback commit and backup identifiers are recorded.
-8. Ports 80 and 443 are available to the production stack.
+5. The host has Docker Engine and Docker Compose available; Node.js is not required on the production host.
+6. Production storage exists and is owned by UID/GID `1000:1000`.
+7. A verified encrypted backup is stored outside the VPS.
+8. Rollback commit and backup identifiers are recorded.
+9. Ports 80 and 443 are available to the production stack.
 
 ## Configuration installation
 
@@ -76,6 +77,10 @@ curl --fail --silent --show-error   https://egenlabs.eu/api/v1/health
 
 sudo docker compose   --project-name egenlabs-production   --env-file /etc/egenlabs-production/compose.env   --file compose.production.yaml   ps
 ```
+
+The deployment script checks application health through the container healthcheck
+using Docker metadata. Do not install host-level Node.js just to satisfy the
+deployment shell.
 
 Run the public MVP smoke suite only after DNS and TLS are correct:
 
