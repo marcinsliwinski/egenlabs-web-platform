@@ -1,0 +1,20 @@
+[Unit]
+Description=eGen Labs production encrypted application backup
+Documentation=file:/opt/egenlabs-production/app/docs/operations-backup-restore.md
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/egenlabs-production/app
+Environment=EGENLABS_BACKUP_CONFIG=/etc/egenlabs-production/backup.env
+ExecStart=/opt/egenlabs-production/app/scripts/backup-production.sh
+UMask=0077
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+NoNewPrivileges=true
+PrivateTmp=true

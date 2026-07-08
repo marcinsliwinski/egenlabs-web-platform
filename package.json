@@ -23,6 +23,8 @@
     "ops:backup:db": "bash scripts/backup-postgres.sh",
     "ops:backup:storage": "bash scripts/backup-storage.sh",
     "ops:backup:all": "bash scripts/backup-all.sh",
+    "ops:backup:production": "bash scripts/backup-production.sh",
+    "ops:backup:production:verify": "bash scripts/verify-production-backup-artifact.sh",
     "ops:restore:db": "bash scripts/restore-postgres.sh",
     "ops:restore:storage": "bash scripts/restore-storage.sh",
     "smoke:mvp": "node scripts/smoke-mvp.mjs",

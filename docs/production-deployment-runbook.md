@@ -14,6 +14,8 @@ database volumes, storage paths, Compose project names, or Turnstile keys.
 - Application environment: `/etc/egenlabs-production/app.env`
 - Persistent storage: `/var/lib/egenlabs-production/storage`
 - Backups: `/var/backups/egenlabs-production`
+- Automated backup config: `/etc/egenlabs-production/backup.env`
+- Automated backup timer: `egenlabs-production-backup.timer`
 - Database: `egenlabs_production`
 - Public domain: `egenlabs.eu`
 
@@ -29,8 +31,9 @@ public service and publishes ports 80 and 443.
 5. The host has Docker Engine and Docker Compose available; Node.js is not required on the production host.
 6. Production storage exists and is owned by UID/GID `1000:1000`.
 7. A verified encrypted backup is stored outside the VPS.
-8. Rollback commit and backup identifiers are recorded.
-9. Ports 80 and 443 are available to the production stack.
+8. Automated backup prerequisites are available before production closure: `age`, `rclone`, a public age recipient, private R2 destination and root-only `/etc/egenlabs-production/backup.env`.
+9. Rollback commit and backup identifiers are recorded.
+10. Ports 80 and 443 are available to the production stack.
 
 ## Configuration installation
 
@@ -40,8 +43,10 @@ Copy the examples without committing their resulting values:
 sudo install -d -m 0750 /etc/egenlabs-production
 sudo install -m 0600 deploy/production/compose.env.example   /etc/egenlabs-production/compose.env
 sudo install -m 0600 deploy/production/app.env.example   /etc/egenlabs-production/app.env
+sudo install -m 0600 deploy/production/backup.env.example   /etc/egenlabs-production/backup.env
 sudoedit /etc/egenlabs-production/compose.env
 sudoedit /etc/egenlabs-production/app.env
+sudoedit /etc/egenlabs-production/backup.env
 ```
 
 Create persistent paths:
@@ -90,6 +95,32 @@ BASE_URL=https://egenlabs.eu npm run smoke:mvp
 
 Confirm that direct Fito Gen download remains disabled unless separately
 approved as a product release.
+
+## Automated backup installation
+
+Install the systemd units only after the automated backup operations commit is
+accepted and synced to the production VPS. This does not restart application
+containers.
+
+```bash
+sudo install -m 0644 deploy/production/systemd/egenlabs-production-backup.service \
+  /etc/systemd/system/egenlabs-production-backup.service
+sudo install -m 0644 deploy/production/systemd/egenlabs-production-backup.timer \
+  /etc/systemd/system/egenlabs-production-backup.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now egenlabs-production-backup.timer
+```
+
+Manual validation:
+
+```bash
+sudo systemctl start egenlabs-production-backup.service
+sudo systemctl status egenlabs-production-backup.service --no-pager
+systemctl list-timers egenlabs-production-backup.timer --no-pager
+```
+
+Do not include `/etc/egenlabs-production/backup.env`, rclone credentials, age
+private identities, database dumps or plaintext backup payloads in reports.
 
 ## Rollback
 

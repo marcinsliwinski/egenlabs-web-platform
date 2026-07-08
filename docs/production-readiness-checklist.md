@@ -14,6 +14,7 @@
 - [ ] Production uses `/etc/egenlabs-production`.
 - [ ] Production storage uses `/var/lib/egenlabs-production/storage`.
 - [ ] Production backups use `/var/backups/egenlabs-production`.
+- [ ] Automated production backup config uses `/etc/egenlabs-production/backup.env`.
 - [ ] No staging secret, key, volume, network, database, or storage path is reused.
 - [ ] PostgreSQL has no published host port.
 - [ ] Application has no published host port.
@@ -36,6 +37,11 @@
 - [ ] Database backup completed and checksum recorded.
 - [ ] Storage backup completed and checksum recorded.
 - [ ] Encrypted copy exists outside the production VPS.
+- [ ] Automated backup service has completed successfully at least once.
+- [ ] Automated backup timer is enabled and visible in `systemctl list-timers`.
+- [ ] Latest encrypted automated backup exists in private R2 under the automated production prefix.
+- [ ] Download-back SHA verification has passed for the latest automated backup.
+- [ ] Restore-readiness listing confirms `db/postgres.sql`, `storage/storage.tar.gz`, `manifest.txt` and `SHA256SUMS` without restoring into production.
 - [ ] Restore procedure has been rehearsed in isolation.
 - [ ] Rollback commit and backup identifiers are recorded.
 

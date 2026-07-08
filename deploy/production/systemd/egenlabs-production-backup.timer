@@ -1,0 +1,12 @@
+[Unit]
+Description=Run eGen Labs production encrypted application backup daily
+Documentation=file:/opt/egenlabs-production/app/docs/operations-backup-restore.md
+
+[Timer]
+OnCalendar=*-*-* 03:20:00 Europe/Warsaw
+RandomizedDelaySec=20min
+Persistent=true
+Unit=egenlabs-production-backup.service
+
+[Install]
+WantedBy=timers.target

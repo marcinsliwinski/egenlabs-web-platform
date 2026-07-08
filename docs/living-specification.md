@@ -670,7 +670,26 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Production smoke tests zostały zaliczone bez mutacji danych: DNS, container health, public endpoints, `www` redirect oraz brak publicznych portów 3000/5432.
 - Po deploymencie wykonano manualny backup produkcyjnej bazy i storage na VPS w katalogu `/var/backups/egenlabs-production/prod-post-deploy-20260707-141047`, zweryfikowano SHA-256, wykonano zaszyfrowaną kopię DB + storage poza VPS, przyjęto upload zaszyfrowanego backupu do prywatnego R2 `egenlabs-production-backups` oraz wykonano zaszyfrowany backup aktualnych env po deploymencie.
 - Sekrety nie zostały wypisane, plaintext nie był uploadowany do R2, a backupi produkcyjne są traktowane jako dane wrażliwe.
-- Automatyczne cykliczne backupy produkcyjnej bazy i storage nie są jeszcze skonfigurowane; pozostają osobnym etapem `PROD-GAP-005`.
+- Automatyczne cykliczne backupy produkcyjnej bazy i storage pozostawały po pierwszym rollout osobnym etapem `PROD-GAP-005`; zaakceptowany baseline PROD-GAP-005 dodaje repozytoryjne skrypty, konfigurację przykładową i jednostki `systemd`, a aktywacja na VPS wymaga osobnego kontrolowanego testu usługi, timera i restore-readiness.
+
+
+### Baseline PROD-GAP-005 — automatyczne backupy produkcyjne
+
+- Automatyczne backupy produkcyjne są realizowane poza aplikacją jako zadanie infrastrukturalne hosta VPS przez `systemd service + timer`.
+- Repozytorium zawiera:
+  - `scripts/backup-production.sh`,
+  - `scripts/verify-production-backup-artifact.sh`,
+  - `deploy/production/backup.env.example`,
+  - `deploy/production/systemd/egenlabs-production-backup.service`,
+  - `deploy/production/systemd/egenlabs-production-backup.timer`.
+- Konfiguracja runtime backupu znajduje się poza repozytorium w `/etc/egenlabs-production/backup.env`, jako `root:root` `0600`.
+- Harmonogram baseline to codziennie `03:20 Europe/Warsaw` z losowym opóźnieniem do 20 minut.
+- Backup obejmuje dump PostgreSQL, archiwum `/var/lib/egenlabs-production/storage`, manifest i `SHA256SUMS`.
+- Plaintext backupu może istnieć tylko tymczasowo w kontrolowanym katalogu `root:root` `0700` na VPS i jest usuwany po poprawnym zaszyfrowaniu oraz uploadzie.
+- Zaszyfrowany artefakt `age` jest wysyłany do prywatnego Cloudflare R2 bucket `egenlabs-production-backups` pod prefiksem `production/automated/`.
+- VPS produkcyjny powinien posiadać publiczny recipient `age`, ale nie powinien posiadać prywatnego klucza `age`, chyba że osobno zaakceptowany test restore-readiness wymaga kontrolowanego odszyfrowania na tym hoście.
+- Lokalna retencja zaszyfrowanych automatycznych backupów wynosi 14 dni, a retencja zdalna w prefiksie `production/automated/` wynosi 30 dni dla plików automatycznych. Retencja nie może usuwać manualnych backupów ani innych prefiksów R2.
+- Weryfikacja restore-readiness obejmuje co najmniej download-back SHA-256 zaszyfrowanego artefaktu oraz, na bezpiecznym hoście z prywatnym kluczem `age`, odszyfrowanie i listing archiwum potwierdzający obecność `db/postgres.sql`, `storage/storage.tar.gz`, `manifest.txt` i `SHA256SUMS`.
 
 ## 23. Aspekty operacyjne
 - Centralne logowanie aplikacyjne backendu.
@@ -707,6 +726,11 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
 - Test `smoke:production-config` kontroluje separację nazw, ścieżek, sieci i portów produkcji od stagingu oraz brak oczywistych sekretów w przykładach konfiguracji.
 - Produkcyjny rollback aplikacyjny nie może automatycznie cofać migracji bazy; rollback danych wymaga zatrzymania zapisów, zachowania stanu awaryjnego i użycia zweryfikowanego backupu.
 - Procedury weryfikacji backupów w katalogach `root:root` z trybem `0700` muszą wykonywać operacje katalogowe i `sha256sum` przez kontrolowany wzorzec `sudo bash -c "cd ... && sha256sum ..."`, bez zmiany właściciela backupu i bez wypisywania sekretów.
+- Automatyczne backupy produkcyjne są kontrolowane przez `egenlabs-production-backup.service` i `egenlabs-production-backup.timer`, działają jako `root`, nie uruchamiają deploymentu, nie restartują kontenerów i korzystają z już działających kontenerów `postgres` oraz `app`.
+- Skrypt `scripts/backup-production.sh` wymaga `age`, `rclone`, Docker Engine i Docker Compose na hoście, tworzy backup PostgreSQL przez `pg_dump` wewnątrz kontenera, archiwizuje produkcyjny storage, zapisuje manifest oraz sumy kontrolne, szyfruje payload i wysyła wyłącznie zaszyfrowany artefakt do prywatnego R2.
+- Logi automatycznego backupu mogą zawierać statusy, nazwy artefaktów, rozmiary i SHA-256 zaszyfrowanych plików, ale nie mogą zawierać sekretów, env, prywatnych kluczy, dumpów SQL, plaintext payloadów ani konfiguracji R2.
+- Skrypt `scripts/verify-production-backup-artifact.sh` służy do download-back SHA verification i opcjonalnego decrypt-and-list restore-readiness bez odtwarzania danych do produkcyjnej bazy.
+
 
 ### Production preflight — offsite baseline backup przed produkcją
 
@@ -809,17 +833,18 @@ Universal Desktop Support API v1 jest projektowane jako wspólna warstwa integra
   - izolowany restore drill bazy i storage oraz końcowy checkpoint stagingu — zakończone i zaakceptowane 2026-07-02,
   - formalna decyzja staging GO — podjęta dla commita aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`,
   - PROD-GAP-001: produkcyjny deployment shell, runbook, readiness checklist i test konfiguracji — zakończone i zaakceptowane dla commita `8eff64e29b13ef669b90fa5ef05e99c54c059581`,
-  - zaszyfrowana kopia backupu poza VPS i polityka retencji — pozostają warunkiem przed wdrożeniem produkcyjnym,
-  - zakup, hardening, konfiguracja i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 — następny etap,
-  - produkcyjny smoke test, kontrolowane testy integracji, czyszczenie danych testowych, pierwszy czysty backup, restore drill produkcji i formalne zamknięcie Web MVP.
+  - zaszyfrowana kopia backupu poza VPS i polityka retencji — zakończone dla production preflight,
+  - zakup, hardening, konfiguracja i wdrożenie odrębnego produkcyjnego OVHcloud VPS-2 — zakończone,
+  - produkcyjny smoke test, pierwszy manualny backup i synchronizacja repo po PROD-GAP-004 — zakończone,
+  - PROD-GAP-005: automatyczne backupy produkcyjne, test service/timer, restore-readiness i formalne zamknięcie Web MVP — bieżący etap.
 
-### Bieżąca kolejność zamknięcia Web MVP po 2026-07-02
-1. Zapewnić zaszyfrowaną kopię zaakceptowanego backupu stagingowego poza VPS i potwierdzić politykę retencji.
-2. Wykonać production preflight zgodnie z zaakceptowanym shellem operacyjnym `8eff64e29b13ef669b90fa5ef05e99c54c059581` oraz przygotować odrębny produkcyjny OVHcloud VPS-2, bazę, storage, sekrety, DNS, firewall i HTTPS.
-3. Wdrożyć release operacyjny zawierający niezmieniony baseline kodu aplikacyjnego `d632500b895b0c8a379090c5ebfce1f45e54720f`, bez dodatkowych zmian funkcjonalnych.
-4. Przeprowadzić migracje, smoke testy, pełny checkpoint MVP i kontrolowane testy integracji produkcyjnych.
-5. Usunąć dane testowe, utworzyć czysty backup produkcji i wykonać restore drill PostgreSQL oraz storage.
-6. Formalnie zaakceptować produkcję, zaktualizować dokumentację release i zamknąć Web MVP.
+### Bieżąca kolejność zamknięcia Web MVP po 2026-07-08
+1. Wdrożyć PROD-GAP-005 jako patch repo, uruchomić lokalny Quality Gate i potwierdzić zielone GitHub Actions.
+2. Zsynchronizować produkcyjny VPS do commita PROD-GAP-005 bez deploymentu, restartu lub zatrzymania kontenerów.
+3. Zainstalować root-only `/etc/egenlabs-production/backup.env` i jednostki `systemd` dla automatycznych backupów.
+4. Wykonać manualny test `egenlabs-production-backup.service`, potwierdzić upload zaszyfrowanego artefaktu do R2 i aktywny timer.
+5. Wykonać restore-readiness: download-back SHA verification oraz decrypt-and-list na bezpiecznym hoście, bez odtwarzania do produkcyjnej bazy.
+6. Wykonać finalny production health/checkpoint, zaktualizować dokumentację release i formalnie zaakceptować zamknięcie Web MVP.
 
 - Faza 5: Universal Desktop Support API v1
   - capability map,
@@ -987,6 +1012,20 @@ Feature jest ukończony, gdy:
   - zmiana jest wdrożona jako patch repo bez restartu, redeploymentu lub zatrzymania działającej produkcji,
   - Quality Gate przechodzi na zielono, a produkcja pozostaje healthy.
 
+
+### Kryterium PROD-GAP-005 — automated production backups
+
+- PROD-GAP-005 może zostać uznany za zakończony, gdy:
+  - repozytorium zawiera skrypt automatycznego backupu produkcyjnego, skrypt restore-readiness, przykład `/etc/egenlabs-production/backup.env` oraz jednostki `systemd service + timer`,
+  - skrypt backupu nie wymaga Node.js na hoście, nie wykonuje deploymentu, nie restartuje kontenerów i nie zatrzymuje działającej produkcji,
+  - backup obejmuje `db/postgres.sql`, `storage/storage.tar.gz`, `manifest.txt` i `SHA256SUMS`,
+  - plaintext backupu jest usuwany po poprawnym szyfrowaniu i uploadzie, a katalogi diagnostyczne po błędach pozostają root-only i mają ograniczoną retencję,
+  - zaszyfrowany artefakt `age` oraz jego SHA-256 są wysyłane do prywatnego R2 pod prefiksem `production/automated/`,
+  - lokalna i zdalna retencja działają wyłącznie na artefaktach automatycznych i nie usuwają manualnych backupów,
+  - `smoke:production-config`, `bash -n` dla skryptów operacyjnych, typecheck, lint i CI przechodzą na zielono,
+  - na produkcyjnym VPS wykonano manualny test `egenlabs-production-backup.service`, timer jest aktywny w `systemctl list-timers`, a produkcja pozostaje healthy,
+  - restore-readiness potwierdza download-back SHA-256 i listing zaszyfrowanego payloadu po odszyfrowaniu na bezpiecznym hoście, bez odtwarzania do produkcyjnej bazy.
+
 ## 27. Ryzyka
 ### Ryzyka techniczne
 - Przeciążenie scope’u przez zbyt szerokie myślenie multi-product już w MVP.
@@ -1042,7 +1081,7 @@ Feature jest ukończony, gdy:
 - Ryzyko obsługi dwóch hostów przy pracy solo; ograniczone przez identyczny stack Docker Compose, checklisty i automatyzację powtarzalnych czynności.
 - Ryzyko dryfu konfiguracji pomiędzy stagingiem i produkcją; ograniczone przez odrębny, testowany produkcyjny Compose, jawne ścieżki środowiskowe, `smoke:production-config`, runbook i checklistę readiness.
 - Ryzyko przypadkowego wprowadzenia zależności od Node.js na hoście produkcyjnym; ograniczone przez Docker-only deployment shell, healthcheck kontenera przez `docker inspect` oraz test `smoke:production-config`.
-- Ryzyko niepełnej odporności operacyjnej do czasu wdrożenia automatycznych backupów produkcyjnych; ograniczone tymczasowo przez manualny backup po deploymencie, zaszyfrowane kopie poza VPS i etap `PROD-GAP-005`.
+- Ryzyko nieskutecznej automatyzacji backupów produkcyjnych lub niepoprawnej retencji R2; ograniczone przez `systemd` service/timer, szyfrowanie `age`, upload wyłącznie zaszyfrowanych artefaktów do prefiksu `production/automated/`, lokalną i zdalną retencję ograniczoną do artefaktów automatycznych, download-back SHA verification oraz restore-readiness bez wpływu na produkcyjną bazę.
 - Ryzyko uruchomienia produkcji z niewłaściwego commita lub brudnego worktree; ograniczone przez obowiązkowy `EXPECTED_COMMIT`, kontrolę Git oraz rejestrowanie commita operacyjnego i baseline aplikacyjnego.
 - Ryzyko pozostawienia danych osobowych w raportach tymczasowych lub backupach testowych; ograniczone przez maskowanie raportów, transakcyjne czyszczenie, kontrolę sum i usuwanie sensytywnych punktów odtworzeniowych po walidacji.
 - RISK-SEC-002: `EmailLog` dla `DOWNLOAD_LINK` zachowuje pełny wydany URL typu bearer, aby umożliwić wierny resend. Ryzyko jest ograniczone przez dostęp wyłącznie dla administratora, lifecycle linków `ONE_TIME` / `TEMPORARY`, ochronę bazy i backupów, retencję `EmailLog`, czyszczenie danych testowych oraz zakaz kopiowania surowych URL-i do logów kontenera, raportów i dokumentacji. W kolejnej wersji należy rozważyć szyfrowanie utrwalonej treści lub bezpieczne ponowne wydawanie linku zamiast przechowywania pełnego URL-a.
@@ -1086,6 +1125,7 @@ Feature jest ukończony, gdy:
 - 2026-07-07 – Przygotowano produkcyjny canonical redirect `www.egenlabs.eu -> egenlabs.eu` w Caddy. Zmiana umożliwia docelowy cutover obu rekordów `A`: apex `egenlabs.eu` i `www.egenlabs.eu` na produkcyjny VPS `51.210.107.213`. Nie wykonano zmian DNS, nie uruchomiono kontenerów ani deploymentu.
 
 - 2026-07-08 – Zaakceptowano i opisano PROD-GAP-004: utwardzenie production deployment/env po pierwszym rollout, usunięcie zależności deployment shell od hostowego Node.js, doprecyzowanie produkcyjnego Brevo env, wzorzec weryfikacji backupów `root:root` `0700` przez `sudo bash -c`, zapisanie faktu pierwszego production rollout, smoke testów, manualnych backupów oraz pozostawienie automatycznych backupów jako PROD-GAP-005.
+- 2026-07-08 – Zaakceptowano PROD-GAP-005: automatyczne produkcyjne backupy DB + storage przez `systemd service + timer`, szyfrowanie `age`, upload zaszyfrowanych artefaktów do prywatnego R2, retencję lokalną i zdalną, download-back SHA verification oraz restore-readiness bez wpływu na produkcyjną bazę.
 
 ## 29. Decision Log
 
@@ -1419,6 +1459,16 @@ Feature jest ukończony, gdy:
 - Data: 2026-07-08
 - Kategoria: Infrastructure / Security / Operations
 - Podsumowanie: Po pierwszym production rollout utwardzono proces deploymentu i przykłady konfiguracji: deployment shell nie może wymagać Node.js na hoście VPS, health aplikacji jest sprawdzany przez Docker healthcheck i `docker inspect`, produkcyjny env example używa `EMAIL_TRANSPORT_MODE=BREVO` oraz wymaganych `BREVO_SENDER_EMAIL` i `BREVO_SENDER_NAME`, a procedury backupowe dla katalogów `root:root` `0700` używają `sudo bash -c` do weryfikacji sum. Zmiana dokumentuje pierwszy production rollout, smoke testy, manualne backupy i pozostawia automatyczne backupy jako osobny etap `PROD-GAP-005`.
+- Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
+
+
+### DEC-036
+- ADR ID: ADR-013
+- Tytuł: Automated production backups
+- Status: Accepted
+- Data: 2026-07-08
+- Kategoria: Infrastructure / Security / Operations
+- Podsumowanie: Automatyczne backupy produkcyjne są realizowane jako host-level `systemd service + timer` poza aplikacją. Backup obejmuje PostgreSQL, produkcyjny storage, manifest i sumy kontrolne, jest szyfrowany `age`, a do Cloudflare R2 trafia wyłącznie zaszyfrowany artefakt i jego SHA-256 pod prefiksem `production/automated/`. Konfiguracja runtime pozostaje poza repo w `/etc/egenlabs-production/backup.env` jako `root:root` `0600`. Przyjęto lokalną retencję 14 dni i zdalną retencję 30 dni dla artefaktów automatycznych, bez usuwania manualnych backupów. Restore-readiness obejmuje download-back SHA verification oraz opcjonalne odszyfrowanie i listing payloadu na bezpiecznym hoście.
 - Sekcje, których dotyczy: 21, 22, 23, 26, 27, 28
 
 ## 30. ADR-001: Separation of Operational Product Data and Web Platform Data
@@ -1989,3 +2039,62 @@ Wybrano opcję B, ponieważ jest zgodna z przyjętym modelem kontenerowego deplo
 ### Zastępuje / Zastąpiony przez
 - Brak
 
+
+
+## 42. ADR-013: Automated production backups with systemd, age encryption and R2 offsite storage
+Status: Accepted
+Data: 2026-07-08
+
+### Kontekst
+Po pierwszym production rollout manualne backupy DB, storage i env zostały wykonane oraz zweryfikowane, ale produkcja nadal wymagała cyklicznego, testowalnego i audytowalnego mechanizmu backupowego. Backup jest odpowiedzialnością operacyjną infrastruktury, nie funkcją aplikacji webowej. Rozwiązanie musi działać bez zatrzymywania produkcji, bez wypisywania sekretów, bez plaintext uploadu do R2 i bez rozszerzania funkcjonalnego zakresu MVP.
+
+### Decyzja
+- Automatyczne backupy produkcyjne są wykonywane przez `egenlabs-production-backup.service` uruchamiany harmonogramem `egenlabs-production-backup.timer`.
+- Timer działa codziennie o `03:20 Europe/Warsaw` z `RandomizedDelaySec=20min`.
+- Skrypt backupu działa na hoście jako root i korzysta z Docker Compose do wykonania `pg_dump` w kontenerze PostgreSQL oraz z hostowego dostępu do `/var/lib/egenlabs-production/storage`.
+- Payload backupu zawiera `db/postgres.sql`, `storage/storage.tar.gz`, `manifest.txt` i `SHA256SUMS`.
+- Payload jest szyfrowany przez `age` z użyciem publicznego recipienta; do R2 wysyłany jest tylko zaszyfrowany artefakt i jego SHA-256.
+- Konfiguracja runtime znajduje się poza repozytorium w `/etc/egenlabs-production/backup.env` jako `root:root` `0600`.
+- Retencja lokalna zaszyfrowanych artefaktów wynosi 14 dni, a retencja zdalna w prefiksie `production/automated/` wynosi 30 dni.
+- Restore-readiness obejmuje download-back SHA verification i opcjonalne odszyfrowanie/listing na bezpiecznym hoście z prywatnym kluczem `age`.
+
+### Rozważane opcje
+- Opcja A: ręczne backupy wykonywane po istotnych zmianach.
+- Opcja B: backupi jako funkcja aplikacji webowej lub panelu admina.
+- Opcja C: host-level `systemd service + timer` z szyfrowaniem `age` i uploadem do R2.
+- Opcja D: poleganie wyłącznie na snapshotach dostawcy VPS.
+
+### Uzasadnienie
+Wybrano opcję C, ponieważ rozdziela odpowiedzialność aplikacji i operacji, nie zwiększa zakresu funkcjonalnego MVP, jest prosta do audytu, łatwa do uruchomienia na pojedynczym VPS, nie wymaga Kubernetesa ani dodatkowego procesu aplikacyjnego i pozwala testować backup niezależnie od panelu administracyjnego. Snapshoty VPS pozostają tylko dodatkową warstwą awaryjną, a ręczne backupy są niewystarczające dla production closure.
+
+### Konsekwencje
+- Pozytywne: produkcja otrzymuje cykliczny, powtarzalny backup aplikacyjny DB + storage.
+- Pozytywne: plaintext nie jest wysyłany poza VPS, a R2 przechowuje tylko artefakty zaszyfrowane `age`.
+- Pozytywne: restore-readiness można sprawdzać bez odtwarzania do produkcyjnej bazy.
+- Pozytywne: skrypt backupu nie wymaga Node.js na hoście i nie restartuje kontenerów.
+- Negatywne: host VPS musi posiadać poprawną konfigurację `age`, `rclone` i systemd.
+- Negatywne: pełny decrypt-and-list wymaga dostępu do prywatnego klucza `age` na bezpiecznym hoście.
+
+### Ryzyka
+- Błędna konfiguracja R2 lub `rclone` może zablokować upload backupu.
+- Błędna retencja mogłaby usunąć zbyt szeroki zakres obiektów; ograniczeniem jest praca wyłącznie w prefiksie `production/automated/` i filtrowanie nazw artefaktów automatycznych.
+- Przechowywanie prywatnego klucza `age` na produkcji zwiększyłoby ryzyko bezpieczeństwa, dlatego domyślnie VPS powinien posiadać tylko publiczny recipient.
+- Nieudany backup może pozostawić plaintext w katalogu diagnostycznym; katalog jest `root:root` `0700`, a liczba takich katalogów jest ograniczona.
+
+### Dalsze działania
+- Wdrożyć patch PROD-GAP-005 w repo i uruchomić lokalny Quality Gate oraz CI.
+- Po zielonym CI zsynchronizować repo na produkcyjnym VPS bez deploymentu aplikacji.
+- Zainstalować `/etc/egenlabs-production/backup.env` i jednostki systemd.
+- Wykonać manualny test `egenlabs-production-backup.service`, sprawdzić timer i wykonać restore-readiness.
+- Po zaliczeniu backupów automatycznych przejść do finalnego production closure.
+
+### Powiązane sekcje
+- 21. Bezpieczeństwo i kontrola dostępu
+- 22. Założenia infrastrukturalne i wdrożeniowe
+- 23. Aspekty operacyjne
+- 26. Kryteria akceptacyjne
+- 27. Ryzyka
+- 28. Dziennik zmian
+
+### Zastępuje / Zastąpiony przez
+- Brak
